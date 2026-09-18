@@ -1,0 +1,967 @@
+@import "tailwindcss";
+
+:root {
+  /* Jobak Design System — Linear-inspired */
+  
+  /* Backgrounds */
+  --bg-canvas: #08090a;
+  --bg-panel: #0f1011;
+  --bg-surface: #191a1b;
+  --bg-elevated: #1f2122;
+  --bg-secondary: #28282c;
+
+  /* Foregrounds */
+  --fg-primary: #f7f8f8;
+  --fg-secondary: #d0d6e0;
+  --fg-tertiary: #8a8f98;
+  --fg-quaternary: #62666d;
+
+  /* Borders */
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-standard: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.12);
+
+  /* Electric green — career growth */
+  --accent: oklch(0.82 0.20 145);
+  --accent-bright: oklch(0.88 0.22 145);
+  --accent-dim: oklch(0.55 0.13 145);
+  --accent-bg: oklch(0.82 0.20 145 / 0.10);
+  --accent-bg-strong: oklch(0.82 0.20 145 / 0.18);
+  --accent-text: oklch(0.92 0.16 145);
+  
+  /* Warm tint for friendly feel */
+  --warm-tint: oklch(0.85 0.04 70);
+
+  /* Status colors */
+  --status-amber: oklch(0.82 0.16 75);
+  --status-rose: oklch(0.72 0.16 20);
+
+  /*
+   * Match quality — deliberately NOT the brand accent.
+   *
+   * These used to be raw Tailwind (`green-400`, `yellow-400`) picked per
+   * component, and "high score" shared its green with the primary button. A
+   * dashboard full of strong matches then read as a dashboard full of accent,
+   * and the one action that mattered stopped standing out. Scores get their own
+   * ramp; --accent is reserved for brand and interaction.
+   */
+  --score-high: oklch(0.80 0.17 148);
+  --score-mid: oklch(0.82 0.14 95);
+  --score-low: #8a8f98;
+  --score-pending: rgba(255, 255, 255, 0.08);
+
+  /*
+   * Source identity ramp.
+   *
+   * Replaces fourteen hardcoded Tailwind pairs. A source is identified by a 5px
+   * dot rather than a filled pill, so a collector added next month hashes into
+   * the ramp and looks native immediately instead of falling back to grey.
+   */
+  --hue-1: oklch(0.75 0.15 250);
+  --hue-2: oklch(0.75 0.17 300);
+  --hue-3: oklch(0.80 0.17 148);
+  --hue-4: oklch(0.78 0.16 55);
+  --hue-5: oklch(0.75 0.16 350);
+  --hue-6: oklch(0.78 0.13 200);
+  --hue-7: oklch(0.80 0.15 100);
+  --hue-8: oklch(0.72 0.14 20);
+
+  /*
+   * Elevation by light, not shadow. A faint top-down gradient reads as a lit
+   * surface on a near-black canvas where a flat fill reads as a flat patch.
+   */
+  --surface-1: linear-gradient(158deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012));
+  --surface-2: linear-gradient(158deg, rgba(255, 255, 255, 0.070), rgba(255, 255, 255, 0.020));
+
+  /* sRGB fallback of --accent, for manifests, OG images and standalone SVG. */
+  --accent-hex: #58e68c;
+
+  /* Legacy Tailwind compat */
+  --background: #08090a;
+  --foreground: #f7f8f8;
+}
+
+@theme inline {
+  --color-background: var(--bg-canvas);
+  --color-foreground: var(--fg-primary);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  
+  /* Extended Tailwind colors for design system */
+  --color-bg-canvas: var(--bg-canvas);
+  --color-bg-panel: var(--bg-panel);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-secondary: var(--bg-secondary);
+  
+  --color-fg-primary: var(--fg-primary);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-fg-tertiary: var(--fg-tertiary);
+  --color-fg-quaternary: var(--fg-quaternary);
+  
+  --color-border-subtle: var(--border-subtle);
+  --color-border-standard: var(--border-standard);
+  --color-border-strong: var(--border-strong);
+  
+  --color-accent: var(--accent);
+  --color-accent-bright: var(--accent-bright);
+  --color-accent-text: var(--accent-text);
+  
+  /* Additional theme colors for UI components */
+  --color-primary: var(--fg-primary);
+  --color-primary-foreground: var(--bg-canvas);
+  --color-muted-foreground: var(--fg-tertiary);
+  --color-secondary: var(--bg-secondary);
+  --color-secondary-foreground: var(--fg-primary);
+  --font-display: var(--font-geist-sans);
+
+  /*
+   * Semantic radii rather than overrides of Tailwind's own scale.
+   *
+   * Redefining --radius-lg would silently resize every rounded-lg on the public
+   * marketing pages too, which are not part of this pass. These are new names,
+   * so `rounded-card` means the same thing everywhere it appears and nothing
+   * outside the dashboard moves.
+   */
+  --radius-chip: 6px;
+  --radius-control: 10px;
+  --radius-card: 14px;
+  --radius-hero: 20px;
+
+  --color-score-high: var(--score-high);
+  --color-score-mid: var(--score-mid);
+  --color-score-low: var(--score-low);
+
+  --color-status-amber: var(--status-amber);
+  --color-status-rose: var(--status-rose);
+}
+
+html {
+  font-feature-settings: "cv01", "ss03";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg-canvas);
+  color: var(--fg-primary);
+  overflow-x: hidden;
+}
+
+.font-display {
+  font-family: var(--font-geist-sans);
+}
+
+@layer utilities {
+  /* Animated gradient background */
+  @keyframes aurora {
+    0%, 100% {
+      opacity: 0.4;
+      transform: translate(0, 0) scale(1);
+  }
+  33% {
+    opacity: 0.6;
+    transform: translate(30%, -20%) scale(1.1);
+  }
+  66% {
+    opacity: 0.5;
+    transform: translate(-20%, 30%) scale(0.95);
+  }
+}
+
+@keyframes aurora-reverse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    opacity: 0.5;
+    transform: translate(-30%, 20%) scale(1.05);
+  }
+  66% {
+    opacity: 0.4;
+    transform: translate(20%, -30%) scale(0.9);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation utilities */
+.animate-aurora {
+  animation: aurora 20s ease-in-out infinite;
+}
+
+.animate-aurora-reverse {
+  animation: aurora-reverse 25s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.8s ease-out forwards;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+}
+
+/* Utility scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+@layer utilities {
+/* Additional design system utilities */
+.text-stroke {
+  -webkit-text-stroke: 1.5px currentColor;
+  -webkit-text-fill-color: transparent;
+}
+
+.marquee {
+  animation: marquee 30s linear infinite;
+}
+
+.marquee-reverse {
+  animation: marquee-reverse 25s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.line-reveal {
+  clip-path: inset(0 100% 0 0);
+  animation: line-reveal 0.8s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+}
+
+@keyframes line-reveal {
+  to { clip-path: inset(0 0 0 0); }
+}
+
+.hover-lift {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.letter-spin {
+  display: inline-block;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.letter-spin:hover {
+  transform: rotateY(360deg);
+}
+
+/*
+ * Per-character animations run on dozens of elements at once, so they stay on
+ * opacity/transform only — a blur() filter here forces an expensive re-raster
+ * of every single character on every frame.
+ */
+.animate-char-in {
+  animation: char-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+@keyframes char-in {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* How-it-works code preview — one animation per line, not per character */
+.code-line-reveal {
+  opacity: 0;
+  transform: translateX(-8px);
+  animation: code-line-reveal 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes code-line-reveal {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/*
+ * Auth panel entry cascade. Sets opacity:0 up front so a delayed start cannot
+ * flash the content in before its turn. Transform + opacity only, so every
+ * frame stays on the compositor.
+ */
+.panel-enter {
+  opacity: 0;
+  animation: panel-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slow ambient drift for the auth panel's gradient fields. */
+.animate-drift {
+  animation: drift 26s ease-in-out infinite;
+}
+
+.animate-drift-slow {
+  animation: drift-reverse 34s ease-in-out infinite;
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(8%, -6%, 0) scale(1.12); }
+}
+
+@keyframes drift-reverse {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.05); }
+  50%      { transform: translate3d(-7%, 7%, 0) scale(0.94); }
+}
+
+.progress-bar {
+  animation: progress-bar 5s linear forwards;
+}
+
+@keyframes progress-bar {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.noise-overlay {
+  position: relative;
+}
+
+/*
+ * Fixed + tiled rather than absolute + stretched: the rasterised area stays one
+ * viewport instead of growing with page height, and it never repaints on scroll.
+ */
+.noise-overlay::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 128 128' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+  background-repeat: repeat;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.border-sketch {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--bg-canvas), var(--bg-canvas)) padding-box,
+    linear-gradient(135deg, var(--fg-primary) 25%, transparent 25%, transparent 50%, var(--fg-primary) 50%, var(--fg-primary) 75%, transparent 75%) border-box;
+  background-size: 100% 100%, 8px 8px;
+  border-radius: 10px;
+}
+}
+
+
+/* ============================================================
+   Onboarding — the scene
+   ============================================================
+   The reference points are hertzwerk.ch and neoconda.com. Neither draws a
+   centred column of cards; both treat the whole viewport as one instrument
+   panel, with an object at the centre that repaints when you choose something.
+   Everything below serves that: a tinted full-bleed field, bare option rows
+   instead of containers, and micro-type pinned to the frame.
+
+   The three tint channels are registered as <color> so they interpolate. An
+   unregistered custom property snaps between values, which would make every
+   choice a hard cut instead of a fade. Everything downstream — grid, wash,
+   object, rules, readout — is derived from these, so they all move together. */
+@property --sc-a {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #52c36b;
+}
+@property --sc-b {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #2f7a45;
+}
+@property --sc-c {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #8a8f98;
+}
+
+.scene {
+  /* One source of truth for the object's diameter — the orbits are sized from
+     it, so they cannot drift out of step at different viewport widths. */
+  --scene-size: clamp(150px, 17vw, 214px);
+  --sc-fade: 1100ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: --sc-a var(--sc-fade), --sc-b var(--sc-fade), --sc-c var(--sc-fade);
+}
+
+/* ── The field: grid + wash across the entire viewport ─────── */
+.scene-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.scene-field::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--sc-a) 14%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--sc-a) 14%, transparent) 1px, transparent 1px);
+  background-size: 72px 72px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 68% 45%, #000 0%, transparent 80%);
+  mask-image: radial-gradient(ellipse 80% 70% at 68% 45%, #000 0%, transparent 80%);
+}
+
+.scene-field::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 55% 60% at 70% 48%,
+    color-mix(in srgb, var(--sc-a) 12%, transparent),
+    transparent 68%
+  );
+}
+
+/* ── The object ────────────────────────────────────────────── */
+.scene-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+
+.scene-object {
+  position: relative;
+  width: var(--scene-size);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  overflow: hidden;
+  background: radial-gradient(
+    circle at 34% 24%,
+    color-mix(in srgb, #fff 62%, var(--sc-a)) 0%,
+    var(--sc-a) 26%,
+    color-mix(in srgb, var(--sc-b) 62%, #000) 62%,
+    color-mix(in srgb, var(--sc-b) 22%, #000) 84%,
+    #040605 100%
+  );
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--sc-a) 34%, transparent),
+    0 34px 90px color-mix(in srgb, var(--sc-a) 26%, transparent);
+}
+
+.scene-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    color-mix(in srgb, var(--sc-c) 45%, transparent) 18%,
+    transparent 38%,
+    rgba(255, 255, 255, 0.22) 62%,
+    transparent 82%
+  );
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  animation: scene-spin 16s linear infinite;
+}
+
+@keyframes scene-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Worldwide has no flag to sample from, so it reads as a wireframe globe. */
+.scene-meridians {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    repeating-linear-gradient(to right, transparent 0 22px, rgba(255, 255, 255, 0.15) 22px 23px),
+    repeating-linear-gradient(to bottom, transparent 0 22px, rgba(255, 255, 255, 0.08) 22px 23px);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 52%, transparent 78%);
+  mask-image: radial-gradient(circle at 50% 50%, #000 52%, transparent 78%);
+}
+
+/*
+ * One orbit per answer given. The flow's progress is legible as a shape before
+ * it is legible as a number — the object visibly accumulates as you fill it in.
+ */
+.scene-orbit {
+  position: absolute;
+  border: 1px solid color-mix(in srgb, var(--sc-a) 26%, transparent);
+  border-radius: 9999px;
+  animation: scene-orbit-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.scene-orbit::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 9999px;
+  background: var(--sc-a);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--sc-a) 80%, transparent);
+}
+
+@keyframes scene-orbit-in {
+  from { opacity: 0; transform: scale(0.82); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.scene-swell {
+  animation: scene-swell 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes scene-swell {
+  from { opacity: 0.3; transform: scale(0.84); }
+  55%  { transform: scale(1.05); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.scene-caption {
+  color: color-mix(in srgb, var(--sc-a) 62%, var(--fg-secondary));
+}
+
+/* ── Readout: the running answer sheet, instrument-panel style ── */
+.readout-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.42rem 0 0.42rem 0.75rem;
+  border-left: 1px solid var(--border-subtle);
+  transition: border-color 300ms ease, color 300ms ease;
+}
+
+.readout-row[data-active="true"] {
+  border-left-color: var(--sc-a);
+}
+
+.readout-row[data-active="true"]::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--sc-a);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--sc-a) 70%, transparent);
+}
+
+/*
+ * Settings reuses the onboarding step components, which is right — a second
+ * copy of the country picker would drift within a release. But it also drags
+ * the *scene's* intensity onto a page that has no scene: on onboarding the
+ * sweep and the glowing marker are read against a full-bleed tinted field and
+ * one question at a time, whereas Settings stacks four sections of them with
+ * everything already answered, and the page turns solid green.
+ *
+ * `.opt-quiet` is the Settings context. Same rows, same behaviour, dialled back
+ * so the tint reads as "selected" rather than as the subject of the page.
+ * Onboarding is untouched.
+ */
+.opt-quiet .opt-row::before {
+  opacity: 0.45;
+}
+
+.opt-quiet .opt-row[data-selected="true"] {
+  border-bottom-color: var(--border-subtle);
+}
+
+.opt-quiet .opt-marker {
+  box-shadow: none;
+}
+
+.opt-quiet .opt-row[data-selected="true"] .opt-marker {
+  box-shadow: none;
+}
+
+/* ── Option rows — the hertzwerk move: rules, not cards ────── */
+.opt-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  width: 100%;
+  padding: 1rem 0.9rem;
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: left;
+  transition: padding-left 380ms cubic-bezier(0.16, 1, 0.3, 1), border-color 300ms ease;
+}
+
+.opt-row:first-child {
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* The tint sweeps in from the left rather than fading — it reads as the row
+   being *claimed*, and a transform stays on the compositor. */
+.opt-row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform-origin: left;
+  transform: scaleX(0);
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--sc-a) 13%, transparent),
+    transparent 85%
+  );
+  transition: transform 480ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.opt-row:hover {
+  padding-left: 1.5rem;
+}
+
+.opt-row:hover::before {
+  transform: scaleX(0.35);
+}
+
+.opt-row[data-selected="true"] {
+  padding-left: 1.5rem;
+  border-bottom-color: color-mix(in srgb, var(--sc-a) 35%, transparent);
+}
+
+.opt-row[data-selected="true"]::before {
+  transform: scaleX(1);
+}
+
+.opt-row > * {
+  position: relative;
+}
+
+.opt-index {
+  font-variant-numeric: tabular-nums;
+  transition: color 300ms ease;
+}
+
+.opt-marker {
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--border-strong);
+  transition: background 300ms ease, border-color 300ms ease, transform 300ms ease;
+}
+
+.opt-row[data-selected="true"] .opt-marker {
+  background: var(--sc-a);
+  border-color: var(--sc-a);
+  transform: rotate(45deg) scale(1.15);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--sc-a) 70%, transparent);
+}
+
+/* ── The ghost numeral behind each step ────────────────────── */
+.step-numeral {
+  position: absolute;
+  top: -0.2em;
+  left: -0.05em;
+  z-index: -1;
+  font-size: clamp(130px, 15vw, 210px);
+  line-height: 0.8;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--sc-a) 15%, transparent);
+  pointer-events: none;
+  user-select: none;
+  animation: numeral-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes numeral-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Frame rails ───────────────────────────────────────────── */
+.rail-meter {
+  display: flex;
+  gap: 3px;
+}
+
+.rail-tick {
+  width: 26px;
+  height: 3px;
+  background: var(--bg-surface);
+  transition: background 420ms ease, box-shadow 420ms ease;
+}
+
+.rail-tick[data-on="true"] {
+  background: var(--sc-a);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--sc-a) 60%, transparent);
+}
+
+/* ── Editorial inputs: a rule, not a box ───────────────────── */
+.field-input {
+  width: 100%;
+  padding: 0.7rem 0.15rem;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border-standard);
+  color: var(--fg-primary);
+  font-size: 1.0625rem;
+  transition: border-color 300ms ease;
+}
+
+.field-input::placeholder {
+  color: var(--fg-quaternary);
+}
+
+.field-input:focus {
+  outline: none;
+  border-bottom-color: var(--sc-a);
+}
+
+.field-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.15rem;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border-standard);
+  text-align: left;
+  transition: border-color 300ms ease;
+}
+
+.field-trigger:hover:not(:disabled),
+.field-trigger[aria-expanded="true"] {
+  border-bottom-color: var(--sc-a);
+}
+
+.field-trigger:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+
+/* ── Number field ──────────────────────────────────────────── */
+/*
+ * The native spinner is browser-painted and unthemeable — it shows up as a light
+ * grey control on the dark canvas. Suppressed here; NumberField draws its own.
+ */
+.num-input::-webkit-outer-spin-button,
+.num-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.num-input {
+  -moz-appearance: textfield;
+  appearance: textfield;
+  flex: 1;
+  min-width: 0;
+  padding: 0.7rem 0.15rem;
+  background: transparent;
+  border: 0;
+  color: var(--fg-primary);
+  font-size: 1.0625rem;
+}
+
+.num-input::placeholder {
+  color: var(--fg-quaternary);
+}
+
+.num-input:focus {
+  outline: none;
+}
+
+/* The rule lives on the row, so it spans the input and the stepper together. */
+.num-field {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-bottom: 1px solid var(--border-standard);
+  transition: border-color 300ms ease;
+}
+
+.num-field:focus-within {
+  border-bottom-color: var(--sc-a);
+}
+
+.num-step {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  margin-bottom: 0.3rem;
+  border: 1px solid var(--border-standard);
+  color: var(--fg-tertiary);
+  transition: border-color 200ms ease, color 200ms ease, background 200ms ease;
+}
+
+.num-step:hover:not(:disabled) {
+  border-color: var(--sc-a);
+  color: var(--fg-primary);
+  background: color-mix(in srgb, var(--sc-a) 12%, transparent);
+}
+
+.num-step:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+/* ── Dropdown popover ──────────────────────────────────────── */
+.select-pop {
+  transform-origin: top center;
+  animation: select-pop 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Opening upward should also grow upward, or it reads as the wrong element. */
+.select-pop[data-drop="up"] {
+  transform-origin: bottom center;
+  animation-name: select-pop-up;
+}
+
+@keyframes select-pop {
+  from { opacity: 0; transform: translateY(-4px) scale(0.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes select-pop-up {
+  from { opacity: 0; transform: translateY(4px) scale(0.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Small entrances ───────────────────────────────────────── */
+.chip-in {
+  animation: chip-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes chip-in {
+  from { opacity: 0; transform: translateY(4px) scale(0.94); }
+  to   { opacity: 1; transform: none; }
+}
+
+.check-pop {
+  animation: check-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes check-pop {
+  from { opacity: 0; transform: scale(0.4) rotate(-25deg); }
+  to   { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+/*
+ * Step entrance. Each block is offset so the eye lands on the heading, then the
+ * controls. Transform + opacity only, so every frame stays on the compositor.
+ */
+.step-enter {
+  animation: step-enter 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes step-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--step-from, 24px), 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
