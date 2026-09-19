@@ -59,7 +59,8 @@ export const brandFacts: string[] = [
 ];
 
 export const socialLinks = [
-    { name: "LinkedIn", href: "https://www.linkedin.com/company/jobak_ai" },
+    { name: "LinkedIn", href: "https://www.linkedin.com/company/jobak-net" },
+    { name: "GitHub", href: "https://github.com/jobak-net" },
 ];
 
 export interface SupportWallet {
