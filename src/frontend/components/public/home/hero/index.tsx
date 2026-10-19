@@ -14,7 +14,12 @@ export function HeroSection() {
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 py-32 lg:py-40">
           <HeroEyebrow />
           <HeroHeadline />
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-end">
+          {/*
+            `*:min-w-0` — an implicit grid track is sized to its items'
+            min-content, so any child that refuses to shrink silently widens
+            the column past the viewport and clips every sibling with it.
+          */}
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-end *:min-w-0">
             <HeroDescription />
             <HeroCTA />
           </div>

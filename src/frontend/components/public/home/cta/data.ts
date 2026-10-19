@@ -12,5 +12,10 @@ export const ctaContent = {
         text: "See how it works",
         href: "/#how-it-works",
     },
-    disclaimer: "No credit card required · Results in under 2 minutes",
+    /*
+     * Two clauses rather than one string, so the line can only ever break at
+     * the separator. Left as a single sentence it broke mid-clause on a phone
+     * ("…under 2 / minutes") and ran into the card's corner rule.
+     */
+    disclaimer: ["No credit card required ·", "Results in under 2 minutes"],
 };

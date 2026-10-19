@@ -1,6 +1,7 @@
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Banknote, Clock, MapPin, Wifi } from "lucide-react";
+import { Banknote, ChevronLeft, ChevronRight, Clock, MapPin, Wifi } from "lucide-react";
 import {
   formatPostedAt,
   getPublicJobs,
@@ -32,8 +33,15 @@ interface PageProps {
     workplace?: string;
     q?: string;
     category?: string;
+    page?: string;
   }>;
 }
+
+/**
+ * Divisible by both grid widths (2 and 3 columns), so the last row of a full
+ * page is never a lone card hanging off the left.
+ */
+const PAGE_SIZE = 24;
 
 const REGIONS: { value: RegionFilter; label: string }[] = [
   { value: "mena", label: "MENA" },
@@ -61,23 +69,37 @@ function readCategory(value: string | undefined): string {
   return value && JOB_CATEGORIES.some((c) => c.value === value) ? value : "all";
 }
 
+/** `?page=0`, `?page=-3` and `?page=banana` all mean page one. */
+function readPage(value: string | undefined): number {
+  const parsed = Number.parseInt(value ?? "", 10);
+  return Number.isFinite(parsed) && parsed > 1 ? parsed : 1;
+}
+
 const CATEGORY_OPTIONS = [
   { value: "all", label: "All" },
   ...JOB_CATEGORIES.map((c) => ({ value: c.value, label: c.label })),
 ];
 
-/** Only the non-default parts, so the canonical `/jobs` stays clean. */
+/**
+ * Only the non-default parts, so the canonical `/jobs` stays clean.
+ *
+ * `page` is deliberately opt-in: the filter and search links never pass it, so
+ * changing any filter drops you back to page one rather than onto page 7 of a
+ * result set that may only have two.
+ */
 function hrefFor(next: {
   region?: RegionFilter;
   workplace?: WorkplaceFilter;
   q?: string;
   category?: string;
+  page?: number;
 }): string {
   const params = new URLSearchParams();
   if (next.region && next.region !== "mena") params.set("region", next.region);
   if (next.workplace && next.workplace !== "all") params.set("workplace", next.workplace);
   if (next.category && next.category !== "all") params.set("category", next.category);
   if (next.q) params.set("q", next.q);
+  if (next.page && next.page > 1) params.set("page", String(next.page));
   const query = params.toString();
   return query ? `/jobs?${query}` : "/jobs";
 }
@@ -88,6 +110,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   const workplace = readWorkplace(params.workplace);
   const category = readCategory(params.category);
   const categoryName = categoryLabel(category);
+  const page = readPage(params.page);
 
   const scope =
     region === "mena" ? "in MENA" : region === "remote" ? "remote worldwide" : "worldwide";
@@ -111,10 +134,11 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     region !== "mena" ||
     workplace !== "all" ||
     category !== "all" ||
+    page > 1 ||
     Boolean(params.q);
 
   return {
-    title: `${title} — Jobak`,
+    title: page > 1 ? `${title} — page ${page} — Jobak` : `${title} — Jobak`,
     description,
     keywords: [
       "jobs in Egypt", "jobs in Saudi Arabia", "jobs in UAE", "MENA jobs",
@@ -125,7 +149,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
       type: "website",
       title,
       description,
-      url: hrefFor({ region, workplace, category, q: params.q }),
+      url: hrefFor({ region, workplace, category, q: params.q, page }),
       siteName: "Jobak",
       locale: "en_US",
     },
@@ -142,8 +166,19 @@ export default async function PublicJobsPage({ searchParams }: PageProps) {
   const workplace = readWorkplace(params.workplace);
   const category = readCategory(params.category);
   const search = (params.q ?? "").slice(0, 80);
+  const page = readPage(params.page);
 
-  const jobs = await getPublicJobs({ region, workplace, search, category, limit: 60 });
+  const { jobs, total } = await getPublicJobs({
+    region,
+    workplace,
+    search,
+    category,
+    limit: PAGE_SIZE,
+    page,
+  });
+
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const offset = (page - 1) * PAGE_SIZE;
 
   /*
    * An `ItemList` of the results — the same structure this service reads from
@@ -154,10 +189,11 @@ export default async function PublicJobsPage({ searchParams }: PageProps) {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Latest jobs on Jobak",
-    numberOfItems: jobs.length,
-    itemListElement: jobs.slice(0, 30).map((job, index) => ({
+    numberOfItems: total,
+    // Positions continue across pages — page 2 starts at 25, not back at 1.
+    itemListElement: jobs.map((job, index) => ({
       "@type": "ListItem",
-      position: index + 1,
+      position: offset + index + 1,
       url: `/jobs/${job.slug}`,
       name: `${job.title} at ${job.company}`,
     })),
@@ -203,7 +239,7 @@ export default async function PublicJobsPage({ searchParams }: PageProps) {
           hrefFor={(value) => hrefFor({ region, workplace, category: value, q: search })}
         />
 
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 *:min-w-0">
           <FilterRow
             label="Region"
             options={REGIONS}
@@ -224,10 +260,13 @@ export default async function PublicJobsPage({ searchParams }: PageProps) {
       </div>
 
       <p className="mt-6 text-sm text-muted-foreground">
-        {jobs.length === 0
+        {total === 0
           ? "No openings match this view."
-          : `${jobs.length} opening${jobs.length === 1 ? "" : "s"}`}
-        {region === "mena" && jobs.length > 0 && (
+          : `${total} opening${total === 1 ? "" : "s"}`}
+        {pageCount > 1 && (
+          <span className="text-muted-foreground/70">{` · page ${page} of ${pageCount}`}</span>
+        )}
+        {region === "mena" && total > 0 && (
           <span className="text-muted-foreground/70">
             {" "}
             — MENA plus remote roles open to anywhere
@@ -235,7 +274,23 @@ export default async function PublicJobsPage({ searchParams }: PageProps) {
         )}
       </p>
 
-      {jobs.length === 0 ? (
+      {/*
+        An out-of-range page is its own case. Collection runs continuously, so
+        a bookmarked `?page=9` goes stale on its own, and telling someone their
+        filters match nothing when they match 140 things is just wrong.
+      */}
+      {jobs.length === 0 && total > 0 ? (
+        <p className="mt-8 text-muted-foreground max-w-xl">
+          Page {page} is past the end of these results.{" "}
+          <Link
+            href={hrefFor({ region, workplace, category, q: search })}
+            className="text-accent underline underline-offset-2"
+          >
+            Back to the first page
+          </Link>
+          .
+        </p>
+      ) : jobs.length === 0 ? (
         <p className="mt-8 text-muted-foreground max-w-xl">
           {search ? (
             <>
@@ -303,8 +358,151 @@ export default async function PublicJobsPage({ searchParams }: PageProps) {
           ))}
         </div>
       )}
+
+      {pageCount > 1 && (
+        <Pagination
+          page={page}
+          pageCount={pageCount}
+          hrefFor={(value) =>
+            hrefFor({ region, workplace, category, q: search, page: value })
+          }
+        />
+      )}
     </PageShell>
   );
+}
+
+/**
+ * Link-based pager, to match the filters.
+ *
+ * Every page is a real URL with no client state, so it survives a share, a
+ * back button and a cold load with JavaScript off.
+ *
+ * The numbered buttons are desktop-only. Ten 40px targets do not fit a 360px
+ * screen without either shrinking below the tap minimum or starting a second
+ * horizontal scroller directly under one the user already has to find; the
+ * phone gets prev/next and a position readout instead.
+ */
+function Pagination({
+  page,
+  pageCount,
+  hrefFor,
+}: {
+  page: number;
+  pageCount: number;
+  hrefFor: (page: number) => string;
+}) {
+  const hasPrev = page > 1;
+  const hasNext = page < pageCount;
+
+  return (
+    <nav
+      aria-label="Pagination"
+      className="mt-12 flex items-center justify-between gap-4 border-t border-border-subtle pt-6"
+    >
+      <PagerLink href={hrefFor(page - 1)} disabled={!hasPrev} label="Previous page">
+        <ChevronLeft className="w-4 h-4" />
+        <span>Prev</span>
+      </PagerLink>
+
+      <div className="hidden sm:flex items-center gap-1.5">
+        {pageWindow(page, pageCount).map((entry, index) =>
+          entry === "gap" ? (
+            <span
+              key={`gap-${index}`}
+              aria-hidden
+              className="px-1 text-xs text-muted-foreground/50"
+            >
+              …
+            </span>
+          ) : (
+            <Link
+              key={entry}
+              href={hrefFor(entry)}
+              rel="nofollow"
+              aria-current={entry === page ? "page" : undefined}
+              aria-label={`Page ${entry}`}
+              className={`min-w-9 px-3 py-1.5 rounded-full text-center text-xs font-medium border transition-all ${
+                entry === page
+                  ? "bg-accent text-(--bg-canvas) border-accent"
+                  : "border-border-standard text-muted-foreground hover:text-foreground hover:border-foreground/30"
+              }`}
+            >
+              {entry}
+            </Link>
+          ),
+        )}
+      </div>
+
+      <span className="sm:hidden text-xs font-mono text-muted-foreground/70">
+        {page} / {pageCount}
+      </span>
+
+      <PagerLink href={hrefFor(page + 1)} disabled={!hasNext} label="Next page">
+        <span>Next</span>
+        <ChevronRight className="w-4 h-4" />
+      </PagerLink>
+    </nav>
+  );
+}
+
+/** A disabled pager end renders as a span — a dead <a href> is a broken link. */
+function PagerLink({
+  href,
+  disabled,
+  label,
+  children,
+}: {
+  href: string;
+  disabled: boolean;
+  label: string;
+  children: ReactNode;
+}) {
+  const className =
+    "inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium border border-border-standard transition-all";
+
+  if (disabled) {
+    return (
+      <span aria-disabled className={`${className} text-muted-foreground/30`}>
+        {children}
+      </span>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      rel="nofollow"
+      aria-label={label}
+      className={`${className} text-muted-foreground hover:text-foreground hover:border-foreground/30`}
+    >
+      {children}
+    </Link>
+  );
+}
+
+/**
+ * First, last, and three pages around the current one, with an ellipsis for
+ * whatever is skipped.
+ *
+ * The middle three slide inward at either end rather than shrinking, so page 1
+ * and page 12 of 12 both offer the same amount to jump to.
+ */
+function pageWindow(page: number, pageCount: number): (number | "gap")[] {
+  if (pageCount <= 7) {
+    return Array.from({ length: pageCount }, (_, i) => i + 1);
+  }
+
+  const start = Math.min(Math.max(page - 1, 2), pageCount - 3);
+  const middle = [start, start + 1, start + 2];
+
+  return [
+    1,
+    ...(middle[0] > 2 ? (["gap"] as const) : []),
+    ...middle,
+    ...(middle[2] < pageCount - 1 ? (["gap"] as const) : []),
+    pageCount,
+  ];
 }
 
 function FilterRow({
@@ -319,11 +517,16 @@ function FilterRow({
   hrefFor: (value: string) => string;
 }) {
   return (
-    <div className="flex items-center gap-2">
-      <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
+    // `min-w-0` + `overflow-x-auto`: Category alone is ten chips, which is far
+    // wider than a phone. Without a scroll container the row was simply clipped
+    // by PageShell's `overflow-x-hidden` and everything past "Data & AI" was
+    // unreachable. The negative margin and padding let the focus ring on a
+    // chip breathe without the scroller cropping it.
+    <div className="flex items-center gap-2 min-w-0">
+      <span className="shrink-0 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
         {label}
       </span>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5 min-w-0 overflow-x-auto no-scrollbar -my-1 py-1">
         {options.map((option) => {
           const selected = active === option.value;
           return (
@@ -334,7 +537,7 @@ function FilterRow({
               // is followed for discovery but not indexed as its own page.
               rel={selected ? undefined : "nofollow"}
               aria-current={selected ? "true" : undefined}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all whitespace-nowrap ${
+              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-all whitespace-nowrap ${
                 selected
                   ? "bg-accent text-(--bg-canvas) border-accent"
                   : "border-border-standard text-muted-foreground hover:text-foreground hover:border-foreground/30"

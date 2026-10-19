@@ -35,14 +35,14 @@ function StepButton({ step, isActive, onClick }: StepButtonProps) {
     <button
       type="button"
       onClick={onClick}
-      className={`w-full text-left py-8 border-b border-foreground/10 transition-all duration-500 group ${
+      className={`w-full min-w-0 text-left py-8 border-b border-foreground/10 transition-all duration-500 group ${
         isActive ? "opacity-100" : "opacity-40 hover:opacity-70"
       }`}
     >
-      <div className="flex items-start gap-6">
-        <span className="font-display text-3xl text-foreground/30">{step.number}</span>
-        <div className="flex-1">
-          <h3 className="text-2xl lg:text-3xl font-display mb-3 group-hover:translate-x-2 transition-transform duration-300">
+      <div className="flex items-start gap-4 lg:gap-6">
+        <span className="font-display text-2xl lg:text-3xl text-foreground/30 shrink-0">{step.number}</span>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-xl sm:text-2xl lg:text-3xl font-display mb-3 group-hover:translate-x-2 transition-transform duration-300">
             {step.title}
           </h3>
           <p className="text-foreground/60 leading-relaxed">{step.description}</p>

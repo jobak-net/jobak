@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import { Button } from "@/frontend/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -67,7 +68,14 @@ function Disclaimer() {
 
   return (
     <p className="text-sm text-muted-foreground mt-8 font-mono">
-      {ctaContent.disclaimer}
+      {/* The separating space sits between the clauses, not inside them — a
+          leading space inside a nowrap inline-block is trimmed at line start. */}
+      {ctaContent.disclaimer.map((clause, i) => (
+        <Fragment key={clause}>
+          {i > 0 && " "}
+          <span className="inline-block whitespace-nowrap">{clause}</span>
+        </Fragment>
+      ))}
     </p>
   );
 }

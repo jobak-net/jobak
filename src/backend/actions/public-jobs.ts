@@ -66,6 +66,8 @@ interface Row {
     | null;
 }
 
+type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
+
 /** PostgREST returns an embedded to-one as an object or a one-element array depending on the hint. */
 function one<T>(value: T | T[] | null | undefined): T | null {
   if (Array.isArray(value)) return value[0] ?? null;
@@ -112,7 +114,16 @@ export interface JobQuery {
   search?: string;
   /** A value from JOB_CATEGORIES, or "all". */
   category?: string;
+  /** Page size. */
   limit?: number;
+  /** 1-based. Out-of-range pages come back empty rather than clamped. */
+  page?: number;
+}
+
+export interface JobPage {
+  jobs: PublicJobCard[];
+  /** Matching rows across every page, for the pager. */
+  total: number;
 }
 
 /**
@@ -136,78 +147,121 @@ const escapeTerm = (term: string) => term.replace(/[,()]/g, " ").trim();
  * the collector resolved, and re-deriving a country from free text here would
  * repeat work the scraper already did more carefully.
  */
-export const getPublicJobs = cache(async (query: JobQuery = {}): Promise<PublicJobCard[]> => {
+export const getPublicJobs = cache(async (query: JobQuery = {}): Promise<JobPage> => {
   const {
     region = "mena",
     workplace = "all",
     search = "",
     category = "all",
     limit = 60,
+    page = 1,
   } = query;
+
+  const from = (Math.max(1, page) - 1) * limit;
 
   try {
     const supabase = await createClient();
+    const regionIds = region === "mena" ? await menaRegionIds() : [];
+    const filters = { region, workplace, search, category };
 
-    let builder = supabase
-      .from("jobs")
-      .select(CARD_COLUMNS)
-      .not("public_slug", "is", null);
-
-    if (workplace !== "all") builder = builder.eq("job_type", workplace);
-
-    if (search.trim()) {
-      const term = escapeTerm(search.slice(0, 80));
-      if (term) builder = builder.or(`title.ilike.%${term}%,company.ilike.%${term}%`);
-    }
-
-    /*
-     * Category is matched against the title, because the columns that should
-     * hold it (`tech_stack`, `seniority`) are empty on every active row — see
-     * configs/job-categories.ts.
-     *
-     * Each `.or()` is a separate group ANDed with the others by PostgREST, so
-     * this composes correctly with the search above: a search AND a category
-     * narrows, rather than one replacing the other.
-     */
-    const keywords = categoryKeywords(category);
-    if (keywords && keywords.length > 0) {
-      const clause = keywords
-        .map((word) => `title.ilike.%${escapeTerm(word)}%`)
-        .join(",");
-      builder = builder.or(clause);
-    }
-
-    if (region === "mena") {
-      const regionIds = await menaRegionIds();
-      /*
-       * Remote roles stay in even on a MENA filter: a remote listing open to
-       * anywhere is available to someone in Cairo, and `region_id` is null on
-       * most of them because the collector had no country to attribute.
-       */
-      if (regionIds.length > 0) {
-        builder = builder.or(`region_id.in.(${regionIds.join(",")}),job_type.eq.remote`);
-      }
-    } else if (region === "remote") {
-      builder = builder.eq("job_type", "remote");
-    }
-
-    const { data, error } = await builder.order("created_at", { ascending: false }).limit(limit);
+    const { data, error, count } = await listQuery(supabase, regionIds, filters)
+      .order("created_at", { ascending: false })
+      .range(from, from + limit - 1);
 
     if (error) {
+      /*
+       * PostgREST answers a `.range()` that starts past the last row with 416
+       * rather than an empty page. That is reachable without anyone doing
+       * anything wrong — collection runs continuously, so a bookmarked
+       * `?page=9` goes stale on its own. Re-ask for just the total so the page
+       * can say "past the end" instead of "nothing matches".
+       */
+      if (error.code === "PGRST103") {
+        const { count: total } = await listQuery(supabase, regionIds, filters, { head: true });
+        return { jobs: [], total: total ?? 0 };
+      }
+
       logServerError("public-jobs:list", error);
-      return [];
+      return { jobs: [], total: 0 };
     }
 
-    return ((data ?? []) as unknown as Row[]).map(toCard);
+    return {
+      jobs: ((data ?? []) as unknown as Row[]).map(toCard),
+      total: count ?? 0,
+    };
   } catch (error) {
     // `cookies()` throws a DynamicServerError during static generation as a
     // control-flow signal. Handing it back to Next before logging keeps the
     // build output honest — it was reporting these as errors on every build.
     unstable_rethrow(error);
     logServerError("public-jobs:list", error);
-    return [];
+    return { jobs: [], total: 0 };
   }
 });
+
+/**
+ * The filter chain shared by the page query and the count-only retry.
+ *
+ * `count: "exact"` rather than "estimated": the pager needs a page count that
+ * agrees with what the next page actually returns, and PostgREST's estimate
+ * comes from the planner's row estimate, which on these ilike-heavy queries is
+ * routinely off by a factor of several.
+ *
+ * Deliberately *not* async, and the client and region ids are passed in. A
+ * PostgREST builder is itself a thenable, so an async function returning one
+ * would have it assimilated by the await — the caller would get a finished
+ * response instead of a query it can still add `.range()` to.
+ */
+function listQuery(
+  supabase: SupabaseServerClient,
+  regionIds: number[],
+  { region, workplace, search, category }: Required<Omit<JobQuery, "limit" | "page">>,
+  { head = false }: { head?: boolean } = {},
+) {
+  let builder = supabase
+    .from("jobs")
+    .select(CARD_COLUMNS, { count: "exact", head })
+    .not("public_slug", "is", null);
+
+  if (workplace !== "all") builder = builder.eq("job_type", workplace);
+
+  if (search.trim()) {
+    const term = escapeTerm(search.slice(0, 80));
+    if (term) builder = builder.or(`title.ilike.%${term}%,company.ilike.%${term}%`);
+  }
+
+  /*
+   * Category is matched against the title, because the columns that should
+   * hold it (`tech_stack`, `seniority`) are empty on every active row — see
+   * configs/job-categories.ts.
+   *
+   * Each `.or()` is a separate group ANDed with the others by PostgREST, so
+   * this composes correctly with the search above: a search AND a category
+   * narrows, rather than one replacing the other.
+   */
+  const keywords = categoryKeywords(category);
+  if (keywords && keywords.length > 0) {
+    const clause = keywords
+      .map((word) => `title.ilike.%${escapeTerm(word)}%`)
+      .join(",");
+    builder = builder.or(clause);
+  }
+
+  if (region === "mena") {
+    /*
+     * Remote roles stay in even on a MENA filter: a remote listing open to
+     * anywhere is available to someone in Cairo, and `region_id` is null on
+     * most of them because the collector had no country to attribute.
+     */
+    if (regionIds.length > 0) {
+      builder = builder.or(`region_id.in.(${regionIds.join(",")}),job_type.eq.remote`);
+    }
+  } else if (region === "remote") {
+    builder = builder.eq("job_type", "remote");
+  }
+
+  return builder;
+}
 
 /**
  * `regions.id` for every MENA country, resolved once per request.

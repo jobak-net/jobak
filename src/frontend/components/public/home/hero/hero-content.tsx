@@ -21,7 +21,13 @@ export function HeroHeadline() {
   const roleIndex = useCycleIndex(roles.length, 2500);
   return (
     <div className="mb-12">
-      <h1 className="text-[clamp(3rem,12vw,10rem)] font-display leading-[0.9] tracking-tight">
+      {/*
+        The lower bound is sized so "top engineers" — the longest of the cycled
+        roles — still fits on one line at 320px. At the old 3rem floor every
+        role except "analysts" wrapped onto a third line and the headline
+        jumped height every 2.5s.
+      */}
+      <h1 className="text-[clamp(2.25rem,11.5vw,10rem)] font-display leading-[0.9] tracking-tight">
         <span className="block">Jobs for</span>
         <span className="block">
           top{" "}
@@ -47,7 +53,7 @@ export function HeroHeadline() {
 
 export function HeroDescription() {
   return (
-    <p className="text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-xl transition-all duration-700 delay-200">
+    <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-xl transition-all duration-700 delay-200">
       Tell us your skills and preferences. Our AI searches job platforms on your behalf — then ranks every match just for you. Join the waitlist and be among the first in.
     </p>
   );
@@ -57,7 +63,13 @@ export function HeroCTA() {
   const { text, href } = resolveCta("Join the waitlist");
 
   return (
-    <div className="flex flex-row items-start gap-4 transition-all duration-700 delay-300">
+    /*
+      Stacked below the sm breakpoint. Side by side, the two pills' combined
+      min-content width is wider than a phone viewport — and because this sits
+      in a grid column, that min-width blew the whole column out and took the
+      description's line length with it.
+    */
+    <div className="flex flex-col sm:flex-row items-start gap-4 transition-all duration-700 delay-300">
       <Button size="lg" className="bg-accent hover:bg-accent-bright text-background px-8 h-14 rounded-full group" asChild>
         <Link href={href}>
           {text}

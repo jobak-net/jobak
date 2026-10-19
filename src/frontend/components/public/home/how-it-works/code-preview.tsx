@@ -19,8 +19,8 @@ export function CodePreview({ code, activeStep }: CodePreviewProps) {
 
 function CodeHeader() {
   return (
-    <div className="px-6 py-4 border-b border-foreground/10 flex items-center justify-between">
-      <div className="flex gap-2">
+    <div className="px-5 lg:px-6 py-4 border-b border-foreground/10 flex items-center justify-between gap-3">
+      <div className="flex gap-2 shrink-0">
         <div className="w-3 h-3 rounded-full bg-foreground/20" />
         <div className="w-3 h-3 rounded-full bg-foreground/20" />
         <div className="w-3 h-3 rounded-full bg-foreground/20" />
@@ -39,7 +39,7 @@ function CodeContent({ code, activeStep }: CodeContentProps) {
   const lines = code.split("\n");
 
   return (
-    <div className="p-8 font-mono text-sm min-h-70">
+    <div className="p-5 lg:p-8 font-mono text-xs lg:text-sm min-h-70 overflow-x-auto">
       <pre className="text-foreground/70">
         {lines.map((line, lineIndex) => (
           <CodeLine
@@ -76,7 +76,7 @@ function CodeLine({ line, lineNumber, lineIndex }: CodeLineProps) {
 
 function CodeFooter() {
   return (
-    <div className="px-6 py-4 border-t border-foreground/10 flex items-center gap-3">
+    <div className="px-5 lg:px-6 py-4 border-t border-foreground/10 flex items-center gap-3">
       <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
       <span className="text-xs font-mono text-foreground/40">Searching...</span>
     </div>

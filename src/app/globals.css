@@ -278,8 +278,13 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
+/*
+ * Duration is a variable so the hero can run it faster on a phone. At the
+ * desktop 30s a 360px-wide screen only ever shows one stat at a time, which
+ * reads as a broken strip rather than as a marquee.
+ */
 .marquee {
-  animation: marquee 30s linear infinite;
+  animation: marquee var(--marquee-duration, 30s) linear infinite;
 }
 
 .marquee-reverse {
@@ -294,6 +299,20 @@ body {
 @keyframes marquee-reverse {
   0% { transform: translateX(-50%); }
   100% { transform: translateX(0); }
+}
+
+/*
+ * Horizontal rails that are meant to be swiped — the jobs board's filter rows.
+ * The bar itself would overlap the chips on a phone and make a working control
+ * look broken; the chips clipped at the edge are the affordance instead.
+ */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 .line-reveal {
