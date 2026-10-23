@@ -19,6 +19,13 @@ import { readdirSync, readFileSync, existsSync } from "fs";
 import { join } from "path";
 import { Client } from "pg";
 
+/*
+ * The same TLS decision the app makes. Shared rather than reimplemented: this
+ * script connects to the same database with the same credentials, and a second
+ * copy of the rule is one that drifts.
+ */
+import { resolveSslConfig } from "../../src/backend/modules/auth/infrastructure/database/ssl";
+
 // Each entry maps a picker label to the folder under db/ and the env var
 // holding its Postgres connection string. Add a new DB by adding a row here —
 // the picker and the "does db/<target> exist" check both key off this list.
@@ -33,20 +40,35 @@ const TARGETS = [
 
 type Target = (typeof TARGETS)[number];
 
+// Next's own precedence: .env.local wins over .env, and a real environment
+// variable wins over both. Reading only .env — as this did — meant a developer
+// who put SUPABASE_DB_URL where Next reads it got "SUPABASE_DB_URL is not set"
+// from the migrator while the app connected fine.
+const ENV_FILES = [".env.local", ".env"] as const;
+
 function loadDotEnv() {
-    const envPath = join(process.cwd(), ".env");
-    try {
-        const content = readFileSync(envPath, "utf-8");
-        content.split("\n").forEach((line) => {
+    for (const file of ENV_FILES) {
+        let content: string;
+
+        try {
+            content = readFileSync(join(process.cwd(), file), "utf-8");
+        } catch {
+            continue; // Not present — try the next, then fall back to the real environment.
+        }
+
+        for (const line of content.split("\n")) {
             const trimmed = line.trim();
-            if (!trimmed || trimmed.startsWith("#")) return;
+            if (!trimmed || trimmed.startsWith("#")) continue;
+
             const [key, ...rest] = trimmed.split("=");
-            if (key && rest.length > 0 && !process.env[key.trim()]) {
+            if (!key || rest.length === 0) continue;
+
+            // First writer wins, which is what gives .env.local its precedence
+            // over .env and gives the real environment precedence over both.
+            if (!process.env[key.trim()]) {
                 process.env[key.trim()] = rest.join("=").trim();
             }
-        });
-    } catch {
-        // .env not present — rely on the real environment
+        }
     }
 }
 
@@ -116,7 +138,16 @@ async function runMigrations(target: Target, dryRun: boolean) {
         );
     }
 
-    const client = new Client({ connectionString });
+    /*
+     * Without `ssl`, Supabase rejects the connection outright:
+     *   (ESSLREQUIRED) SSL connection is required for user: postgres
+     * `resolveSslConfig` verifies against SUPABASE_DB_CA_CERT where it is set,
+     * and returns false for a local container, which has no TLS to negotiate.
+     */
+    const client = new Client({
+      connectionString,
+      ssl: resolveSslConfig(connectionString),
+    });
     await client.connect();
 
     try {

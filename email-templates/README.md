@@ -1,101 +1,83 @@
 # Email templates
 
-Supabase keeps email templates in its dashboard, not in this repo. These files are
-the source of truth: edit, regenerate, then paste into the dashboard.
+One shell, three outputs. **Edit [`build.mjs`](build.mjs), never the generated
+HTML** — it is overwritten on every build.
 
 ```bash
-node email-templates/build.mjs
+node email-templates/build.mjs   # render all three sets
+pnpm build:emails                # + inline the app set into src/
 ```
 
-`build.mjs` holds the shared shell and the copy for every template; `templates/`
-holds the generated HTML you paste in. Supabase has no partials, so each template
-has to be a complete document — generating them keeps nine near-identical files
-from drifting apart. **Edit `build.mjs`, not the generated HTML.**
+| Folder | Link marker | Used by | Status |
+| --- | --- | --- | --- |
+| [`app_templates/`](app_templates/) | `{{link}}` | The app's own sender, inlined into `templates.generated.ts` | **Live** |
+| [`resend_templates/`](resend_templates/) | `{{{LINK}}}` | Resend-hosted templates, uploaded by `pnpm resend:templates` | **Live, optional** |
+| [`supabase_templates/`](supabase_templates/) | `{{ .TokenHash }}` etc. | Supabase's dashboard | **Dead — see below** |
 
-## Where each file goes
+Only two emails exist: verification and password reset. That is not an
+oversight — `EmailSender` in the auth module has exactly two methods, so there
+is no code path that could send anything else.
 
-Dashboard: **Authentication > Emails > Templates**. Each template has its own
-subject field, so unlike the sender address these can differ per email.
+## The two live sets are the same email
 
-| File | Supabase template | Subject heading |
-| --- | --- | --- |
-| `01-confirm-signup.html` | Confirm sign up | Confirm your email address for Jobak |
-| `02-invite-user.html` | Invite user | You've been invited to Jobak |
-| `03-magic-link.html` | Magic link or OTP | Your Jobak sign-in link |
-| `04-change-email.html` | Change email address | Confirm your new email for Jobak |
-| `05-reset-password.html` | Reset password | Reset your Jobak password |
-| `06-reauthentication.html` | Reauthentication | `{{ .Token }}` is your Jobak verification code |
-| `07-password-changed.html` | Password changed | Your Jobak password was changed |
-| `08-signin-method-linked.html` | Sign-in method linked | `{{ .Provider }}` was added to your Jobak account |
-| `09-signin-method-removed.html` | Sign-in method removed | `{{ .Provider }}` removed from your Jobak account |
+`app_templates/` and `resend_templates/` are byte-identical apart from the link
+marker. Both come from the same `appTemplates` array in `build.mjs`, rendered
+twice, because the two destinations interpolate differently:
 
-Subjects also live in `build.mjs` next to each template's copy, and the build
-prints them so they are easy to copy across.
+- **Inline** — our sender does `replaceAll("{{link}}", link)`.
+- **Resend** — Resend interpolates `{{{LINK}}}`. **Three braces.** Two render
+  literally, so a template uploaded with `{{link}}` sends a button pointing at
+  the text "{{link}}". `push-templates.ts` refuses to upload HTML missing the
+  triple-brace marker for exactly this reason.
 
-### Why these subjects
+`LINK` is a safe key: Resend reserves `FIRST_NAME`, `LAST_NAME`, `EMAIL`,
+`UNSUBSCRIBE_URL`, `contact` and `this`.
 
-- **Front-load the meaningful word.** Mobile truncates around 35-40 characters.
-- **The brand name appears in all nine.** The sender name already shows "Jobak",
-  so this is redundant for recognition alone, but it pays off for search months
-  later, for forwarded subjects that lose sender context, and for out-of-context
-  clarity ("Your password was changed" is ambiguous across services). Every
-  subject still fits the mobile budget. Never use a bracketed prefix like
-  `[Jobak] ...` — it burns the most valuable characters in the line.
-- **Code in the subject for reauthentication.** Users can read it off the
-  notification without opening the email. Worth a test send to confirm variables
-  render in the subject field.
-- **`{{ .Provider }}` in the security subjects.** "GitHub was added to your Jobak
-  account" tells the user whether it was them without opening anything, which
-  matters most for the email that signals a takeover.
-- **Subjects mirror the H1** in each template, so opening confirms rather than
-  surprises.
-- **No urgency theatre.** No "Action Required", no exclamation marks, no caps.
-  They trip spam filters and these are utility emails.
+## Which path sends
 
-## Why the links are not `{{ .ConfirmationURL }}`
+Set `RESEND_TEMPLATE_VERIFY_EMAIL` / `RESEND_TEMPLATE_RESET_PASSWORD` and the
+sender posts `template: { id, variables: { LINK } }`. Leave them unset and it
+posts `html` inline. Resend rejects a payload carrying both, so it is a fork,
+not a layering.
 
-The default `{{ .ConfirmationURL }}` completes the flow through the PKCE code
-exchange, which needs the code-verifier cookie belonging to the browser that
-started it. Sign up on a laptop, open the email on your phone, and it fails with
-"code verifier not found".
+**Inline is the default deliberately.** A Resend template lives in one account's
+dashboard, and this project is meant to be self-hostable — someone running their
+own copy cannot reach ours and would have to recreate and publish both templates
+before a single verification email could go out. Inline HTML ships with the app.
 
-These templates point at our own endpoint with a token hash instead:
-
-```
-{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=<type>
+```bash
+pnpm resend:templates --dry-run   # show what would be uploaded
+pnpm resend:templates             # create/update + publish, prints the ids
 ```
 
-`src/app/auth/confirm/route.ts` calls `verifyOtp` with that hash, which carries no
-per-browser state, so the link works on any device. This is the pattern Supabase
-documents for server-rendered apps.
+Templates are addressed by a stable `alias`, so re-running updates the same two
+rather than creating duplicates.
 
-The `type` value differs per template and must match, or verification fails:
+## Sending needs a verified domain
 
-| Template | `type` |
-| --- | --- |
-| Confirm sign up | `email` |
-| Invite user | `invite` |
-| Magic link or OTP | `magiclink` |
-| Change email address | `email_change` |
-| Reset password | `recovery` |
+Resend will not send from `hamdy@jobak.net` until `jobak.net` is verified under
+**Domains** in the dashboard. Until then the only usable sender is
+`onboarding@resend.dev`, and it can **only deliver to the address on your Resend
+account** — anything else returns 403. That is a testing affordance, not a
+staging setup.
 
-The three Security templates and Reauthentication send no link at all —
-reauthentication shows `{{ .Token }}` as a code, and the security ones are pure
-notifications.
+## Why `supabase_templates/` is dead
 
-## `{{ .SiteURL }}` is a single value
+The nine numbered files were written for Supabase Auth, which this app stopped
+using at [`014_custom_auth.sql`](../db/supabase/014_custom_auth.sql). They are
+kept for reference and for the copy, but they cannot work:
 
-It resolves to whatever **Site URL** is set to under Authentication > URL
-Configuration. There is only one, so a template tested against production sends
-production links while you work locally. Set it to `http://localhost:3000` to test
-locally, and put it back afterwards.
+- Their variables (`{{ .TokenHash }}`, `{{ .SiteURL }}`, `{{ .Token }}`,
+  `{{ .Provider }}`) are injected by Supabase's mailer. Nothing else provides
+  them.
+- They link to `{{ .SiteURL }}/auth/confirm?token_hash=…`, and
+  `src/app/auth/confirm/route.ts` **does not exist in this repo**.
+- Seven of the nine (invite, magic link, change email, reauthentication,
+  password changed, sign-in method linked/removed) have no corresponding method
+  on `EmailSender`.
 
-## Known gap: reset password
-
-`05-reset-password.html` links to `/reset-password`, **which does not exist yet**.
-`/forgot-password` is also still a stub (`// TODO: wire up auth`) and never calls
-`resetPasswordForEmail`, so nothing sends this email today. The template is ready
-for when that flow is built. See docs/general/PRE_PRODUCTION.md.
+Do not paste them into a Supabase project expecting them to work, and do not
+port them to Resend — they would be templates for flows the app cannot trigger.
 
 ## Editing notes
 
@@ -103,8 +85,14 @@ for when that flow is built. See docs/general/PRE_PRODUCTION.md.
 - Layout is tables. Outlook has no flex or grid.
 - Colours are hex. The app's tokens are `oklch()`, which no email client
   understands, so they are resolved to sRGB in `build.mjs`.
-- The logo is drawn with table cells and background colours. Clients strip SVG,
-  and there is nowhere to host a PNG until there is a production domain. Outlook
-  renders the rounded corners square, which is acceptable.
+- The logo is a base64 PNG from [`logo.b64.json`](logo.b64.json), regenerated by
+  `pnpm build:email-logo`.
 - Fonts fall back to Helvetica/Arial. Geist will not load in an email client.
 - Keep the plain-text fallback URL. Some clients strip or rewrite buttons.
+
+## Subjects live in two files
+
+`build.mjs` carries each template's subject, and
+[`scripts/build-email-templates.mts`](../scripts/build-email-templates.mts)
+repeats them for the inlined copies. They match today; nothing enforces it. If
+you change a subject, change it in both.

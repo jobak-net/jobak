@@ -12,7 +12,25 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "templates");
+const ROOT = dirname(fileURLToPath(import.meta.url));
+
+/*
+ * Three output sets, one shell.
+ *
+ *   supabase_templates/  the nine Supabase dashboard templates. Legacy — the
+ *                        app stopped using Supabase Auth at migration 014 and
+ *                        nothing can send these today. Kept for reference.
+ *   app_templates/       the two the app sends itself, with `{{link}}` for the
+ *                        inline sender to substitute.
+ *   resend_templates/    the same two, with `{{{LINK}}}` for Resend-hosted
+ *                        templates. Triple braces and an uppercase key are
+ *                        Resend's syntax, not a style choice.
+ *
+ * Generated rather than hand-written because they are the same markup three
+ * times over, and three hand-maintained copies would drift. That is the whole
+ * reason this file exists.
+ */
+const OUT_DIR = join(ROOT, "supabase_templates");
 
 /*
  * The app sends its own verification and reset emails now that auth is ours
@@ -23,7 +41,8 @@ const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "templates");
  * Generated rather than hand-written so there is still one shell. Two copies of
  * this markup would drift, which is the whole reason this file exists.
  */
-const APP_OUT_DIR = join(OUT_DIR, "app");
+const APP_OUT_DIR = join(ROOT, "app_templates");
+const RESEND_OUT_DIR = join(ROOT, "resend_templates");
 
 /*
  * Brand palette, resolved to sRGB. The app's tokens are oklch(), which no email
@@ -55,17 +74,27 @@ const MONO = "Consolas,Menlo,monospace";
  * drawn with background colours. Outlook squares off the radii; that is fine.
  */
 /*
- * The real brand mark, as a PNG data-URI.
+ * The real brand mark.
  *
  * This used to be a hand-assembled stack of HTML tables approximating a dot and
  * two bars — a shape that predated the current logo and had drifted to the
  * wrong green as well. The mark is a curve (`brand/logo/mark.svg`), which
  * rectangles cannot draw, so it is rasterised instead.
  *
- * A data-URI rather than a hosted image because most clients block remote
- * images until the reader allows them: a hosted logo is simply missing on first
- * view. Inline, it always renders. 2.2KB is a fair price for that.
+ * ── Why the src is a marker, not a data-URI ─────────────────
+ * It used to be `data:image/png;base64,…`, reasoning that most clients block
+ * remote images so an inline one always renders. The second half of that is
+ * false where it matters most: **Gmail does not render data-URI images at
+ * all.** It strips them, so the logo was simply missing for the largest mail
+ * client — which is how this was found, in a real test send.
  *
+ * The src is now `{{logo}}`, substituted at send time. The default is a CID
+ * attachment (`cid:jobak-logo`), which keeps the original benefit — it is part
+ * of the message, so it shows without the reader allowing remote images — and
+ * Gmail honours it. Setting AUTH_EMAIL_LOGO_URL switches to a hosted image
+ * instead, which is lighter but subject to the usual blocking.
+ *
+ * Only the dimensions are read here now; the bytes travel with the send.
  * Regenerate with `pnpm build:email-logo` when the mark changes.
  */
 const LOGO = JSON.parse(
@@ -73,7 +102,7 @@ const LOGO = JSON.parse(
 );
 
 const logo = () => `
-                <img src="${LOGO.dataUri}" width="${LOGO.width}" height="${LOGO.height}"
+                <img src="{{logo}}" width="${LOGO.width}" height="${LOGO.height}"
                      alt="Jobak"
                      style="display:block; width:${LOGO.width}px; height:${LOGO.height}px; border:0; outline:none; text-decoration:none;">`;
 
@@ -398,7 +427,44 @@ const appTemplates = [
 mkdirSync(APP_OUT_DIR, { recursive: true });
 for (const t of appTemplates) {
   writeFileSync(join(APP_OUT_DIR, t.file), render(t), "utf8");
-  console.log(`  ${t.file.padEnd(32)} -> app sender
+  console.log(`  ${t.file.padEnd(32)} -> app sender (inline)
       subject: ${t.subject}`);
 }
 console.log(`${appTemplates.length} app templates written to ${APP_OUT_DIR}`);
+
+/*
+ * ── The Resend-hosted copies ────────────────────────────────
+ * Identical markup; only the link marker differs.
+ *
+ * Resend interpolates `{{{LINK}}}` — three braces, not two. Two braces render
+ * literally, so a template uploaded with `{{link}}` would send an email whose
+ * button points at the text "{{link}}". The key is uppercase by Resend's
+ * convention, and must match the `variables` object the sender posts.
+ *
+ * `LINK` is safe as a key: Resend reserves FIRST_NAME, LAST_NAME, EMAIL,
+ * UNSUBSCRIBE_URL, `contact` and `this`.
+ */
+const RESEND_MARKERS = [
+  ["{{link}}", "{{{LINK}}}"],
+  ["{{logo}}", "{{{LOGO}}}"],
+];
+
+mkdirSync(RESEND_OUT_DIR, { recursive: true });
+for (const t of appTemplates) {
+  /*
+   * Rendered once and then rewritten, rather than rendered a second time with
+   * different inputs. Two render passes can diverge — a change that touches
+   * only one path is invisible until someone diffs the output. Substituting on
+   * the finished string makes byte-identity-apart-from-the-markers structural
+   * rather than something to remember.
+   */
+  let html = render(t);
+  for (const [from, to] of RESEND_MARKERS) html = html.replaceAll(from, to);
+
+  writeFileSync(join(RESEND_OUT_DIR, t.file), html, "utf8");
+  console.log(`  ${t.file.padEnd(32)} -> Resend template
+      subject: ${t.subject}`);
+}
+console.log(
+  `${appTemplates.length} Resend templates written to ${RESEND_OUT_DIR}`
+);

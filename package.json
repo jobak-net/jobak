@@ -48,7 +48,9 @@
     "check:workflows": "node scripts/check-workflows.mjs",
     "check:jsonld": "tsx scripts/json-ld-probe.ts",
     "build:emails": "tsx scripts/render-email-logo.mts && node email-templates/build.mjs && tsx scripts/build-email-templates.mts",
-    "build:email-logo": "tsx scripts/render-email-logo.mts"
+    "build:email-logo": "tsx scripts/render-email-logo.mts",
+    "resend:templates": "tsx scripts/resend/push-templates.ts",
+    "resend:test": "tsx scripts/resend/test-send.ts"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",
