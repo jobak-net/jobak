@@ -1,83 +1,48 @@
 # Email templates
 
-One shell, three outputs. **Edit [`build.mjs`](build.mjs), never the generated
-HTML** — it is overwritten on every build.
+**The app sends no email of its own.** Since
+[`017_clerk_auth.sql`](../db/supabase/017_clerk_auth.sql), Clerk owns sign-in
+and sends every auth email itself — verification codes, magic links, password
+resets. A self-hosted instance running with `AUTH_ENABLED=false` has no sign-in,
+so it sends nothing at all.
+
+What is left here is the shared shell and its copy, for when Clerk's emails are
+customised to match the brand.
 
 ```bash
-node email-templates/build.mjs   # render all three sets
-pnpm build:emails                # + inline the app set into src/
+node email-templates/build.mjs   # render the legacy set
+pnpm build:emails                # regenerate the logo first, then render
 ```
 
-| Folder | Link marker | Used by | Status |
-| --- | --- | --- | --- |
-| [`app_templates/`](app_templates/) | `{{link}}` | The app's own sender, inlined into `templates.generated.ts` | **Live** |
-| [`resend_templates/`](resend_templates/) | `{{{LINK}}}` | Resend-hosted templates, uploaded by `pnpm resend:templates` | **Live, optional** |
-| [`supabase_templates/`](supabase_templates/) | `{{ .TokenHash }}` etc. | Supabase's dashboard | **Dead — see below** |
+| Folder | Status |
+| --- | --- |
+| [`supabase_templates/`](supabase_templates/) | **Dead — see below.** Kept for the shell and the copy. |
+| [`clerk_templates/`](clerk_templates/) | Empty. For Clerk custom templates, when they are written. |
 
-Only two emails exist: verification and password reset. That is not an
-oversight — `EmailSender` in the auth module has exactly two methods, so there
-is no code path that could send anything else.
+**Edit [`build.mjs`](build.mjs), never the generated HTML** — it is overwritten
+on every build.
 
-## The two live sets are the same email
+## Customising Clerk's emails
 
-`app_templates/` and `resend_templates/` are byte-identical apart from the link
-marker. Both come from the same `appTemplates` array in `build.mjs`, rendered
-twice, because the two destinations interpolate differently:
-
-- **Inline** — our sender does `replaceAll("{{link}}", link)`.
-- **Resend** — Resend interpolates `{{{LINK}}}`. **Three braces.** Two render
-  literally, so a template uploaded with `{{link}}` sends a button pointing at
-  the text "{{link}}". `push-templates.ts` refuses to upload HTML missing the
-  triple-brace marker for exactly this reason.
-
-`LINK` is a safe key: Resend reserves `FIRST_NAME`, `LAST_NAME`, `EMAIL`,
-`UNSUBSCRIBE_URL`, `contact` and `this`.
-
-## Which path sends
-
-Set `RESEND_TEMPLATE_VERIFY_EMAIL` / `RESEND_TEMPLATE_RESET_PASSWORD` and the
-sender posts `template: { id, variables: { LINK } }`. Leave them unset and it
-posts `html` inline. Resend rejects a payload carrying both, so it is a fork,
-not a layering.
-
-**Inline is the default deliberately.** A Resend template lives in one account's
-dashboard, and this project is meant to be self-hostable — someone running their
-own copy cannot reach ours and would have to recreate and publish both templates
-before a single verification email could go out. Inline HTML ships with the app.
-
-```bash
-pnpm resend:templates --dry-run   # show what would be uploaded
-pnpm resend:templates             # create/update + publish, prints the ids
-```
-
-Templates are addressed by a stable `alias`, so re-running updates the same two
-rather than creating duplicates.
-
-## Sending needs a verified domain
-
-Resend will not send from `hamdy@jobak.net` until `jobak.net` is verified under
-**Domains** in the dashboard. Until then the only usable sender is
-`onboarding@resend.dev`, and it can **only deliver to the address on your Resend
-account** — anything else returns 403. That is a testing affordance, not a
-staging setup.
+Clerk's templates are edited in the Clerk Dashboard (**Customization → Emails**)
+and use Clerk's own variables, not the ones in `supabase_templates/`. The shell
+in `build.mjs` — palette, logo tile, table layout — is the part worth reusing:
+render a Clerk set from it into `clerk_templates/`, then paste each file into
+the dashboard.
 
 ## Why `supabase_templates/` is dead
 
 The nine numbered files were written for Supabase Auth, which this app stopped
-using at [`014_custom_auth.sql`](../db/supabase/014_custom_auth.sql). They are
-kept for reference and for the copy, but they cannot work:
+using at [`014_custom_auth.sql`](../db/supabase/014_custom_auth.sql). They
+cannot work:
 
 - Their variables (`{{ .TokenHash }}`, `{{ .SiteURL }}`, `{{ .Token }}`,
   `{{ .Provider }}`) are injected by Supabase's mailer. Nothing else provides
   them.
-- They link to `{{ .SiteURL }}/auth/confirm?token_hash=…`, and
-  `src/app/auth/confirm/route.ts` **does not exist in this repo**.
-- Seven of the nine (invite, magic link, change email, reauthentication,
-  password changed, sign-in method linked/removed) have no corresponding method
-  on `EmailSender`.
+- They link to `{{ .SiteURL }}/auth/confirm?token_hash=…`, a route that does
+  not exist in this repo.
 
-Do not paste them into a Supabase project expecting them to work, and do not
-port them to Resend — they would be templates for flows the app cannot trigger.
+Do not paste them into a Supabase project or into Clerk expecting them to work.
 
 ## Editing notes
 
@@ -89,10 +54,3 @@ port them to Resend — they would be templates for flows the app cannot trigger
   `pnpm build:email-logo`.
 - Fonts fall back to Helvetica/Arial. Geist will not load in an email client.
 - Keep the plain-text fallback URL. Some clients strip or rewrite buttons.
-
-## Subjects live in two files
-
-`build.mjs` carries each template's subject, and
-[`scripts/build-email-templates.mts`](../scripts/build-email-templates.mts)
-repeats them for the inlined copies. They match today; nothing enforces it. If
-you change a subject, change it in both.

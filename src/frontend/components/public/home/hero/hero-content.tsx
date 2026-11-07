@@ -11,7 +11,7 @@ export function HeroEyebrow() {
     <div className="mb-8 opacity-100 translate-y-0 transition-all duration-700">
       <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
         <span className="w-8 h-px bg-foreground/30" />
-        AI-powered job matching · launching soon
+        AI-powered job matching
       </span>
     </div>
   );
@@ -54,13 +54,13 @@ export function HeroHeadline() {
 export function HeroDescription() {
   return (
     <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-xl transition-all duration-700 delay-200">
-      Tell us your skills and preferences. Our AI searches job platforms on your behalf — then ranks every match just for you. Join the waitlist and be among the first in.
+      Tell us your skills and preferences. Our AI searches job platforms on your behalf — then ranks every match just for you.
     </p>
   );
 }
 
 export function HeroCTA() {
-  const { text, href } = resolveCta("Join the waitlist");
+  const { text, href } = resolveCta("Get started free");
 
   return (
     /*

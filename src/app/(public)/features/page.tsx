@@ -87,7 +87,7 @@ export default async function FeaturesPage() {
       </div>
 
       <div className="mt-16">
-        <CtaButton signedOutText="Join the waitlist" />
+        <CtaButton text="Create a free account" />
       </div>
     </PageShell>
   );

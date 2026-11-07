@@ -2,7 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 
-import { query } from "@/backend/modules/auth/infrastructure/database";
+import { query } from "@/backend/shared/database";
 
 /**
  * Whether a user has finished onboarding.
@@ -12,9 +12,8 @@ import { query } from "@/backend/modules/auth/infrastructure/database";
  * answers "who is this"; this answers "how far through setup are they", and
  * conflating the two is how a module stops having a boundary.
  *
- * It borrows auth's connection pool rather than opening a second one — that is
- * a pragmatic shortcut until the preferences module has its own repository, and
- * the only coupling is to the pool, not to auth's logic.
+ * It queries the shared pool directly — a pragmatic shortcut until the
+ * preferences module has its own repository.
  *
  * ── Why this exists at all ──────────────────────────────────
  * The proxy used to answer this with up to three queries per request, including

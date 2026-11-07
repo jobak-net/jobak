@@ -1,23 +1,31 @@
 /**
- * The user as the auth module understands them: identity and credentials only.
+ * The user as the app understands them: our own id, and who they are upstream.
+ *
+ * Identity itself — passwords, sessions, verification — belongs to the identity
+ * provider now (Clerk, or the local owner when auth is disabled). What stays
+ * here is the row every other table points at: `users.id` is the foreign key on
+ * preferences, matches, profiles and feedback, and it stays a UUID we mint, so
+ * none of those tables care which provider is in use.
  *
  * Profile, preferences and onboarding state deliberately live in other tables
- * and other modules. Auth answers "who is this and may they in", nothing more —
- * widening this type is how a module stops having a boundary.
+ * and other modules. Widening this type is how a module stops having a boundary.
  */
 
 export interface User {
   id: string;
-  email: string;
   /**
-   * Null for an account with no password — an OAuth-only signup, once that
-   * exists. Verification must read null as "password login unavailable", never
-   * as "any password will do".
+   * The provider's id for this person — a Clerk `user_…` id, or the fixed
+   * local-owner id when auth is disabled. Unique; the lookup key on every
+   * request.
    */
-  passwordHash: string | null;
+  externalId: string;
+  /**
+   * Null when the provider has none. Clerk can be configured for phone- or
+   * username-only sign-in, and an invented placeholder would be worse than an
+   * honest gap.
+   */
+  email: string | null;
   fullName: string | null;
-  /** Null until confirmed. A timestamp, so "when" is answerable. */
-  emailVerifiedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,16 +33,14 @@ export interface User {
 /**
  * What leaves the module.
  *
- * `passwordHash` is absent by construction rather than by remembering to delete
- * it — a hash is still a credential, and one that reaches a client component or
- * a JSON response is a leak. Anything crossing the module boundary should be
- * this type, not `User`.
+ * `externalId` is absent on purpose: it is the provider's key, and code outside
+ * this module that keyed off it would break the moment the provider changed.
+ * Everything else in the app scopes by `id`.
  */
 export interface PublicUser {
   id: string;
-  email: string;
+  email: string | null;
   fullName: string | null;
-  emailVerified: boolean;
   createdAt: Date;
 }
 
@@ -43,12 +49,6 @@ export function toPublicUser(user: User): PublicUser {
     id: user.id,
     email: user.email,
     fullName: user.fullName,
-    emailVerified: user.emailVerifiedAt !== null,
     createdAt: user.createdAt,
   };
 }
-
-export const isEmailVerified = (user: User) => user.emailVerifiedAt !== null;
-
-/** True when this account can be signed into with a password at all. */
-export const hasPassword = (user: User) => user.passwordHash !== null;

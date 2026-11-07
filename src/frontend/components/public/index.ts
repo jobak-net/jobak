@@ -5,4 +5,3 @@ export { FeaturesSection } from "./home/features";
 export { DashboardPreviewSection } from "./home/dashboard-preview";
 export { FreeSection } from "./home/free";
 export { CtaSection } from "./home/cta";
-export { WaitlistSection, WaitlistForm } from "./waitlist";

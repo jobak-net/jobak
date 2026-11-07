@@ -15,34 +15,12 @@ import { fileURLToPath } from "node:url";
 const ROOT = dirname(fileURLToPath(import.meta.url));
 
 /*
- * Three output sets, one shell.
- *
- *   supabase_templates/  the nine Supabase dashboard templates. Legacy — the
- *                        app stopped using Supabase Auth at migration 014 and
- *                        nothing can send these today. Kept for reference.
- *   app_templates/       the two the app sends itself, with `{{link}}` for the
- *                        inline sender to substitute.
- *   resend_templates/    the same two, with `{{{LINK}}}` for Resend-hosted
- *                        templates. Triple braces and an uppercase key are
- *                        Resend's syntax, not a style choice.
- *
- * Generated rather than hand-written because they are the same markup three
- * times over, and three hand-maintained copies would drift. That is the whole
- * reason this file exists.
+ * One output set: the nine Supabase dashboard templates. Legacy — the app
+ * stopped using Supabase Auth at migration 014, and since 017 Clerk sends every
+ * auth email itself. Nothing can send these today; they are kept for the shell
+ * and the copy, which a set of Clerk custom templates can start from.
  */
 const OUT_DIR = join(ROOT, "supabase_templates");
-
-/*
- * The app sends its own verification and reset emails now that auth is ours
- * (src/backend/modules/auth). Those need the same shell and copy but not
- * Supabase's Go-template placeholders, so they are rendered a second time with
- * `{{link}}` — a marker our own sender substitutes.
- *
- * Generated rather than hand-written so there is still one shell. Two copies of
- * this markup would drift, which is the whole reason this file exists.
- */
-const APP_OUT_DIR = join(ROOT, "app_templates");
-const RESEND_OUT_DIR = join(ROOT, "resend_templates");
 
 /*
  * Brand palette, resolved to sRGB. The app's tokens are oklch(), which no email
@@ -386,85 +364,3 @@ for (const t of templates) {
       subject: ${t.subject}`);
 }
 console.log(`\n${templates.length} templates written to ${OUT_DIR}`);
-
-/*
- * ── The app's own templates ─────────────────────────────────
- * Same shell, same copy, but the URL is `{{link}}` rather than a Supabase
- * expression, and there is no `{{ .SiteURL }}` to resolve — the app's sender
- * builds the whole absolute link and substitutes it.
- *
- * Only the two emails the app actually sends today. The rest of the list above
- * stays Supabase-only until those flows are ported.
- */
-const appTemplates = [
-  {
-    file: "verify-email.html",
-    subject: "Confirm your email address for Jobak",
-    preheader: "Confirm your email address to finish setting up Jobak.",
-    title: "Confirm your email",
-    paragraphs: [
-      "You are one step from your first set of ranked matches. Confirm this address and you can sign in.",
-    ],
-    action: { kind: "link", label: "Confirm my email", url: "{{link}}" },
-    notes: ["This link expires in 24 hours and can only be used once.", IGNORE],
-  },
-  {
-    file: "reset-password.html",
-    subject: "Reset your Jobak password",
-    preheader: "Reset your Jobak password.",
-    title: "Reset your password",
-    paragraphs: [
-      "We received a request to reset the password on your Jobak account. Choose a new one using the button below.",
-    ],
-    action: { kind: "link", label: "Choose a new password", url: "{{link}}" },
-    notes: [
-      "This link expires in one hour and can only be used once.",
-      "If you did not ask to reset your password, ignore this email. Your current password will keep working.",
-    ],
-  },
-];
-
-mkdirSync(APP_OUT_DIR, { recursive: true });
-for (const t of appTemplates) {
-  writeFileSync(join(APP_OUT_DIR, t.file), render(t), "utf8");
-  console.log(`  ${t.file.padEnd(32)} -> app sender (inline)
-      subject: ${t.subject}`);
-}
-console.log(`${appTemplates.length} app templates written to ${APP_OUT_DIR}`);
-
-/*
- * ── The Resend-hosted copies ────────────────────────────────
- * Identical markup; only the link marker differs.
- *
- * Resend interpolates `{{{LINK}}}` — three braces, not two. Two braces render
- * literally, so a template uploaded with `{{link}}` would send an email whose
- * button points at the text "{{link}}". The key is uppercase by Resend's
- * convention, and must match the `variables` object the sender posts.
- *
- * `LINK` is safe as a key: Resend reserves FIRST_NAME, LAST_NAME, EMAIL,
- * UNSUBSCRIBE_URL, `contact` and `this`.
- */
-const RESEND_MARKERS = [
-  ["{{link}}", "{{{LINK}}}"],
-  ["{{logo}}", "{{{LOGO}}}"],
-];
-
-mkdirSync(RESEND_OUT_DIR, { recursive: true });
-for (const t of appTemplates) {
-  /*
-   * Rendered once and then rewritten, rather than rendered a second time with
-   * different inputs. Two render passes can diverge — a change that touches
-   * only one path is invisible until someone diffs the output. Substituting on
-   * the finished string makes byte-identity-apart-from-the-markers structural
-   * rather than something to remember.
-   */
-  let html = render(t);
-  for (const [from, to] of RESEND_MARKERS) html = html.replaceAll(from, to);
-
-  writeFileSync(join(RESEND_OUT_DIR, t.file), html, "utf8");
-  console.log(`  ${t.file.padEnd(32)} -> Resend template
-      subject: ${t.subject}`);
-}
-console.log(
-  `${appTemplates.length} Resend templates written to ${RESEND_OUT_DIR}`
-);

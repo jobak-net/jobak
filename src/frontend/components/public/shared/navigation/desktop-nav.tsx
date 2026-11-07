@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button } from "@/frontend/components/ui";
+import { AuthControls } from "@/frontend/components/auth";
 import { NavLogo } from "./nav-logo";
 
 import { landingNavLinks as navLinks } from "@/frontend/lib";
@@ -25,13 +25,7 @@ export function DesktopNavigation({ isScrolled }: DesktopNavigationProps) {
           </div>
 
           <div className="flex items-center gap-4">
-            {/*
-              * One call to action while the product is pre-launch. There is no
-              * sign-in to offer yet, so a "Sign in" link would lead nowhere.
-              */}
-            <Button size="sm" className="bg-accent rounded-full" asChild>
-              <Link href="/#waitlist">Join the waitlist</Link>
-            </Button>
+            <AuthControls />
           </div>
         </div>
       </nav>

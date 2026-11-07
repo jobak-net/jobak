@@ -14,9 +14,11 @@ import { PageIntro, PageShell } from "@/frontend/components/public/shared/page-i
  * Written against what the code actually does, not from a template — every
  * claim here corresponds to something in the repository:
  *
- *  - the waitlist table and its columns   db/supabase/016_waitlist.sql
- *  - what the sign-up form sends          components/public/waitlist/
- *  - the rate limiter storing an IP hash  db/supabase/015_rate_limits.sql
+ *  - accounts and sign-in                 Clerk; modules/auth, 017_clerk_auth.sql
+ *  - the copy of email and name we keep   users table, synced by the webhook
+ *  - deletion taking the data with it     ON DELETE CASCADE from users (014)
+ *  - preferences, bookmarks, API keys     001_initial_schema.sql (keys encrypted)
+ *  - the opt-in public profile            010_public_profiles.sql
  *
  * If any of those change, this page is part of the change.
  */
@@ -39,10 +41,10 @@ export default function PrivacyPage() {
             <span className="text-muted-foreground">policy.</span>
           </>
         }
-        lead="Jobak is not open to the public yet. Right now the only thing collected is a waitlist signup, and this page says exactly what that involves."
+        lead="What Jobak holds about you when you create an account and use it, who else handles it, and how to have it deleted."
       />
 
-      <LegalUpdated date="19 September 2026" />
+      <LegalUpdated date="7 November 2026" />
 
       <LegalProse>
         <LegalSection id="who-we-are" heading="Who we are">
@@ -61,47 +63,54 @@ export default function PrivacyPage() {
         </LegalSection>
 
         <LegalSection id="what-we-collect" heading="What we collect">
-          <p>
-            While Jobak is pre-launch, joining the waitlist is the only way to
-            give us anything. That form stores:
-          </p>
+          <p>When you create an account:</p>
           <ul className="list-disc pl-5 space-y-1.5">
             <li>
-              <strong className="text-foreground">Your email address</strong> —
-              required, because it is how we tell you we have opened.
+              <strong className="text-foreground">
+                Your email address and name
+              </strong>{" "}
+              — held by Clerk, which runs sign-in for us, and copied to our own
+              database so your settings and matches can be attached to you.
             </li>
             <li>
-              <strong className="text-foreground">
-                Your field and work preference
-              </strong>{" "}
-              — optional, asked after you join. Used to decide which roles to
-              have ready first. Skipping them changes nothing about your place
-              on the list.
-            </li>
-            <li>
-              <strong className="text-foreground">
-                Where you came from
-              </strong>{" "}
-              — the page that linked you, and a marker in the link itself, so we
-              know which channels worked.
+              <strong className="text-foreground">How you sign in</strong> — a
+              password, or the social account you chose. Passwords are handled
+              entirely by Clerk; we never see or store them.
             </li>
           </ul>
-          <p>
-            We do not ask for your name, phone number, CV or salary, and there is
-            no account to create yet.
-          </p>
+          <p>As you use Jobak, anything you choose to add is stored against your account:</p>
+          <ul className="list-disc pl-5 space-y-1.5">
+            <li>
+              <strong className="text-foreground">Your job preferences</strong>{" "}
+              — the fields, titles, countries and ways of working you want
+              matches for.
+            </li>
+            <li>
+              <strong className="text-foreground">Matches and bookmarks</strong>{" "}
+              — the jobs scored for you, and the ones you saved.
+            </li>
+            <li>
+              <strong className="text-foreground">API keys you connect</strong>{" "}
+              — for the AI provider that ranks your matches. These are stored
+              encrypted and only decrypted to make the requests you asked for.
+            </li>
+            <li>
+              <strong className="text-foreground">A public profile</strong> — only
+              if you turn it on. It is off by default, and turning it off removes
+              it from the talent directory.
+            </li>
+          </ul>
         </LegalSection>
 
         <LegalSection id="automatically" heading="What is collected automatically">
           <p>
-            To stop the sign-up form being used to send junk, we store your IP
-            address alongside a count of recent submissions, and pause the form
-            if there are too many in a short window. Those records are cleared
-            out routinely and are never linked to your waitlist entry.
+            Signing in uses cookies. Clerk sets them to keep you signed in and to
+            recognise your session securely; they are needed for an account to
+            work at all. Clerk also processes your IP address and browser details
+            to protect sign-in from abuse.
           </p>
           <p>
-            We do not use analytics, advertising or tracking cookies. The site
-            sets no cookies at all while it is pre-launch.
+            We do not use analytics, advertising or tracking cookies.
           </p>
         </LegalSection>
 
@@ -111,8 +120,8 @@ export default function PrivacyPage() {
             <Link href="/jobs" className="text-accent-text underline underline-offset-2">
               jobs board
             </Link>{" "}
-            is public and needs no account. Browsing it stores nothing about
-            you.
+            is public and needs no account. Browsing it while signed out stores
+            nothing about you.
           </p>
           <p>
             The listings themselves are collected from public sources — job
@@ -124,10 +133,10 @@ export default function PrivacyPage() {
 
         <LegalSection id="why" heading="Why we are allowed to hold it">
           <p>
-            Consent. You typed your address into a form asking to be told when
-            Jobak launches, and that is the only thing it is used for. You can
-            withdraw that consent at any time by asking us to delete it, and
-            every email we send will carry an unsubscribe link.
+            To provide the account you asked for. Your email, preferences and
+            keys are what Jobak needs to find and rank jobs for you, and they are
+            used for that and nothing else. A public profile is held on your
+            consent, which you withdraw by turning it off.
           </p>
         </LegalSection>
 
@@ -136,30 +145,32 @@ export default function PrivacyPage() {
           <p>Three services process it on our behalf:</p>
           <ul className="list-disc pl-5 space-y-1.5">
             <li>
+              <strong className="text-foreground">Clerk</strong> — runs sign-in
+              and accounts, and sends account emails such as verification codes.
+            </li>
+            <li>
               <strong className="text-foreground">Supabase</strong> — hosts the
-              database the waitlist is stored in.
+              database your preferences and matches are stored in.
             </li>
             <li>
               <strong className="text-foreground">Vercel</strong> — runs the
               website itself.
             </li>
-            <li>
-              <strong className="text-foreground">Resend</strong> — delivers the
-              emails we send you.
-            </li>
           </ul>
           <p>
-            Each is bound to use the data only to provide that service. We will
-            also disclose data where the law requires it.
+            When you connect an AI provider&apos;s key, the job details being
+            ranked are sent to that provider under your key, as you asked. Each
+            service is bound to use the data only to provide that service. We
+            will also disclose data where the law requires it.
           </p>
         </LegalSection>
 
         <LegalSection id="how-long" heading="How long we keep it">
           <p>
-            Your waitlist entry is kept until Jobak launches and you have been
-            invited, or until you ask us to delete it — whichever comes first.
-            If the project is abandoned, the list is deleted rather than kept or
-            transferred.
+            For as long as your account exists. Deleting it removes your
+            preferences, matches, keys and profile from our database. Feedback
+            you sent through the site is kept, with nothing left linking it to
+            you.
           </p>
         </LegalSection>
 
@@ -175,17 +186,13 @@ export default function PrivacyPage() {
             </a>{" "}
             and we will act within 30 days.
           </p>
-          <p>
-            Deleting a waitlist entry is immediate and permanent — we keep no
-            copy, so rejoining later starts a new entry.
-          </p>
         </LegalSection>
 
         <LegalSection id="security" heading="Security">
           <p>
-            The site is served over HTTPS and the database is reachable only by
-            the application, over an encrypted connection. No part of the
-            waitlist is exposed to the browser.
+            The site is served over HTTPS, the database is reachable only by the
+            application over an encrypted connection, and API keys are encrypted
+            before they are stored. Passwords never reach us at all.
           </p>
           <p>
             No system is perfectly secure. If something does go wrong in a way
@@ -196,11 +203,10 @@ export default function PrivacyPage() {
 
         <LegalSection id="changes" heading="Changes to this policy">
           <p>
-            Jobak is being built, so this policy will change as it grows —
-            accounts, saved searches and AI matching will each add to what is
-            collected. The date at the top always reflects the current version,
-            and material changes will be emailed to anyone on the list before
-            they take effect.
+            Jobak is still being built, so this policy will change as it grows.
+            The date at the top always reflects the current version, and
+            material changes will be emailed to account holders before they take
+            effect.
           </p>
         </LegalSection>
       </LegalProse>

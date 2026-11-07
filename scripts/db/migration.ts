@@ -24,7 +24,7 @@ import { Client } from "pg";
  * script connects to the same database with the same credentials, and a second
  * copy of the rule is one that drifts.
  */
-import { resolveSslConfig } from "../../src/backend/modules/auth/infrastructure/database/ssl";
+import { resolveSslConfig } from "../../src/backend/shared/database/ssl";
 
 // Each entry maps a picker label to the folder under db/ and the env var
 // holding its Postgres connection string. Add a new DB by adding a row here —

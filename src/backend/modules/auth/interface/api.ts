@@ -4,14 +4,13 @@ import { NextResponse } from "next/server";
 
 import { getAuthModule } from "../composition";
 import type { PublicUser } from "../domain/entities/user.entity";
-import { getAccessToken } from "../infrastructure/http/cookies";
 
 /**
  * Authenticating an API route.
  *
  * Separate from `./session`, which redirects — a route handler must answer with
  * a 401 instead, because its caller is a `fetch()` expecting JSON and an HTML
- * login page would be nonsense to it.
+ * sign-in page would be nonsense to it.
  *
  * Deliberately not wrapped in React's `cache`: route handlers are not a render
  * pass, so there is nothing to dedupe against and `cache` would be misleading
@@ -27,12 +26,12 @@ import { getAccessToken } from "../infrastructure/http/cookies";
  */
 export async function getApiUser(): Promise<PublicUser | null> {
   try {
-    return await getAuthModule().getCurrentUser.execute(await getAccessToken());
+    return await getAuthModule().getCurrentUser.execute();
   } catch (error) {
     /*
-     * A failure to verify is not a signed-in user. Logged rather than thrown so
-     * a database blip degrades to "unauthenticated" — which the caller already
-     * handles — instead of a 500 from every authenticated endpoint at once.
+     * A failure to resolve is not a signed-in user. Logged rather than thrown
+     * so a database blip degrades to "unauthenticated" — which the caller
+     * already handles — instead of a 500 from every authenticated endpoint.
      */
     console.error("[auth/api] getApiUser failed", error);
     return null;

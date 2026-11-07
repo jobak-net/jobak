@@ -47,20 +47,17 @@
     "db:migrate": "tsx scripts/db/migration.ts",
     "check:workflows": "node scripts/check-workflows.mjs",
     "check:jsonld": "tsx scripts/json-ld-probe.ts",
-    "build:emails": "tsx scripts/render-email-logo.mts && node email-templates/build.mjs && tsx scripts/build-email-templates.mts",
-    "build:email-logo": "tsx scripts/render-email-logo.mts",
-    "resend:templates": "tsx scripts/resend/push-templates.ts",
-    "resend:test": "tsx scripts/resend/test-send.ts"
+    "build:emails": "tsx scripts/render-email-logo.mts && node email-templates/build.mjs",
+    "build:email-logo": "tsx scripts/render-email-logo.mts"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.9.25",
     "@radix-ui/react-slot": "^1.2.4",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.1",
-    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "country-flag-icons": "^1.6.20",
-    "jose": "^6.2.12",
     "lucide-react": "^1.14.0",
     "next": "16.2.4",
     "pg": "^8.23.0",

@@ -2,11 +2,16 @@
 
 import React from "react";
 
-export function RootProvider({ children }: { children: React.ReactNode }) {
+import { AuthModeProvider } from "./auth-mode-provider";
+
+export function RootProvider({
+  authEnabled,
+  children,
+}: {
+  authEnabled: boolean;
+  children: React.ReactNode;
+}) {
   return (
-    <>
-      {/* Add your providers here (Context, Theme, etc.) */}
-      {children}
-    </>
+    <AuthModeProvider authEnabled={authEnabled}>{children}</AuthModeProvider>
   );
 }

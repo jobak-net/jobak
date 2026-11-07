@@ -240,7 +240,7 @@ export default async function PublicJobPage({ params }: PageProps) {
             <p className="text-sm text-muted-foreground">
               Jobak collects openings from MENA boards, remote job boards and companies&apos; own
               career pages, then scores them against your profile.{" "}
-              <Link href="/#waitlist" className="text-accent underline underline-offset-2">
+              <Link href="/register" className="text-accent underline underline-offset-2">
                 Create a free account
               </Link>{" "}
               to get matches like this one.
