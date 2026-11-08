@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+
+import { AudienceSwitch } from "@/frontend/components/public/shared/account-cta";
+import { DASHBOARD_HREF, REFERRALS_HREF, SIGN_UP_HREF } from "@/frontend/lib/configs/cta";
 import { notFound } from "next/navigation";
 import { ArrowUpRight, Banknote, Building2, Clock, MapPin, Wifi } from "lucide-react";
 import { LinkedInIcon } from "@/frontend/components/shared/brand-icons";
@@ -240,10 +243,34 @@ export default async function PublicJobPage({ params }: PageProps) {
             <p className="text-sm text-muted-foreground">
               Jobak collects openings from MENA boards, remote job boards and companies&apos; own
               career pages, then scores them against your profile.{" "}
-              <Link href="/#waitlist" className="text-accent underline underline-offset-2">
-                Create a free account
-              </Link>{" "}
-              to get matches like this one.
+              {/* The pitch changes with the reader: an account holder is not told to sign up. */}
+              <AudienceSwitch
+                signedOut={
+                  <>
+                    <Link href={SIGN_UP_HREF} className="text-accent underline underline-offset-2">
+                      Create a free account
+                    </Link>{" "}
+                    to get matches like this one.
+                  </>
+                }
+                signedIn={
+                  <>
+                    Know someone who&apos;d want this job?{" "}
+                    <Link href={REFERRALS_HREF} className="text-accent underline underline-offset-2">
+                      Refer a friend
+                    </Link>
+                    .
+                  </>
+                }
+                local={
+                  <>
+                    <Link href={DASHBOARD_HREF} className="text-accent underline underline-offset-2">
+                      Open your dashboard
+                    </Link>{" "}
+                    to see how it scores for you.
+                  </>
+                }
+              />
             </p>
           </div>
         </div>

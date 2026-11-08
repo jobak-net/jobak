@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useBodyScrollLock } from "@/frontend/hooks";
 
-import { Button } from "@/frontend/components/ui/button";
+import { AuthControls } from "@/frontend/components/auth";
 import { Menu, X } from "lucide-react";
 import { NavLogo } from "./nav-logo";
 
@@ -48,10 +48,8 @@ export function MobileNavigation({ isScrolled }: MobileNavigationProps) {
               </Link>
             ))}
           </div>
-          <div className="flex gap-4">
-            <Button className="flex-1 bg-accent rounded-full h-14" asChild>
-              <Link href="/#waitlist" onClick={close}>Join the waitlist</Link>
-            </Button>
+          <div className="flex items-center gap-4">
+            <AuthControls layout="mobile" onNavigate={close} />
           </div>
         </div>
       </div>

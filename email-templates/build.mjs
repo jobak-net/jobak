@@ -12,18 +12,15 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "templates");
+const ROOT = dirname(fileURLToPath(import.meta.url));
 
 /*
- * The app sends its own verification and reset emails now that auth is ours
- * (src/backend/modules/auth). Those need the same shell and copy but not
- * Supabase's Go-template placeholders, so they are rendered a second time with
- * `{{link}}` — a marker our own sender substitutes.
- *
- * Generated rather than hand-written so there is still one shell. Two copies of
- * this markup would drift, which is the whole reason this file exists.
+ * One output set: the nine Supabase dashboard templates. Legacy — the app
+ * stopped using Supabase Auth at migration 014, and since 017 Clerk sends every
+ * auth email itself. Nothing can send these today; they are kept for the shell
+ * and the copy, which a set of Clerk custom templates can start from.
  */
-const APP_OUT_DIR = join(OUT_DIR, "app");
+const OUT_DIR = join(ROOT, "supabase_templates");
 
 /*
  * Brand palette, resolved to sRGB. The app's tokens are oklch(), which no email
@@ -55,17 +52,27 @@ const MONO = "Consolas,Menlo,monospace";
  * drawn with background colours. Outlook squares off the radii; that is fine.
  */
 /*
- * The real brand mark, as a PNG data-URI.
+ * The real brand mark.
  *
  * This used to be a hand-assembled stack of HTML tables approximating a dot and
  * two bars — a shape that predated the current logo and had drifted to the
  * wrong green as well. The mark is a curve (`brand/logo/mark.svg`), which
  * rectangles cannot draw, so it is rasterised instead.
  *
- * A data-URI rather than a hosted image because most clients block remote
- * images until the reader allows them: a hosted logo is simply missing on first
- * view. Inline, it always renders. 2.2KB is a fair price for that.
+ * ── Why the src is a marker, not a data-URI ─────────────────
+ * It used to be `data:image/png;base64,…`, reasoning that most clients block
+ * remote images so an inline one always renders. The second half of that is
+ * false where it matters most: **Gmail does not render data-URI images at
+ * all.** It strips them, so the logo was simply missing for the largest mail
+ * client — which is how this was found, in a real test send.
  *
+ * The src is now `{{logo}}`, substituted at send time. The default is a CID
+ * attachment (`cid:jobak-logo`), which keeps the original benefit — it is part
+ * of the message, so it shows without the reader allowing remote images — and
+ * Gmail honours it. Setting AUTH_EMAIL_LOGO_URL switches to a hosted image
+ * instead, which is lighter but subject to the usual blocking.
+ *
+ * Only the dimensions are read here now; the bytes travel with the send.
  * Regenerate with `pnpm build:email-logo` when the mark changes.
  */
 const LOGO = JSON.parse(
@@ -73,7 +80,7 @@ const LOGO = JSON.parse(
 );
 
 const logo = () => `
-                <img src="${LOGO.dataUri}" width="${LOGO.width}" height="${LOGO.height}"
+                <img src="{{logo}}" width="${LOGO.width}" height="${LOGO.height}"
                      alt="Jobak"
                      style="display:block; width:${LOGO.width}px; height:${LOGO.height}px; border:0; outline:none; text-decoration:none;">`;
 
@@ -357,48 +364,3 @@ for (const t of templates) {
       subject: ${t.subject}`);
 }
 console.log(`\n${templates.length} templates written to ${OUT_DIR}`);
-
-/*
- * ── The app's own templates ─────────────────────────────────
- * Same shell, same copy, but the URL is `{{link}}` rather than a Supabase
- * expression, and there is no `{{ .SiteURL }}` to resolve — the app's sender
- * builds the whole absolute link and substitutes it.
- *
- * Only the two emails the app actually sends today. The rest of the list above
- * stays Supabase-only until those flows are ported.
- */
-const appTemplates = [
-  {
-    file: "verify-email.html",
-    subject: "Confirm your email address for Jobak",
-    preheader: "Confirm your email address to finish setting up Jobak.",
-    title: "Confirm your email",
-    paragraphs: [
-      "You are one step from your first set of ranked matches. Confirm this address and you can sign in.",
-    ],
-    action: { kind: "link", label: "Confirm my email", url: "{{link}}" },
-    notes: ["This link expires in 24 hours and can only be used once.", IGNORE],
-  },
-  {
-    file: "reset-password.html",
-    subject: "Reset your Jobak password",
-    preheader: "Reset your Jobak password.",
-    title: "Reset your password",
-    paragraphs: [
-      "We received a request to reset the password on your Jobak account. Choose a new one using the button below.",
-    ],
-    action: { kind: "link", label: "Choose a new password", url: "{{link}}" },
-    notes: [
-      "This link expires in one hour and can only be used once.",
-      "If you did not ask to reset your password, ignore this email. Your current password will keep working.",
-    ],
-  },
-];
-
-mkdirSync(APP_OUT_DIR, { recursive: true });
-for (const t of appTemplates) {
-  writeFileSync(join(APP_OUT_DIR, t.file), render(t), "utf8");
-  console.log(`  ${t.file.padEnd(32)} -> app sender
-      subject: ${t.subject}`);
-}
-console.log(`${appTemplates.length} app templates written to ${APP_OUT_DIR}`);

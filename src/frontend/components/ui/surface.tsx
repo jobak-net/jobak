@@ -57,7 +57,12 @@ export function Eyebrow({ className, ...props }: React.ComponentProps<"p">) {
     );
 }
 
-/** A titled block within a page. The label is structural, so it is mono. */
+/**
+ * A titled block within a page.
+ *
+ * A plain sans heading, not the mono eyebrow it used to be: a form page with
+ * five sections and five uppercase labels reads as a template.
+ */
 export function Section({
     title,
     hint,
@@ -71,9 +76,9 @@ export function Section({
 }) {
     return (
         <section className={className}>
-            <Eyebrow>{title}</Eyebrow>
-            {hint && <p className="mt-2 max-w-[62ch] text-[13px] text-fg-tertiary">{hint}</p>}
-            <div className="mt-5">{children}</div>
+            <h2 className="text-[15px] font-semibold tracking-[-0.01em] text-fg-primary">{title}</h2>
+            {hint && <p className="mt-1 max-w-[62ch] text-[13px] leading-relaxed text-fg-tertiary">{hint}</p>}
+            <div className="mt-4">{children}</div>
         </section>
     );
 }

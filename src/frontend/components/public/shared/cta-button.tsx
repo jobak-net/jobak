@@ -1,11 +1,9 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { Button } from "@/frontend/components/ui/button";
-import { resolveCta } from "@/frontend/lib/configs/cta";
+import { AccountCtaLink } from "./account-cta";
 
 interface CtaButtonProps {
-  /** The wording for this page's CTA. Every one leads to the waitlist. */
-  signedOutText: string;
+  /** The wording for signed-out visitors. Signed-in ones get "Refer a friend"; see AccountCtaLink. */
+  text: string;
   className?: string;
   size?: "sm" | "lg" | "default";
 }
@@ -15,18 +13,13 @@ interface CtaButtonProps {
  * inside either a server or a client tree.
  */
 export function CtaButton({
-  signedOutText,
+  text: label,
   className = "bg-accent hover:bg-accent-bright text-(--bg-canvas) px-8 h-14 rounded-full group font-medium",
   size = "lg",
 }: CtaButtonProps) {
-  const { text, href } = resolveCta(signedOutText);
-
   return (
     <Button size={size} className={className} asChild>
-      <Link href={href}>
-        {text}
-        <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-      </Link>
+      <AccountCtaLink signedOutText={label} withArrow />
     </Button>
   );
 }

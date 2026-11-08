@@ -96,7 +96,7 @@ function Aside() {
 
         <div className="mt-8 pt-8 border-t border-border-subtle">
           <CtaButton
-            signedOutText="Join the waitlist"
+            text="Create a free account"
             size="default"
             className="bg-accent hover:bg-accent-bright text-(--bg-canvas) rounded-full h-12 px-6 group font-medium w-full"
           />

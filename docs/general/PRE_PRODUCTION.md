@@ -62,7 +62,46 @@ neutral collection wording. What is left is not copy — it is the system itself
       because this runs in a function with an 18-second budget rather than in a
       crawler.
 
-## OAuth configuration (code is done, config is not)
+## Clerk auth (added 2026-11-07)
+
+Sign-in moved to Clerk in `017_clerk_auth.sql`; the custom JWT/session code and
+all Resend mail are gone. A self-hosted instance can run with
+`AUTH_ENABLED=false`, which removes sign-in entirely — every visitor is the local
+owner. See `src/backend/modules/auth/infrastructure/config/auth-config.ts`.
+
+- [ ] **Run `017_clerk_auth.sql`.** Destructive: it deletes every existing
+      `users` row and everything that cascades from it.
+- [ ] **Keys per environment:** `CLERK_SECRET_KEY` plus
+      `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` (or `CLERK_PUBLISHABLE_KEY`). With
+      auth enabled and either missing, the app refuses to start rather than
+      falling back to open access.
+- [ ] **Webhook:** Clerk Dashboard → Webhooks → `https://<domain>/api/v1/webhooks/clerk`,
+      events `user.created`, `user.updated`, `user.deleted`; set
+      `CLERK_WEBHOOK_SIGNING_SECRET`. Without `user.deleted`, a deleted
+      account's preferences, matches and saved keys outlive it.
+- [x] **Sign-in pages.** `/login` and `/register` render Clerk's `<SignIn />`
+      and `<SignUp />`; `requireUser()` redirects to `/login`. The waitlist was
+      removed on 2026-11-07. With `AUTH_ENABLED=false` both pages redirect home.
+- [ ] **Clerk Dashboard → Paths:** set sign-in to `/login` and sign-up to
+      `/register` on each instance, so links in Clerk's own emails land on our
+      pages rather than the Account Portal.
+- [ ] **No landing page after sign-in yet.** There is no dashboard, so
+      sign-in returns to the page the visitor came from, or `/`.
+- [ ] **Legal review of /privacy and /terms.** Rewritten 2026-11-07 for
+      accounts (Clerk, cookies, deletion) in place of the waitlist. Read them
+      before launch.
+- [ ] **`waitlist` table** (016) still holds every signup collected so far.
+      Export or invite them, then drop the table in a new migration.
+- [ ] **Production instance:** `npx -y clerk@latest deploy --mode agent --domain <domain>`
+      once the app is claimed.
+- [ ] **Self-hosting / Docker:** build the image with the same `AUTH_ENABLED`
+      it will run with — prerendered pages decide at build whether
+      `ClerkProvider` wraps them.
+
+## OAuth configuration — **superseded 2026-11-07**
+
+> Social sign-in is configured in the Clerk Dashboard now (SSO connections).
+> The Supabase steps below no longer apply; kept for the record.
 
 The buttons are fully wired: they call `signInWithOAuth` with a PKCE challenge and
 point at `/auth/callback`, which exchanges the code for a session. Nothing further
@@ -96,7 +135,12 @@ production URLs are outstanding.
       like a successful sign-in that drops you on the wrong page.
 - [ ] **Set the Site URL** to the production origin, or password-reset and
       confirmation emails will point at localhost.
-## Email
+## Email — **superseded 2026-11-07**
+
+> Clerk sends every auth email itself (Dashboard → Customization → Emails), and
+> the app sends none. The Supabase SMTP and template steps below no longer
+> apply. The sending-domain advice (SPF/DKIM/DMARC, supporting mailboxes) still
+> holds if mail is ever sent from our own domain.
 
 ### Custom SMTP (blocking for launch)
 

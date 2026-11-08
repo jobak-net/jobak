@@ -20,8 +20,7 @@ function Copyright() {
 /**
  * The legal links live in the footer because that is where people look for
  * them, and because a privacy policy nobody can find does not do the job it
- * exists to do — the waitlist form links to it directly as well, at the point
- * where an address is actually being handed over.
+ * exists to do.
  */
 function LegalLinks() {
   return (

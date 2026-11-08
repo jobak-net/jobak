@@ -6,7 +6,7 @@ import type { ScriptCategory } from "../types";
 
 export const category: ScriptCategory = {
     name: "Icons",
-    description: "Re-export favicon.ico and the manifest PNGs from brand/logo/tile.svg",
+    description: "Re-export favicon.ico (from mark.svg) and the manifest PNGs (from app-icon.svg)",
     commands: [
         {
             key: "1",

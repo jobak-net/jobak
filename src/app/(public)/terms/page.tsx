@@ -11,14 +11,14 @@ import { PageIntro, PageShell } from "@/frontend/components/public/shared/page-i
 /**
  * Terms of service.
  *
- * Deliberately short and specific. Jobak is pre-launch: there is no account, no
- * payment and no service to guarantee, so terms written for a running product
- * would be making promises about something that does not exist yet.
+ * Deliberately short and specific. Jobak is free and still being built, so
+ * these cover what exists — the listings and the account — rather than making
+ * promises about a finished product.
  */
 export const metadata: Metadata = {
   title: "Terms of Service — Jobak",
   description:
-    "The terms you agree to by using the Jobak website and joining the waitlist.",
+    "The terms you agree to by using the Jobak website and creating an account.",
   alternates: { canonical: "/terms" },
 };
 
@@ -34,37 +34,40 @@ export default function TermsPage() {
             <span className="text-muted-foreground">service.</span>
           </>
         }
-        lead="Short, because there is not much to agree to yet — Jobak is not open, there is nothing to pay for, and no account to hold."
+        lead="Short, because there is not much to agree to — Jobak is free, and the account is there to hold your preferences and matches."
       />
 
-      <LegalUpdated date="19 September 2026" />
+      <LegalUpdated date="7 November 2026" />
 
       <LegalProse>
         <LegalSection id="scope" heading="What these terms cover">
           <p>
-            Using this website — browsing the job listings, or joining the
-            waitlist — means you accept what is written here. If you do not, the
-            remedy is simply not to use it.
+            Using this website — browsing the job listings, or creating and
+            using an account — means you accept what is written here. If you do
+            not, the remedy is simply not to use it.
           </p>
           <p>
-            When Jobak opens properly, these terms will be replaced with ones
-            covering accounts, matching and anything payable. Nobody on the
-            waitlist will be charged under the terms on this page, because there
-            is nothing on it to charge for.
+            Jobak costs nothing. If that ever changes, it will be under new terms
+            you are asked to accept first — nobody will be charged under the
+            terms on this page.
           </p>
         </LegalSection>
 
-        <LegalSection id="waitlist" heading="The waitlist">
+        <LegalSection id="account" heading="Your account">
           <p>
-            Joining puts your email address on a list to be told when Jobak
-            opens. It is not a purchase, not a reservation, and not a promise of
-            access — we may invite people in stages, or in an order that is not
-            strictly first-come.
+            One account per person, in your own name and with an address that is
+            yours. Keep your sign-in details to yourself — what happens under
+            your account is treated as you.
           </p>
           <p>
-            We may also never launch. That is the honest position for a product
-            being built by one person, and you should not rely on Jobak existing
-            when deciding anything about your career.
+            You can stop using Jobak and have your account deleted at any time.
+            We may suspend an account that breaks these terms, and will tell you
+            why when we do.
+          </p>
+          <p>
+            Jobak is built by one person and is still changing. Features may
+            move, change or go, and you should not rely on it alone when deciding
+            anything about your career.
           </p>
         </LegalSection>
 
@@ -98,8 +101,8 @@ export default function TermsPage() {
           <p>Please do not:</p>
           <ul className="list-disc pl-5 space-y-1.5">
             <li>
-              submit addresses that are not yours, or use the form to send
-              unwanted mail to someone else
+              create accounts for other people, or with addresses that are not
+              yours
             </li>
             <li>
               scrape the listings wholesale — they are not ours to re-license,
@@ -111,9 +114,9 @@ export default function TermsPage() {
             </li>
           </ul>
           <p>
-            We rate-limit the forms for exactly these reasons. Hitting a limit
-            during ordinary use is a bug on our side — tell us and we will widen
-            it.
+            Sign-in is rate-limited for exactly these reasons. Hitting a limit
+            during ordinary use is a bug on our side — tell us and we will look
+            at it.
           </p>
         </LegalSection>
 
@@ -141,8 +144,8 @@ export default function TermsPage() {
         <LegalSection id="changes" heading="Changes">
           <p>
             These terms will change as Jobak is built. The date at the top shows
-            the current version, and material changes will be emailed to anyone
-            on the waitlist before they take effect.
+            the current version, and material changes will be emailed to account
+            holders before they take effect.
           </p>
         </LegalSection>
 

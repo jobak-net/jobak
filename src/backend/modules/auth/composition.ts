@@ -1,136 +1,85 @@
 import "server-only";
 
+import { GetCurrentUserUseCase, SyncUserUseCase } from "./application/use-cases";
+import type { IdentityProvider } from "./domain/ports/identity-provider.port";
 import {
-  GetCurrentUserUseCase,
-  LoginUseCase,
-  LogoutUseCase,
-  RefreshSessionUseCase,
-  RegisterUseCase,
-  RequestPasswordResetUseCase,
-  ResendVerificationUseCase,
-  ResetPasswordUseCase,
-  VerifyEmailUseCase,
-} from "./application/use-cases";
+  getClerkKeys,
+  isAuthEnabled,
+  warnIfAuthDisabled,
+} from "./infrastructure/config";
 import {
-  SessionIssuer,
-  VerificationLinkBuilder,
-  resolveBaseUrl,
-} from "./application/services";
-import type { EmailSender } from "./domain/ports/email-sender.port";
-import type { RateLimiter } from "./domain/ports/rate-limiter.port";
-import { ConsoleEmailSender, ResendEmailSender } from "./infrastructure/email";
-import {
-  PgAuthTokenRepository,
-  PgRateLimiter,
-  PgSessionRepository,
-  PgUserRepository,
-} from "./infrastructure/repositories";
-import { BcryptPasswordHasher, JwtTokenService } from "./infrastructure/security";
+  ClerkIdentityProvider,
+  LocalIdentityProvider,
+} from "./infrastructure/providers";
+import { PgUserRepository } from "./infrastructure/repositories/user.repository";
 
 /**
  * The composition root: the one place that decides which implementations the
  * use cases get.
  *
- * This is why nothing in `application/` imports from `infrastructure/` — the
- * wiring lives here instead, so the use cases stay testable with fakes and the
- * choice of Postgres, bcrypt and jose is made once, visibly.
+ * This is where `AUTH_ENABLED` turns into behaviour. Everything downstream —
+ * the DAL, every server action that scopes by `user.id` — receives the same
+ * use cases in both modes and never asks which one it is in.
  *
- * Route handlers import the assembled use cases from here and nothing else.
+ * Route handlers and the DAL import the assembled module from here and nothing
+ * else.
  */
 
 /**
- * Built once per process and cached on `globalThis`, for the same reason the
- * pool is: Next's dev server re-evaluates modules on every hot reload, and a
- * fresh set of repositories per edit would be wasteful at best.
+ * Cached on `globalThis`: Next's dev server re-evaluates modules on every hot
+ * reload, and the objects are stateless — they hold ports, not connections —
+ * so sharing them across requests is safe.
  *
- * The objects are stateless — they hold ports, not connections — so sharing
- * them across requests is safe. The pool underneath does its own management.
+ * ── Keyed by mode ───────────────────────────────────────────
+ * The cache remembers which mode it was built for and is rebuilt when
+ * `AUTH_ENABLED` changes. `next dev` reloads `.env` files in the same process
+ * when they are edited, so the environment *can* change under a running server,
+ * and the cache outlives that. A Clerk-mode module surviving a switch to
+ * `AUTH_ENABLED=false` sent signed-out requests to /login, whose layout reads
+ * the env afresh and sent them straight back: an endless redirect loop.
  */
-const globalForAuth = globalThis as unknown as { authModule?: AuthModule };
+const globalForAuth = globalThis as unknown as {
+  authModule?: { authEnabled: boolean; module: AuthModule };
+};
 
 export interface AuthModule {
-  register: RegisterUseCase;
-  login: LoginUseCase;
-  logout: LogoutUseCase;
-  refresh: RefreshSessionUseCase;
-  verifyEmail: VerifyEmailUseCase;
-  resendVerification: ResendVerificationUseCase;
-  requestPasswordReset: RequestPasswordResetUseCase;
-  resetPassword: ResetPasswordUseCase;
   getCurrentUser: GetCurrentUserUseCase;
-  /**
-   * Exposed directly rather than wrapped in a use case: rate limiting is a
-   * property of the HTTP edge, not of any single operation, and the route
-   * handlers are what know which limit applies.
-   */
-  rateLimiter: RateLimiter;
+  syncUser: SyncUserUseCase;
+  /** Exposed so the DAL can pick how to send a signed-out visitor to sign in. */
+  identity: IdentityProvider;
 }
 
-/**
- * Picks the mail implementation.
- *
- * Configuration decides, not the environment: `RESEND_API_KEY` being set means
- * "send real mail", whether that is production or a developer testing the
- * actual delivery path. Without it, development prints links to the console and
- * production refuses to start — a deploy that silently dropped every
- * verification email would look fine in the logs while nobody could sign up.
- */
-function createEmailSender(): EmailSender {
-  if (process.env.RESEND_API_KEY) {
-    return new ResendEmailSender();
+function createIdentityProvider(authEnabled: boolean): IdentityProvider {
+  if (!authEnabled) {
+    warnIfAuthDisabled();
+    return new LocalIdentityProvider();
   }
 
-  // Throws in production. See ConsoleEmailSender.
-  return new ConsoleEmailSender();
+  // Throws with the missing variable's name — better here, at first use, than
+  // as an opaque failure inside Clerk's SDK.
+  getClerkKeys();
+  return new ClerkIdentityProvider();
 }
 
-function build(): AuthModule {
+function build(authEnabled: boolean): AuthModule {
   const users = new PgUserRepository();
-  const sessions = new PgSessionRepository();
-  const authTokens = new PgAuthTokenRepository();
-
-  const hasher = new BcryptPasswordHasher();
-  const tokens = new JwtTokenService();
-  const email = createEmailSender();
-
-  const links = new VerificationLinkBuilder(resolveBaseUrl());
-  const sessionIssuer = new SessionIssuer(sessions, tokens);
+  const identity = createIdentityProvider(authEnabled);
 
   return {
-    register: new RegisterUseCase(users, authTokens, hasher, tokens, email, links),
-    login: new LoginUseCase(users, hasher, sessionIssuer),
-    logout: new LogoutUseCase(sessions, tokens),
-    refresh: new RefreshSessionUseCase(sessions, users, tokens),
-    verifyEmail: new VerifyEmailUseCase(users, authTokens, tokens),
-    resendVerification: new ResendVerificationUseCase(
-      users,
-      authTokens,
-      tokens,
-      email,
-      links,
-    ),
-    requestPasswordReset: new RequestPasswordResetUseCase(
-      users,
-      authTokens,
-      tokens,
-      email,
-      links,
-    ),
-    resetPassword: new ResetPasswordUseCase(
-      users,
-      authTokens,
-      sessions,
-      hasher,
-      tokens,
-    ),
-    getCurrentUser: new GetCurrentUserUseCase(users, sessions, tokens),
-    rateLimiter: new PgRateLimiter(),
+    getCurrentUser: new GetCurrentUserUseCase(identity, users),
+    syncUser: new SyncUserUseCase(users),
+    identity,
   };
 }
 
 export function getAuthModule(): AuthModule {
-  if (!globalForAuth.authModule) {
-    globalForAuth.authModule = build();
+  // Read on every call: it is a string comparison, and it is what keeps this
+  // module agreeing with the proxy and the auth layout, which also read it fresh.
+  const authEnabled = isAuthEnabled();
+  const cached = globalForAuth.authModule;
+
+  if (!cached || cached.authEnabled !== authEnabled) {
+    globalForAuth.authModule = { authEnabled, module: build(authEnabled) };
   }
-  return globalForAuth.authModule;
+  return globalForAuth.authModule!.module;
 }

@@ -35,13 +35,13 @@ and the letter-spacing will not match the product.
 | --- | --- |
 | `mark.svg` | The mark in accent green. Default. |
 | `mark-mono.svg` | Same geometry in `currentColor` — set `color` on the parent to place it on any ground. |
-| `tile.svg` | The J as negative space in a rounded tile. **App icons and avatars only** — it is the one variant that supplies its own background. |
+| `app-icon.svg` | The mark on the canvas colour, full bleed. **App icons only** — the one variant that supplies its own background. |
 | `lockup.svg` | The full lockup — mark + `obak`, horizontal. |
 
 The mark is "Horizon J": the J's bowl is the horizon and the detached disc is
 the sun above it. It is two elements at one stroke weight, which is what lets it
 hold together at 16px. Do not add a container, a gradient or a shadow to it —
-the tile is the only approved enclosure, and only for icons.
+the app icon's canvas square is the only approved enclosure, and only for icons.
 
 ### The lockup is a ligature
 
@@ -109,28 +109,31 @@ pnpm scripts        # → Icons → 1
 tsx scripts/icons/generate-icons.ts
 ```
 
-It rasterises `logo/tile.svg` into everything that cannot stay SVG, and is the
-only thing that should ever write these files:
+It rasterises the two SVG sources into everything that cannot stay SVG, and is
+the only thing that should ever write these files:
 
 | Output | From | Serves |
 | --- | --- | --- |
-| `src/app/favicon.ico` | tile, 16+32+48 | Browser tabs. Keeps the tile's rounding — nothing masks a favicon. |
-| `public/icons/icon-192.png` | tile | Manifest, `purpose: any` |
-| `public/icons/icon-512.png` | tile | Manifest, install prompt and splash |
-| `public/icons/icon-maskable-512.png` | tile inset to 80% on canvas | Manifest, `purpose: maskable` |
+| `src/app/favicon.ico` | `logo/mark.svg`, 16+32+48, transparent | Browser tabs and bookmarks in browsers that skip `icon.svg` |
+| `public/icons/icon-192.png` | `logo/app-icon.svg` | Manifest, `purpose: any` |
+| `public/icons/icon-512.png` | `logo/app-icon.svg` | Manifest, install prompt and splash |
+| `public/icons/icon-maskable-512.png` | `logo/app-icon.svg` | Manifest, `purpose: maskable` — the J sits inside the 80% safe zone already |
 
 The PNGs live in `public/` because only `favicon`, `icon` and `apple-icon` are
-file conventions Next serves out of `src/app/` — the `android-chrome-*.png` and
-`favicon-*.png` files that used to sit there were unreachable at any URL, which
-is why the manifest could not name them. They carried the old sun-and-horizon
-badge for weeks with no way to tell by looking, and have been deleted.
+file conventions Next serves out of `src/app/`.
 
-`icon.svg` (the bare mark) and `apple-icon.tsx` (the tile, full bleed) are not
-produced by the script — they are source, and carry the same path data as
-`logo/mark.svg` and `logo/tile.svg`. Keep all four in sync by hand.
+`icon.svg` (the bare mark, adaptive) and `apple-icon.tsx` (the app icon) are
+not produced by the script — they are source, and carry the same path data as
+`logo/mark.svg` and `logo/app-icon.svg`. Keep all four in sync by hand.
 
-**Why the tile and not the mark.** An app icon is always composited onto
-someone else's wallpaper or browser chrome, so it has to supply its own ground.
-The tile is green with the J knocked out as *negative space*, so every raster
-here flattens it onto `#08090a`; left transparent, the J fills with whatever
-sits behind it.
+**One J everywhere.** The favicon, the collapsed dashboard sidebar and the app
+icons all use the homepage mark. An earlier `tile.svg` cut a thicker J with a
+higher dot out of a green square; it showed a letter the homepage never did
+and has been removed.
+
+**Why the favicon is bare but the app icon is not.** A favicon sits on browser
+chrome, which is its ground, so it stays transparent like the logo on the site.
+`icon.svg` switches to a deeper green (`#128a42`) in light browser themes, where
+the brand green is too faint. An installed app icon sits on someone else's
+wallpaper and is cut to the launcher's shape, so it brings the canvas colour
+with it, full bleed and unrounded.

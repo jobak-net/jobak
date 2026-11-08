@@ -1,9 +1,23 @@
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!--
-    Jobak — "Horizon J". The J's bowl is the horizon; the detached disc is the
-    sun above it. Two elements, one stroke weight, so it survives at 16px.
-    Kept in sync with src/frontend/components/shared/jobak-logo.tsx.
+    Jobak — "Horizon J", the same letter as the homepage logo. The J's bowl is
+    the horizon; the detached disc is the sun above it. Two elements, one stroke
+    weight, so it survives at 16px. Kept in sync with
+    src/frontend/components/shared/jobak-logo.tsx and brand/logo/mark.svg.
+
+    Adaptive: brand green on dark browser chrome, a deeper green on light
+    chrome, where #58e68c on a white tab is too faint to find. Browsers apply
+    prefers-color-scheme inside SVG favicons; one that does not keeps the brand
+    green, which is the right default.
   -->
-  <path d="M42 12 V38 A10 10 0 0 1 22 38" stroke="#58e68c" stroke-width="7" stroke-linecap="round" fill="none" />
-  <circle cx="25" cy="22" r="5.5" fill="#58e68c" />
+  <style>
+    .j { stroke: #58e68c; }
+    .sun { fill: #58e68c; }
+    @media (prefers-color-scheme: light) {
+      .j { stroke: #128a42; }
+      .sun { fill: #128a42; }
+    }
+  </style>
+  <path class="j" d="M42 12 V38 A10 10 0 0 1 22 38" stroke-width="7" stroke-linecap="round" fill="none" />
+  <circle class="sun" cx="25" cy="22" r="5.5" />
 </svg>

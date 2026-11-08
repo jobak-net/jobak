@@ -20,3 +20,7 @@ const appEnv = process.env.NEXT_PUBLIC_APP_ENV;
  * unset env var fails closed to "do not index".
  */
 export const isProductionSite = appEnv === "production";
+
+/** The public repository. Jobak is open source (MIT); contributions land here. */
+export const GITHUB_REPO_URL = "https://github.com/jobak-net/jobak";
+export const GITHUB_ISSUES_URL = `${GITHUB_REPO_URL}/issues`;

@@ -5,8 +5,8 @@ export const ctaContent = {
     },
     description: "Stop scrolling job boards manually. Let AI do the work — set your preferences once and get ranked matches delivered instantly.",
     primaryButton: {
-        text: "Join the waitlist",
-        href: "/#waitlist",
+        text: "Create a free account",
+        href: "/register",
     },
     secondaryButton: {
         text: "See how it works",
