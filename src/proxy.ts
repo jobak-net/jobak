@@ -11,6 +11,12 @@ import {
   isAuthEnabled,
 } from "@/backend/modules/auth/infrastructure/config";
 import { SIGN_IN_HREF, SIGN_UP_HREF } from "@/frontend/lib/configs/cta";
+// The domain file directly, not the module index: that pulls in server-only code.
+import {
+  isReferralCode,
+  REFERRAL_COOKIE,
+  REFERRAL_COOKIE_MAX_AGE_SECONDS,
+} from "@/backend/modules/referrals/domain/referral-code";
 
 /**
  * Request handling in front of every route.
@@ -36,9 +42,8 @@ const RETIRED_PATHS: Record<string, string> = {
   "/forgot-password": SIGN_IN_HREF,
   "/reset-password": SIGN_IN_HREF,
   "/verify-email": SIGN_IN_HREF,
-  "/dashboard": "/",
-  "/onboarding": "/",
-  "/settings": "/",
+  // `/onboarding` is a real page again (app/(onboarding)), so it is not listed.
+  "/settings": "/dashboard/settings",
 };
 
 function redirectRetired(request: NextRequest): NextResponse | null {
@@ -54,6 +59,36 @@ function redirectRetired(request: NextRequest): NextResponse | null {
   // Any token or `?next=` on an old URL means nothing to the new pages.
   url.search = "";
   return NextResponse.redirect(url);
+}
+
+/**
+ * Remembers a referral code from `/register?ref=<code>` until sign-up is done.
+ *
+ * In a cookie because sign-up is not one request: it spans Clerk's own steps
+ * and, for GitHub or LinkedIn, a round trip to another site, and the query
+ * string does not survive that. The dashboard claims the code on the new
+ * account's first visit (see `/api/v1/referrals/claim`).
+ *
+ * A malformed `ref` is ignored rather than stored. An existing cookie is
+ * overwritten: the most recent link someone opened is the one that brought
+ * them.
+ */
+function captureReferral(request: NextRequest): NextResponse | null {
+  if (!request.nextUrl.pathname.startsWith(SIGN_UP_HREF)) return null;
+
+  const code = request.nextUrl.searchParams.get("ref");
+  if (!isReferralCode(code)) return null;
+
+  const response = NextResponse.next();
+  response.cookies.set(REFERRAL_COOKIE, code, {
+    maxAge: REFERRAL_COOKIE_MAX_AGE_SECONDS,
+    path: "/",
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    // Readable by script: the dashboard checks for it before calling the claim route.
+    httpOnly: false,
+  });
+  return response;
 }
 
 /*
@@ -73,7 +108,7 @@ function getClerkHandler(): NextMiddleware {
      * `getClerkKeys()` still checks both exist, for a clear startup error.
      */
     const { publishableKey } = getClerkKeys();
-    withClerk = clerkMiddleware((_auth, request) => redirectRetired(request), {
+    withClerk = clerkMiddleware((_auth, request) => redirectRetired(request) ?? captureReferral(request), {
       publishableKey,
       // So `redirectToSignIn()` in the DAL lands on our page, not Clerk's.
       signInUrl: SIGN_IN_HREF,

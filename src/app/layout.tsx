@@ -9,7 +9,7 @@ import {
   isAuthEnabled,
 } from "@/backend/modules/auth/infrastructure/config";
 import { clerkAppearance } from "@/frontend/lib/configs/clerk-appearance";
-import { SIGN_IN_HREF, SIGN_UP_HREF } from "@/frontend/lib/configs/cta";
+import { DASHBOARD_HREF, ONBOARDING_HREF, SIGN_IN_HREF, SIGN_UP_HREF } from "@/frontend/lib/configs/cta";
 
 // STYLES
 import { geistSans, geistMono } from "@/frontend/lib";
@@ -45,6 +45,12 @@ export default function RootLayout({
             publishableKey={getClerkKeys().publishableKey}
             signInUrl={SIGN_IN_HREF}
             signUpUrl={SIGN_UP_HREF}
+            // Unless the visitor was sent to sign in from a specific page,
+            // which Clerk returns them to, they land on the dashboard; a new
+            // account goes to onboarding first. (The dashboard would send an
+            // unfinished account there anyway — this just skips the hop.)
+            signInFallbackRedirectUrl={DASHBOARD_HREF}
+            signUpFallbackRedirectUrl={ONBOARDING_HREF}
             appearance={clerkAppearance}
           >
             {app}

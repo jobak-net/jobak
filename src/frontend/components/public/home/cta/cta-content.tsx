@@ -1,8 +1,7 @@
 import { Fragment } from "react";
 import Link from "next/link";
 import { Button } from "@/frontend/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import { resolveCta } from "@/frontend/lib/configs/cta";
+import { AccountCtaLink } from "@/frontend/components/public/shared/account-cta";
 import { ctaContent } from "./data";
 
 export function CtaContent() {
@@ -35,8 +34,6 @@ function Description() {
 }
 
 function ActionButtons() {
-  const { text, href } = resolveCta(ctaContent.primaryButton.text);
-
   return (
     <div className="flex flex-col sm:flex-row items-start gap-4">
       <Button
@@ -44,10 +41,7 @@ function ActionButtons() {
         className="bg-accent hover:bg-accent-bright text-(--bg-canvas) px-8 h-14 text-base rounded-full group font-medium"
         asChild
       >
-        <Link href={href}>
-          {text}
-          <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-        </Link>
+        <AccountCtaLink signedOutText={ctaContent.primaryButton.text} withArrow />
       </Button>
       <Button
         size="lg"

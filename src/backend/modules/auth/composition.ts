@@ -26,14 +26,21 @@ import { PgUserRepository } from "./infrastructure/repositories/user.repository"
  */
 
 /**
- * Built once per process and cached on `globalThis`: Next's dev server
- * re-evaluates modules on every hot reload, and the objects are stateless —
- * they hold ports, not connections — so sharing them across requests is safe.
+ * Cached on `globalThis`: Next's dev server re-evaluates modules on every hot
+ * reload, and the objects are stateless — they hold ports, not connections —
+ * so sharing them across requests is safe.
  *
- * The mode is read once here too, which is fine: environment variables do not
- * change under a running process.
+ * ── Keyed by mode ───────────────────────────────────────────
+ * The cache remembers which mode it was built for and is rebuilt when
+ * `AUTH_ENABLED` changes. `next dev` reloads `.env` files in the same process
+ * when they are edited, so the environment *can* change under a running server,
+ * and the cache outlives that. A Clerk-mode module surviving a switch to
+ * `AUTH_ENABLED=false` sent signed-out requests to /login, whose layout reads
+ * the env afresh and sent them straight back: an endless redirect loop.
  */
-const globalForAuth = globalThis as unknown as { authModule?: AuthModule };
+const globalForAuth = globalThis as unknown as {
+  authModule?: { authEnabled: boolean; module: AuthModule };
+};
 
 export interface AuthModule {
   getCurrentUser: GetCurrentUserUseCase;
@@ -42,8 +49,8 @@ export interface AuthModule {
   identity: IdentityProvider;
 }
 
-function createIdentityProvider(): IdentityProvider {
-  if (!isAuthEnabled()) {
+function createIdentityProvider(authEnabled: boolean): IdentityProvider {
+  if (!authEnabled) {
     warnIfAuthDisabled();
     return new LocalIdentityProvider();
   }
@@ -54,9 +61,9 @@ function createIdentityProvider(): IdentityProvider {
   return new ClerkIdentityProvider();
 }
 
-function build(): AuthModule {
+function build(authEnabled: boolean): AuthModule {
   const users = new PgUserRepository();
-  const identity = createIdentityProvider();
+  const identity = createIdentityProvider(authEnabled);
 
   return {
     getCurrentUser: new GetCurrentUserUseCase(identity, users),
@@ -66,8 +73,13 @@ function build(): AuthModule {
 }
 
 export function getAuthModule(): AuthModule {
-  if (!globalForAuth.authModule) {
-    globalForAuth.authModule = build();
+  // Read on every call: it is a string comparison, and it is what keeps this
+  // module agreeing with the proxy and the auth layout, which also read it fresh.
+  const authEnabled = isAuthEnabled();
+  const cached = globalForAuth.authModule;
+
+  if (!cached || cached.authEnabled !== authEnabled) {
+    globalForAuth.authModule = { authEnabled, module: build(authEnabled) };
   }
-  return globalForAuth.authModule;
+  return globalForAuth.authModule!.module;
 }

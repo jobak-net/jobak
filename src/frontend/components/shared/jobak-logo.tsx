@@ -40,8 +40,8 @@ const MARK_SIZE = { sm: 26, md: 32, lg: 40 } as const;
  */
 const TUCK = 0.289 - 0.062;
 
-function LogoMark({ size = "md", className }: { size?: "sm" | "md" | "lg"; className?: string }) {
-  const dim = MARK_SIZE[size];
+/** The J itself, at any pixel size. Shared by the lockup and the standalone mark. */
+function MarkSvg({ dim, className }: { dim: number; className?: string }) {
   return (
     <svg
       width={dim}
@@ -66,34 +66,23 @@ function LogoMark({ size = "md", className }: { size?: "sm" | "md" | "lg"; class
   );
 }
 
+function LogoMark({ size = "md", className }: { size?: "sm" | "md" | "lg"; className?: string }) {
+  return <MarkSvg dim={MARK_SIZE[size]} className={className} />;
+}
+
 /**
- * The tile lock-up, for app icons and avatars.
+ * The J on its own — the collapsed dashboard sidebar, and anywhere the full
+ * lockup does not fit.
  *
- * Concept D from the design direction: the J knocked out of a solid tile as
- * negative space. It is the one variant that keeps a container, which is
- * correct here and wrong everywhere else — an app icon is *always* composited
- * onto someone else's background, so it needs to supply its own.
+ * The same geometry as the homepage logo, not a separate drawing. The app once
+ * used a different J here (a thicker one knocked out of a green tile), so the
+ * collapsed sidebar and the favicon showed a letter the homepage never did.
  */
-export function JobakTile({ size = 40, className }: { size?: number; className?: string }) {
+export function JobakMark({ size = 32, className }: { size?: number; className?: string }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 64 64"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={cn("text-accent", className)}
-      aria-hidden="true"
-    >
-      {/*
-        One evenodd path rather than a <mask>. Two reasons: a mask referenced
-        from inside a <symbol>/<use> silently fails to resolve in some engines
-        (the tile rendered as a solid blob), and a hardcoded mask id collides
-        the moment two of these render on the same page. A hole in a path has
-        neither problem.
-      */}
-      <path fill="currentColor" fillRule="evenodd" d="M22 5 H42 A17 17 0 0 1 59 22 V42 A17 17 0 0 1 42 59 H22 A17 17 0 0 1 5 42 V22 A17 17 0 0 1 22 5 Z M36 12 H44 V34 A12 12 0 0 1 20 34 H28 A4 4 0 0 0 36 34 Z M26 13.6 a4.4 4.4 0 1 0 0 8.8 a4.4 4.4 0 1 0 0 -8.8 Z" />
-    </svg>
+    <span role="img" aria-label="Jobak" className="inline-flex">
+      <MarkSvg dim={size} className={className} />
+    </span>
   );
 }
 

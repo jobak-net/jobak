@@ -25,8 +25,13 @@ import { resolveSslConfig } from "./ssl";
  * pool per edit until Postgres refuses new connections — the classic dev-only
  * "too many clients already" failure, which never reproduces in production and
  * so tends to get misdiagnosed.
+ *
+ * Keyed by the connection string: `next dev` reloads `.env` in the same
+ * process when it is edited, and a pool cached against the old URL would keep
+ * using it (switching to the transaction pooler's port, say, would silently do
+ * nothing until a restart). On a change the old pool is closed and replaced.
  */
-const globalForPool = globalThis as unknown as { pool?: Pool };
+const globalForPool = globalThis as unknown as { pool?: Pool; poolUrl?: string };
 
 function connectionString(): string {
   const url = process.env.SUPABASE_DB_URL;
@@ -56,9 +61,14 @@ function connectionString(): string {
 }
 
 export function getPool(): Pool {
-  if (globalForPool.pool) return globalForPool.pool;
-
   const url = connectionString();
+  if (globalForPool.pool && globalForPool.poolUrl === url) return globalForPool.pool;
+
+  // The URL changed under a running dev server: retire the old pool's connections.
+  if (globalForPool.pool) {
+    const stale = globalForPool.pool;
+    void stale.end().catch((error) => console.error("[db] closing stale pool failed", error));
+  }
 
   const pool = new Pool({
     connectionString: url,
@@ -88,5 +98,6 @@ export function getPool(): Pool {
   });
 
   globalForPool.pool = pool;
+  globalForPool.poolUrl = url;
   return pool;
 }

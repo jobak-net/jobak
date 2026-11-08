@@ -1,3 +1,11 @@
+/*
+ * Layer order, declared before Tailwind loads. Clerk's styles go in their own
+ * `clerk` layer (see `cssLayerName` in clerk-appearance.ts), placed under
+ * `components` and `utilities` so the Tailwind classes passed to Clerk's
+ * `appearance.elements` win over Clerk's defaults instead of losing to them.
+ */
+@layer theme, base, clerk, components, utilities;
+
 @import "tailwindcss";
 
 :root {
@@ -235,6 +243,187 @@ body {
 
 .animate-slide-up {
   animation: slide-up 0.8s ease-out forwards;
+}
+
+/*
+ * Dashboard entrance: shorter and smaller than the marketing `fade-in`, because
+ * it plays on every page change and a long drift would make navigation feel
+ * slow. `--dash-delay` staggers siblings (cards in a row).
+ */
+@keyframes dash-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dash-enter {
+  animation: dash-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--dash-delay, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-enter {
+    animation: none;
+  }
+}
+
+/*
+ * Onboarding motion. Only opacity and transform are animated, never filter
+ * or backdrop-filter, so every frame stays on the compositor instead of
+ * repainting. A step slides in from the side it came from
+ * (`data-dir="back"` reverses it), its parts rise in a short stagger (`--i`),
+ * picks pop in, and the preview panel drifts slowly. All of it switches off
+ * under reduced motion.
+ */
+@keyframes ob-step-in {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--ob-x, 32px), 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ob-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ob-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ob-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(3px); }
+}
+
+@keyframes ob-headline {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ob-orbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ob-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -10px, 0); }
+}
+
+.ob-step {
+  animation: ob-step-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.ob-step[data-dir="back"] {
+  --ob-x: -32px;
+}
+
+.ob-rise {
+  animation: ob-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* Capped so a long list (the countries) does not keep arriving for seconds. */
+  animation-delay: calc(min(var(--i, 0), 14) * 28ms + 90ms);
+}
+
+.ob-pop {
+  animation: ob-pop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.ob-shake {
+  animation: ob-shake 0.4s ease-in-out;
+}
+
+.ob-headline {
+  animation: ob-headline 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--ob-delay, 0ms);
+}
+
+.ob-orbit {
+  animation: ob-orbit var(--ob-orbit, 90s) linear infinite;
+}
+
+/* Counter-spins a node on an orbit so it stays upright while the ring turns. */
+.ob-orbit-rev {
+  animation: ob-orbit var(--ob-orbit, 90s) linear infinite reverse;
+}
+
+.ob-float {
+  animation: ob-float var(--ob-float, 7s) ease-in-out infinite;
+  animation-delay: var(--ob-delay, 0ms);
+}
+
+/* AI setup: the dashed connection line flows; a ring ripples out on success. */
+@keyframes ob-dash {
+  to { stroke-dashoffset: -28; }
+}
+
+@keyframes ob-ripple {
+  from {
+    opacity: 0.55;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+}
+
+.ob-dash {
+  animation: ob-dash var(--ob-dash, 1.6s) linear infinite;
+}
+
+.ob-ripple {
+  animation: ob-ripple 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  animation-delay: var(--ob-delay, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ob-dash,
+  .ob-ripple,
+  .ob-step,
+  .ob-rise,
+  .ob-pop,
+  .ob-shake,
+  .ob-headline,
+  .ob-orbit,
+  .ob-orbit-rev,
+  .ob-float {
+    animation: none;
+  }
 }
 
 /* Glassmorphism utility */

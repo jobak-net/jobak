@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { SignIn } from "@clerk/nextjs";
 
+import { authFormAppearance } from "@/frontend/lib/configs/clerk-appearance";
 import { SIGN_UP_HREF } from "@/frontend/lib/configs/cta";
 
 export const metadata: Metadata = {
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <Suspense>
-      <SignIn path="/login" signUpUrl={SIGN_UP_HREF} />
+      <SignIn path="/login" signUpUrl={SIGN_UP_HREF} appearance={authFormAppearance} />
     </Suspense>
   );
 }

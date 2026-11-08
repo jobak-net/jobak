@@ -25,6 +25,29 @@ import type { PublicUser } from "../domain/entities/user.entity";
  */
 
 /**
+ * The lookup itself, shared by both entry points below and cached per request.
+ *
+ * Throws when the lookup fails. The two callers then deal with that
+ * differently, which is the whole reason this is split out: a cosmetic check
+ * can shrug a failure off, a gate cannot.
+ */
+const resolveCurrentUser = cache(
+  (): Promise<PublicUser | null> => getAuthModule().getCurrentUser.execute(),
+);
+
+/**
+ * Raised by `requireUser` when we could not find out who the user is — the
+ * database timing out, typically — as opposed to finding out that nobody is
+ * signed in. Pages show an error for this rather than a sign-in redirect.
+ */
+export class UserLookupError extends Error {
+  constructor(cause: unknown) {
+    super("Could not load the current user. Is the database reachable?", { cause });
+    this.name = "UserLookupError";
+  }
+}
+
+/**
  * The signed-in user, or null.
  *
  * Failures resolve to null rather than throwing. This drives cosmetic decisions
@@ -34,7 +57,7 @@ import type { PublicUser } from "../domain/entities/user.entity";
  */
 export const getCurrentUser = cache(async (): Promise<PublicUser | null> => {
   try {
-    return await getAuthModule().getCurrentUser.execute();
+    return await resolveCurrentUser();
   } catch (error) {
     /*
      * Reading the request throws a DynamicServerError during static generation
@@ -61,9 +84,23 @@ export const isSignedIn = cache(async (): Promise<boolean> =>
  * the value but forgets to act on it renders as if signed in.
  *
  * Note this is the real gate. The proxy does not protect routes; this does.
+ *
+ * ── Failure is not "signed out" ─────────────────────────────
+ * Only a successful lookup that finds nobody redirects to sign in. A lookup
+ * that fails throws `UserLookupError` instead. Treating a database timeout as
+ * signed out caused a loop: the user *is* signed in with Clerk, so /login
+ * bounced them straight back here, which failed again, indefinitely.
  */
 export async function requireUser(): Promise<PublicUser> {
-  const user = await getCurrentUser();
+  let user: PublicUser | null;
+  try {
+    user = await resolveCurrentUser();
+  } catch (error) {
+    unstable_rethrow(error);
+    console.error("[auth/session] requireUser lookup failed", error);
+    throw new UserLookupError(error);
+  }
+
   if (user) return user;
 
   if (getAuthModule().identity.kind === "clerk") {
@@ -72,12 +109,10 @@ export async function requireUser(): Promise<PublicUser> {
   }
 
   /*
-   * With auth disabled there is no sign-in to send anyone to — the owner is
-   * always "signed in", so getting here means the lookup itself failed (the
-   * database being down). A redirect would loop; an error page says what is
-   * actually wrong.
+   * With auth disabled the owner always resolves, so null here means the
+   * provider returned no identity — not a state any sign-in page can fix.
    */
-  throw new Error("Could not load the local owner. Is the database reachable?");
+  throw new UserLookupError(new Error("Local owner did not resolve"));
 }
 
 /**

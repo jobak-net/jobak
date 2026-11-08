@@ -1,12 +1,9 @@
-import Link from "next/link";
-import { Lock, ArrowRight } from "lucide-react";
+import { Lock } from "lucide-react";
 import { Button } from "@/frontend/components/ui/button";
-import { resolveCta } from "@/frontend/lib/configs/cta";
+import { AccountCtaLink } from "@/frontend/components/public/shared/account-cta";
 import { freeContent } from "./data";
 
 export function ApiKeyNote() {
-  const { text, href } = resolveCta(freeContent.primaryButton.text);
-
   return (
     <div className="lg:sticky lg:top-32 self-start">
       <p className="text-xl text-foreground/70 leading-relaxed mb-10">
@@ -39,10 +36,7 @@ export function ApiKeyNote() {
         className="bg-accent text-background hover:bg-accent-bright px-8 h-14 text-base rounded-full group font-medium"
         asChild
       >
-        <Link href={href}>
-          {text}
-          <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-        </Link>
+        <AccountCtaLink signedOutText={freeContent.primaryButton.text} withArrow />
       </Button>
     </div>
   );

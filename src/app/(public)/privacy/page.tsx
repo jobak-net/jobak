@@ -19,6 +19,7 @@ import { PageIntro, PageShell } from "@/frontend/components/public/shared/page-i
  *  - deletion taking the data with it     ON DELETE CASCADE from users (014)
  *  - preferences, bookmarks, API keys     001_initial_schema.sql (keys encrypted)
  *  - the opt-in public profile            010_public_profiles.sql
+ *  - referrals and what a referrer sees   019_referrals.sql, modules/referrals
  *
  * If any of those change, this page is part of the change.
  */
@@ -93,6 +94,12 @@ export default function PrivacyPage() {
               <strong className="text-foreground">API keys you connect</strong>{" "}
               — for the AI provider that ranks your matches. These are stored
               encrypted and only decrypted to make the requests you asked for.
+            </li>
+            <li>
+              <strong className="text-foreground">Who referred you</strong> — if
+              you signed up through a friend&apos;s link, we record that, and they
+              see your first name and last initial in their list of referrals.
+              Never your email.
             </li>
             <li>
               <strong className="text-foreground">A public profile</strong> — only

@@ -1,25 +1,19 @@
 /**
  * The shape of the job title catalogue, and the pure helpers that read it.
  *
- * The catalogue itself is no longer here. It lives in the `job_fields` and
- * `job_titles` tables — see `db/supabase/004_job_catalogue.sql` — because two things
- * need it and they were reading two different copies: the onboarding dropdown
- * bundled this file, while the hourly collector had to call the app to get at
- * it. One table, both readers, no drift.
- *
- * Fetch it server-side with `getJobCatalogue()` from
- * `@/backend/actions/job-catalogue` and pass it down; these helpers take what
- * you fetched rather than reaching for a module-level array.
+ * The catalogue itself lives in the `job_fields` and `job_titles` tables (see
+ * `db/supabase/004_job_catalogue.sql` and `022_job_title_catalogue.sql`), read
+ * through the `job-catalogue` module. Fetch the fields server-side with
+ * `getJobCatalogueModule().listFields.execute()` and pass them down; a field's
+ * `titles` are its first few suggestions, not every title — the rest is
+ * reached through `searchJobTitlesAction`.
  */
 
-export interface JobField {
-    /** Stable value persisted to `user_preferences.field`. */
-    value: string;
-    label: string;
-    titles: string[];
-}
+import type { JobField } from "@/backend/modules/job-catalogue/domain/job-catalogue";
 
-/** Every title offered for a field, or nothing when the field is unknown. */
+export type { JobField };
+
+/** The suggested titles for a field, or nothing when the field is unknown. */
 export function titlesForField(catalogue: JobField[], field: string): string[] {
     return catalogue.find((f) => f.value === field)?.titles ?? [];
 }
