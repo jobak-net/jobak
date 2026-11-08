@@ -7,7 +7,11 @@ export default async function SettingsPage() {
 
   return (
     <>
-      <PageHeader preview="Preview. Changes here are not saved yet." title="Settings" />
+      <PageHeader
+        preview="Preview. Changes here are not saved yet."
+        title="Settings"
+        description="Your AI, your emails and your account."
+      />
       <SettingsPanels email={user.email} fullName={user.fullName} />
     </>
   );

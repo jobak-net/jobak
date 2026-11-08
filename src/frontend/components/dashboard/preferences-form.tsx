@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useReducer, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useReducer, useState, useTransition } from "react";
 import { ArrowLeft, ArrowRight, Check, Globe2, Loader2, RotateCcw } from "lucide-react";
 
 import { updatePreferencesAction } from "@/backend/actions/preferences";
@@ -20,6 +20,7 @@ import {
 import { WORK_MODE_LABEL } from "@/frontend/components/onboarding/labels";
 import { SearchPreview } from "@/frontend/components/onboarding/search-preview";
 import { STEP_SCREENS } from "@/frontend/components/onboarding/step-screens";
+import { StepTabs, stepTabId, useSlideDirection } from "@/frontend/components/dashboard/step-tabs";
 import { Button } from "@/frontend/components/ui";
 import { countryName } from "@/frontend/lib/configs/countries";
 import type { JobField } from "@/frontend/lib/configs/job-titles";
@@ -98,7 +99,6 @@ export function PreferencesForm({ initial, catalogue }: { initial: JobPreference
     const [error, setError] = useState<{ stepId: StepId | null; message: string } | null>(null);
     const [justSaved, setJustSaved] = useState(false);
     const [saving, startSaving] = useTransition();
-    const tabs = useRef<Record<string, HTMLButtonElement | null>>({});
 
     const changed = GROUPS.filter((id) => groupKey(id, draft) !== groupKey(id, saved));
     const dirty = changed.length > 0;
@@ -106,8 +106,7 @@ export function PreferencesForm({ initial, catalogue }: { initial: JobPreference
     const index = GROUPS.indexOf(active);
 
     // Which way the group changed, so it slides in from that side (as onboarding does).
-    const [shown, setShown] = useState({ stepId: active, index, dir: "forward" as "forward" | "back" });
-    if (shown.stepId !== active) setShown({ stepId: active, index, dir: index >= shown.index ? "forward" : "back" });
+    const direction = useSlideDirection(active, index);
 
     // Stable, so the memoised options in the screens skip re-rendering.
     const update = useCallback((patch: DraftPatch) => {
@@ -125,24 +124,7 @@ export function PreferencesForm({ initial, catalogue }: { initial: JobPreference
         return () => window.removeEventListener("beforeunload", warn);
     }, [dirty]);
 
-    function open(stepId: StepId, focus = false) {
-        setActive(stepId);
-        if (focus) tabs.current[stepId]?.focus();
-    }
-
-    /** Arrow keys move between tabs (wrapping), Home/End jump to the ends — the ARIA tabs pattern. */
-    function onTabKey(event: React.KeyboardEvent) {
-        const last = GROUPS.length - 1;
-        const target: Record<string, number> = {
-            ArrowRight: index === last ? 0 : index + 1,
-            ArrowLeft: index === 0 ? last : index - 1,
-            Home: 0,
-            End: last,
-        };
-        if (!(event.key in target)) return;
-        event.preventDefault();
-        open(GROUPS[target[event.key]!]!, true);
-    }
+    const open = setActive;
 
     function save() {
         // The same check the server runs, so most mistakes are caught without a round trip.
@@ -181,81 +163,31 @@ export function PreferencesForm({ initial, catalogue }: { initial: JobPreference
 
     return (
         <div className="pb-28">
-            {/* ── The groups, centred ─────────────────────────────── */}
-            <div className="mb-8 flex justify-center">
-                <div
-                    role="tablist"
-                    aria-label="Preference groups"
-                    onKeyDown={onTabKey}
-                    className="grid w-full max-w-3xl grid-cols-2 gap-1 rounded-[16px] border border-border-subtle bg-white/2 p-1 sm:grid-cols-4"
-                >
-                    {GROUPS.map((id, i) => {
-                        const selected = id === active;
-                        const hasError = error?.stepId === id;
-                        return (
-                            <button
-                                key={id}
-                                ref={(el) => {
-                                    tabs.current[id] = el;
-                                }}
-                                type="button"
-                                role="tab"
-                                id={`preferences-tab-${id}`}
-                                aria-selected={selected}
-                                aria-controls="preferences-panel"
-                                tabIndex={selected ? 0 : -1}
-                                onClick={() => open(id)}
-                                className={cn(
-                                    "group relative flex items-center gap-3 rounded-[12px] px-3 py-2.5 text-left transition-[background-color,box-shadow] duration-300",
-                                    selected
-                                        ? "bg-white/6 shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset]"
-                                        : "hover:bg-white/3",
-                                )}
-                            >
-                                <span
-                                    className={cn(
-                                        "flex size-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-medium tabular-nums transition-colors duration-300",
-                                        hasError
-                                            ? "border-status-rose text-status-rose"
-                                            : selected
-                                              ? "border-accent bg-accent text-[#06210f]"
-                                              : "border-border-strong text-fg-tertiary group-hover:text-fg-secondary",
-                                    )}
-                                >
-                                    {i + 1}
-                                </span>
-                                <span className="min-w-0 flex-1">
-                                    <span
-                                        className={cn(
-                                            "block text-[13px] font-medium transition-colors",
-                                            selected ? "text-fg-primary" : "text-fg-secondary",
-                                        )}
-                                    >
-                                        {GROUP_LABEL[id]}
-                                    </span>
-                                    <span className="block truncate text-[12px] text-fg-quaternary">{summaryOf(id, draft)}</span>
-                                </span>
-                                {changed.includes(id) && (
-                                    <span className="ob-pop size-1.5 shrink-0 rounded-full bg-accent" title="Unsaved changes">
-                                        <span className="sr-only">Unsaved changes</span>
-                                    </span>
-                                )}
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
+            <StepTabs
+                label="Preference groups"
+                idPrefix="preferences"
+                panelId="preferences-panel"
+                active={active}
+                onSelect={setActive}
+                tabs={GROUPS.map((id) => ({
+                    id,
+                    label: GROUP_LABEL[id],
+                    summary: summaryOf(id, draft),
+                    error: error?.stepId === id,
+                    changed: changed.includes(id),
+                }))}
+            />
 
             {/* ── The selected group, beside the live preview ─────── */}
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
                 <div
                     id="preferences-panel"
                     role="tabpanel"
-                    aria-labelledby={`preferences-tab-${active}`}
+                    aria-labelledby={stepTabId("preferences", active)}
                     className="relative overflow-hidden rounded-[24px] border border-border-subtle bg-[radial-gradient(90%_60%_at_0%_0%,oklch(0.82_0.2_145/0.06),transparent_60%)] p-6 sm:p-9"
                 >
                     {/* Keyed on the group so each one replays its entrance. */}
-                    <div key={active} className="ob-step" data-dir={shown.dir}>
+                    <div key={active} className="ob-step" data-dir={direction}>
                         <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-accent-text">
                             {String(index + 1).padStart(2, "0")} · {GROUP_LABEL[active]}
                         </p>
