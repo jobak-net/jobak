@@ -151,11 +151,42 @@ POST /webhook/job-search
 
 ---
 
+## 🏃 Running without auth
+
+To work on the features without setting up Clerk, turn sign-in off in `.env.local`:
+
+```bash
+AUTH_ENABLED=false
+```
+
+Then `pnpm install` and `pnpm dev` as usual.
+
+- No Clerk keys are needed. Clerk is never called.
+- There is no sign-in or sign-up. Every visitor is the single **local owner**,
+  who goes straight to onboarding and then the dashboard. `/login` and
+  `/register` redirect to `/dashboard`, and referral links do nothing.
+- The rest of `.env.local` (database, encryption secret) is still required,
+  because the features need them.
+- Accepted values are `false`, `0`, `no` and `off`. Leaving it unset means auth
+  is **on**, and any other value stops the app with an error rather than
+  guessing.
+- If you build (`pnpm build`), build with the same value you run with:
+  prerendered pages decide at build time whether Clerk wraps them.
+
+> ⚠️ With auth off, anyone who can reach the server acts as the owner, with the
+> owner's data and saved API keys. Only run it on localhost or behind your own
+> access control (VPN, reverse-proxy auth).
+
+How the request pipeline behaves in each mode: [`docs/backend/PROXY.md`](docs/backend/PROXY.md).
+
+---
+
 ## 📚 Documentation
 
 - [`docs/general/PROJECT_OVERVIEW.md`](docs/general/PROJECT_OVERVIEW.md) — architecture, tech stack, and feature-by-feature implementation notes.
 - [`docs/general/PRE_PRODUCTION.md`](docs/general/PRE_PRODUCTION.md) — the pre-launch checklist: what's done, what needs config, and what's still a product decision.
 - [`docs/frontend/DESIGN_SYSTEM.md`](docs/frontend/DESIGN_SYSTEM.md) — the visual language and design tokens.
+- [`docs/backend/PROXY.md`](docs/backend/PROXY.md) — the request pipeline (`src/proxy.ts`): auth session, steps, and how to add one.
 - [`db/README.md`](db/README.md) — database migrations, one subfolder per database.
 - [`docs/general/scripts/README.md`](docs/general/scripts/README.md) — the project scripts CLI (`pnpm scripts`).
 
