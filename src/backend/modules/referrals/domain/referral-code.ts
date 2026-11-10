@@ -1,8 +1,13 @@
 /**
  * Referral codes and the cookie that carries one through sign-up.
  *
- * No imports, so the proxy can read this as well as the server code.
+ * Imports only from `@/shared`, so the proxy can read this as well as the
+ * server code.
  */
+import { REFERRAL_COOKIE } from "@/shared/referral-cookie";
+
+/** Re-exported so backend code keeps one import for everything referral. */
+export { REFERRAL_COOKIE };
 
 /**
  * A user's code: the first 10 hex characters of their id. Must match the
@@ -19,14 +24,6 @@ export const REFERRAL_CODE_PATTERN = /^[0-9a-f]{10}$/;
 export function isReferralCode(value: unknown): value is string {
     return typeof value === "string" && REFERRAL_CODE_PATTERN.test(value);
 }
-
-/**
- * Holds the code from the moment someone opens a referral link until their
- * account exists. Readable by script on purpose: the dashboard checks for it
- * to know whether there is a referral to claim. It is a public code, not a
- * credential, so nothing is exposed by that.
- */
-export const REFERRAL_COOKIE = "jobak_ref";
 
 /** Long enough to cover "opened the link, signed up a few days later". */
 export const REFERRAL_COOKIE_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;

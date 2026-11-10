@@ -5,7 +5,7 @@ import { getJobCatalogueModule } from "@/backend/modules/job-catalogue";
 import { getPreferencesModule } from "@/backend/modules/preferences";
 import { LoadFailed } from "@/frontend/components/dashboard/load-failed";
 import { OnboardingFlow } from "@/frontend/components/onboarding/onboarding-flow";
-import { AI_SETUP_HREF } from "@/frontend/lib/configs/cta";
+import { AI_SETUP_HREF } from "@/shared/routes";
 
 import { readOnboardingStatus } from "../_lib/onboarding-status";
 

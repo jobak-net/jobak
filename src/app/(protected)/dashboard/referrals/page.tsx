@@ -5,7 +5,7 @@ import { isAuthEnabled } from "@/backend/modules/auth/infrastructure/config";
 import { Contribute } from "@/frontend/components/dashboard/contribute";
 import { ReferralPanel } from "@/frontend/components/dashboard/referral-panel";
 import { PageHeader } from "@/frontend/components/ui";
-import { SIGN_UP_HREF } from "@/frontend/lib/configs/cta";
+import { SIGN_UP_HREF } from "@/shared/routes";
 import { getReferralsModule, referralCodeFor } from "@/backend/modules/referrals";
 
 /**

@@ -9,7 +9,7 @@ import {
   isAuthEnabled,
 } from "@/backend/modules/auth/infrastructure/config";
 import { clerkAppearance } from "@/frontend/lib/configs/clerk-appearance";
-import { DASHBOARD_HREF, ONBOARDING_HREF, SIGN_IN_HREF, SIGN_UP_HREF } from "@/frontend/lib/configs/cta";
+import { DASHBOARD_HREF, ONBOARDING_HREF, SIGN_IN_HREF, SIGN_UP_HREF } from "@/shared/routes";
 
 // STYLES
 import { geistSans, geistMono } from "@/frontend/lib";

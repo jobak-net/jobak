@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Show } from "@clerk/nextjs";
 
 import { Button } from "@/frontend/components/ui";
-import { DASHBOARD_HREF, SIGN_IN_HREF, SIGN_UP_HREF } from "@/frontend/lib/configs/cta";
+import { DASHBOARD_HREF, SIGN_IN_HREF, SIGN_UP_HREF } from "@/shared/routes";
 import { useAuthEnabled } from "@/frontend/providers";
 
 interface AuthControlsProps {

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-const REFERRAL_COOKIE = "jobak_ref";
+import { REFERRAL_COOKIE } from "@/shared/referral-cookie";
 
 /**
  * Claims a pending referral, once, on the dashboard.

@@ -1,29 +1,11 @@
+import { DASHBOARD_HREF, REFERRALS_HREF, SIGN_UP_HREF } from "@/shared/routes";
+
+/** The page URLs themselves live in `@/shared/routes`, for the backend's use too. */
+
 export interface Cta {
     text: string;
     href: string;
 }
-
-/**
- * The auth pages. Passed to Clerk as `signInUrl` / `signUpUrl` as well, so
- * Clerk's own redirects and every link in the app agree on one place.
- *
- * `/login` and `/register` rather than Clerk's `/sign-in` default: these were
- * the URLs of the earlier staging deployment, so links to them still work.
- */
-export const SIGN_IN_HREF = "/login";
-export const SIGN_UP_HREF = "/register";
-
-/** Where signing in or up lands, and where the nav sends a signed-in visitor. */
-export const DASHBOARD_HREF = "/dashboard";
-
-/** Where a new account goes first: the job search questions. */
-export const ONBOARDING_HREF = "/onboarding";
-
-/** The second onboarding: connecting the AI that ranks jobs. Required, not skippable. */
-export const AI_SETUP_HREF = "/onboarding/ai";
-
-/** The referral page — what a signed-in visitor is offered instead of sign-up. */
-export const REFERRALS_HREF = "/dashboard/referrals";
 
 /**
  * Who is looking at a marketing page, as far as its call to action cares.

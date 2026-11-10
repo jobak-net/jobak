@@ -3,7 +3,7 @@ import { redirect, unstable_rethrow } from "next/navigation";
 
 import { requireUser, UserLookupError } from "@/backend/modules/auth/interface";
 import { hasCompletedOnboarding } from "@/backend/modules/preferences";
-import { ONBOARDING_HREF } from "@/frontend/lib/configs/cta";
+import { ONBOARDING_HREF } from "@/shared/routes";
 import { LoadFailed } from "@/frontend/components/dashboard/load-failed";
 import { DashboardShell } from "@/frontend/components/dashboard/shell/dashboard-shell";
 

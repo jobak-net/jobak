@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { SignIn } from "@clerk/nextjs";
 
 import { authFormAppearance } from "@/frontend/lib/configs/clerk-appearance";
-import { SIGN_UP_HREF } from "@/frontend/lib/configs/cta";
+import { SIGN_UP_HREF } from "@/shared/routes";
 
 export const metadata: Metadata = {
   title: "Sign in — Jobak",

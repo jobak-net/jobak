@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { MapPin, Sparkles } from "lucide-react";
 
 import { ScoreRing } from "@/frontend/components/dashboard/score-ring";
-import { SIGN_UP_HREF } from "@/frontend/lib/configs/cta";
+import { SIGN_UP_HREF } from "@/shared/routes";
 import { SAMPLE_JOBS } from "@/frontend/lib/mocks/dashboard";
 
 /** The three strongest sample jobs — what a fresh profile's dashboard opens on. */

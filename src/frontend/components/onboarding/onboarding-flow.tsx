@@ -16,7 +16,7 @@ import {
 } from "@/backend/modules/preferences/domain/onboarding";
 import { JobakLogo } from "@/frontend/components/shared/jobak-logo";
 import { Button } from "@/frontend/components/ui";
-import { AI_SETUP_HREF } from "@/frontend/lib/configs/cta";
+import { AI_SETUP_HREF } from "@/shared/routes";
 import type { JobField } from "@/frontend/lib/configs/job-titles";
 import { cn } from "@/frontend/lib/utils/utils";
 

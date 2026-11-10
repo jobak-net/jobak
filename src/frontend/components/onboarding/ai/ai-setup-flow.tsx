@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
 
 import { JobakLogo } from "@/frontend/components/shared/jobak-logo";
 import { Button } from "@/frontend/components/ui";
-import { DASHBOARD_HREF } from "@/frontend/lib/configs/cta";
+import { DASHBOARD_HREF } from "@/shared/routes";
 import { checkKeyFormat } from "@/frontend/lib/configs/provider-keys";
 import { cn } from "@/frontend/lib/utils/utils";
 import type { AiProvider } from "@/frontend/types/on-boarding";

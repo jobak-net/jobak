@@ -4,7 +4,7 @@ import { requireUser } from "@/backend/modules/auth/interface";
 import { getPreferencesModule, type JobPreferences } from "@/backend/modules/preferences";
 import { LoadFailed } from "@/frontend/components/dashboard/load-failed";
 import { AiSetupFlow } from "@/frontend/components/onboarding/ai/ai-setup-flow";
-import { ONBOARDING_HREF } from "@/frontend/lib/configs/cta";
+import { ONBOARDING_HREF } from "@/shared/routes";
 import { countryName } from "@/frontend/lib/configs/countries";
 
 import { readOnboardingStatus } from "../../_lib/onboarding-status";
