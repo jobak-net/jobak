@@ -7,7 +7,7 @@ import { Bookmark, BriefcaseBusiness, ExternalLink, MapPin, Search, Wallet } fro
 import { toggleBookmarkAction } from "@/backend/actions/jobs";
 import { Card, Chip, FilterChip, Input } from "@/frontend/components/ui";
 import { cn } from "@/frontend/lib/utils/utils";
-import type { Job } from "@/frontend/types/dashboard";
+import type { Job } from "@/shared/contracts/jobs";
 
 import { sourceHue } from "./job-row";
 import { ScoreRing } from "./score-ring";

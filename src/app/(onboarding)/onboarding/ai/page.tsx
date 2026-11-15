@@ -1,13 +1,9 @@
-import { redirect } from "next/navigation";
-
 import { requireUser } from "@/backend/modules/auth/interface";
 import { getPreferencesModule, type JobPreferences } from "@/backend/modules/preferences";
 import { LoadFailed } from "@/frontend/components/dashboard/load-failed";
 import { AiSetupFlow } from "@/frontend/components/onboarding/ai/ai-setup-flow";
-import { ONBOARDING_HREF } from "@/shared/routes";
 import { countryName } from "@/frontend/lib/configs/countries";
-
-import { readOnboardingStatus } from "../../_lib/onboarding-status";
+import { resolveOnboardingAccess } from "@/frontend/lib/guards/onboarding-access";
 
 /** "3 roles in Egypt and the UAE", "1 role, remote from anywhere" — the user's own search, in one line. */
 function describeSearch(p: JobPreferences | null): string {
@@ -29,16 +25,17 @@ function describeSearch(p: JobPreferences | null): string {
  * on to the dashboard from here — part of the backend still to build.)
  */
 export default async function AiSetupPage() {
-    const user = await requireUser();
-
-    const answered = await readOnboardingStatus(user.id);
-    if (answered === null) return <LoadFailed />;
-    if (!answered) redirect(ONBOARDING_HREF);
+    const access = await resolveOnboardingAccess("ai-setup");
+    if (access.kind === "load-failed") return <LoadFailed />;
 
     // Only for the summary line; a failed read just makes it generic.
+    // Still read directly from the backend until it has an endpoint.
+    const user = await requireUser();
     const saved = await getPreferencesModule()
         .get.execute(user.id)
         .catch(() => null);
 
-    return <AiSetupFlow summary={describeSearch(saved)} firstName={user.fullName?.split(/\s+/)[0] ?? null} />;
+    return (
+        <AiSetupFlow summary={describeSearch(saved)} firstName={access.user.fullName?.split(/\s+/)[0] ?? null} />
+    );
 }

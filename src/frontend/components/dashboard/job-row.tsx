@@ -1,7 +1,7 @@
 import { MapPin } from "lucide-react";
 
 import { Chip } from "@/frontend/components/ui";
-import type { Job } from "@/frontend/types/dashboard";
+import type { Job } from "@/shared/contracts/jobs";
 
 import { ScoreRing } from "./score-ring";
 

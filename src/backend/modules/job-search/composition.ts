@@ -2,6 +2,7 @@ import "server-only";
 
 import { getPreferencesModule } from "@/backend/modules/preferences";
 
+import { ListUserJobsUseCase } from "./application/list-user-jobs.use-case";
 import { RunSetupStepUseCase, type PreferencesReader } from "./application/run-setup-step.use-case";
 import { PgSearchStatsRepository } from "./infrastructure/pg-search-stats.repository";
 
@@ -11,9 +12,11 @@ import { PgSearchStatsRepository } from "./infrastructure/pg-search-stats.reposi
  */
 export interface JobSearchModule {
     runSetupStep: RunSetupStepUseCase;
+    /** The jobs worth showing a user — `GET /api/v1/jobs`. */
+    listUserJobs: ListUserJobsUseCase;
 }
 
-const VERSION = 1;
+const VERSION = 2;
 
 const globalForJobSearch = globalThis as unknown as {
     jobSearchModule?: JobSearchModule;
@@ -26,6 +29,7 @@ export function getJobSearchModule(): JobSearchModule {
         const preferences: PreferencesReader = { get: (userId) => getPreferencesModule().get.execute(userId) };
         globalForJobSearch.jobSearchModule = {
             runSetupStep: new RunSetupStepUseCase(preferences, new PgSearchStatsRepository()),
+            listUserJobs: new ListUserJobsUseCase(),
         };
         globalForJobSearch.jobSearchModuleVersion = VERSION;
     }

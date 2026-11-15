@@ -4,7 +4,7 @@ import { JobList } from "@/frontend/components/dashboard/job-list";
 import { PreviewNotice } from "@/frontend/components/dashboard/preview-notice";
 import { PageHeader } from "@/frontend/components/ui";
 
-import { loadJobs } from "../_lib/load-jobs";
+import { loadJobs } from "@/frontend/lib/loaders/jobs";
 
 export default async function SavedPage() {
   const { jobs, sample } = await loadJobs();

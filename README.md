@@ -186,6 +186,7 @@ What every part of the app does in each mode: [`docs/backend/AUTH.md`](docs/back
 - [`docs/general/PROJECT_OVERVIEW.md`](docs/general/PROJECT_OVERVIEW.md) — architecture, tech stack, and feature-by-feature implementation notes.
 - [`docs/general/PRE_PRODUCTION.md`](docs/general/PRE_PRODUCTION.md) — the pre-launch checklist: what's done, what needs config, and what's still a product decision.
 - [`docs/frontend/DESIGN_SYSTEM.md`](docs/frontend/DESIGN_SYSTEM.md) — the visual language and design tokens.
+- [`docs/frontend/DATA_FETCHING.md`](docs/frontend/DATA_FETCHING.md) — how the frontend gets data: `serverFetch` on the server, `use()` for server data in client components, TanStack Query in the browser.
 - [`docs/backend/AUTH.md`](docs/backend/AUTH.md) — the full auth cycle (Clerk, the `users` row, the gates), referrals on top of it, and running without auth. Start here if you're new.
 - [`docs/backend/PROXY.md`](docs/backend/PROXY.md) — the request pipeline (`src/proxy.ts`): auth session, steps, and how to add one.
 - [`db/README.md`](db/README.md) — database migrations, one subfolder per database.

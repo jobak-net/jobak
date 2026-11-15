@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
+import { initialsFor } from "@/frontend/lib/utils/initials";
 import { cn } from "@/frontend/lib/utils/utils";
 
 import { Sidebar } from "./sidebar";
@@ -12,6 +13,16 @@ import { Topbar } from "./topbar";
 const COLLAPSED_KEY = "jobak:sidebar-collapsed";
 
 /**
+ * Who is signed in, as far as the shell shows it. Its own shape, not the
+ * backend's user type: the frontend doesn't depend on the backend, and the
+ * route passes only these fields to the browser.
+ */
+export interface ShellUser {
+    fullName: string | null;
+    email: string | null;
+}
+
+/**
  * Sidebar + top bar + content, for every page under /dashboard.
  *
  * The collapsed state is remembered per browser — a convenience, so it lives in
@@ -19,12 +30,13 @@ const COLLAPSED_KEY = "jobak:sidebar-collapsed";
  * just fall back to expanded.
  */
 export function DashboardShell({
-    userInitials,
+    user,
     children,
 }: {
-    userInitials: string;
+    user: ShellUser;
     children: React.ReactNode;
 }) {
+    const userInitials = initialsFor(user.fullName, user.email);
     const pathname = usePathname();
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);

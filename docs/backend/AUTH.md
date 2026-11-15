@@ -27,6 +27,7 @@ depth.
 | "Who is this?" | `src/backend/modules/auth/application/use-cases/get-current-user.use-case.ts` | Session → `users` row, creating it on first sight |
 | Gate for pages | `src/backend/modules/auth/interface/session.ts` | `requireUser()`, `getCurrentUser()` |
 | Gate for API routes | `src/backend/modules/auth/interface/api.ts` | `requireApiUser()`, `getApiUser()` |
+| "Who is this, onboarded?" over HTTP | `src/app/api/v1/me/route.ts`, `src/backend/modules/account/` | `GET /api/v1/me`: what the dashboard layout reads (contract: `src/shared/contracts/account.ts`) |
 | Session in the proxy | `src/backend/shared/middleware/auth-session.ts` | `clerkMiddleware()`, or nothing with auth off |
 | Sign-in / sign-up pages | `src/app/(auth)/` | Clerk's `<SignIn />` / `<SignUp />` at `/login`, `/register` |
 | Clerk on the client | `src/app/layout.tsx`, `src/frontend/providers/auth-mode-provider.tsx` | `ClerkProvider` only with auth on; `useAuthEnabled()` |
@@ -40,7 +41,7 @@ sequenceDiagram
     actor V as Visitor
     participant C as Clerk sign-up at /register
     participant P as Proxy (clerkMiddleware)
-    participant L as (protected)/layout.tsx
+    participant L as /onboarding page
     participant U as GetCurrentUserUseCase
     participant DB as users table
     participant W as Webhook /api/v1/webhooks/clerk
@@ -72,8 +73,8 @@ What to notice:
 - **Where people land.** `ClerkProvider` in `src/app/layout.tsx` sends a new
   account to `/onboarding` and a returning one to `/dashboard`. If Clerk sent
   them to sign in from a specific page, they go back there instead.
-- **Onboarding is required.** `(protected)/layout.tsx` sends anyone who hasn't
-  finished it to `/onboarding` before showing the dashboard.
+- **Onboarding is required.** The dashboard layout sends anyone who hasn't
+  finished it to `/onboarding` (see "The dashboard layout asks over HTTP" below).
 
 ## 2. Every request after that
 
@@ -110,6 +111,36 @@ if (!user) return response;                // 401
 
 Then scope every query by `user.id`. Authorization lives in the repository
 queries, not in database row-level security.
+
+### The dashboard layout asks over HTTP
+
+The frontend doesn't import backend code for this. `(protected)/layout.tsx`
+asks the backend over HTTP:
+
+```
+(protected)/layout.tsx
+  └─ resolveDashboardAccess()        frontend/lib/guards/dashboard-access.ts
+      └─ serverFetch()               frontend/lib/api/server-fetch.ts
+          └─ GET /api/v1/me          forwards the visitor's cookie header
+              └─ account module      backend/modules/account: auth + preferences
+```
+
+`serverFetch()` is the frontend's only way to call the backend from the
+server. It calls `API_BASE_URL` when that is set, otherwise this app's own
+origin, which is where the API routes live today. Moving the backend to
+another service means setting `API_BASE_URL` and, for a different domain,
+switching the auth it forwards from cookies to a bearer token. Both changes
+are in that one file.
+
+The response is the contract in `src/shared/contracts/account.ts`:
+
+| Status | Meaning | The layout… |
+|---|---|---|
+| 200 `{ user, onboarded }` | signed in | shows the dashboard, or redirects to `/onboarding` if `onboarded` is false |
+| 401 | nobody is signed in | redirects to `/login` |
+| 503 | couldn't tell (database) | shows the retry screen, never a redirect |
+
+401 and 503 must stay different, for the same loop reason as above.
 
 ## 3. Keeping `users` in step with Clerk
 

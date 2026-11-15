@@ -12,7 +12,7 @@ import { StatStrip } from "@/frontend/components/dashboard/stat-strip";
 import { Button } from "@/frontend/components/ui";
 import { APPLICATION_STAGES, MATCH_ACTIVITY, SAMPLE_APPLICATIONS } from "@/frontend/lib/mocks/dashboard";
 
-import { loadJobs } from "./_lib/load-jobs";
+import { loadJobs } from "@/frontend/lib/loaders/jobs";
 
 /** A rail section's heading, with an optional "sample" marker and link. */
 function RailHeading({ title, sample, href, linkLabel }: { title: string; sample?: boolean; href?: string; linkLabel?: string }) {

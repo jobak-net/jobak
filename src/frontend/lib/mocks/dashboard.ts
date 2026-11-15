@@ -1,4 +1,4 @@
-import type { Job } from "@/frontend/types/dashboard";
+import type { Job } from "@/shared/contracts/jobs";
 
 /**
  * Sample data for the dashboard while its features are being built.

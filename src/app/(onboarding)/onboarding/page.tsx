@@ -1,13 +1,9 @@
-import { redirect } from "next/navigation";
-
 import { requireUser } from "@/backend/modules/auth/interface";
 import { getJobCatalogueModule } from "@/backend/modules/job-catalogue";
 import { getPreferencesModule } from "@/backend/modules/preferences";
 import { LoadFailed } from "@/frontend/components/dashboard/load-failed";
 import { OnboardingFlow } from "@/frontend/components/onboarding/onboarding-flow";
-import { AI_SETUP_HREF } from "@/shared/routes";
-
-import { readOnboardingStatus } from "../_lib/onboarding-status";
+import { resolveOnboardingAccess } from "@/frontend/lib/guards/onboarding-access";
 
 /**
  * /onboarding — the first-time setup.
@@ -20,12 +16,11 @@ import { readOnboardingStatus } from "../_lib/onboarding-status";
  * connecting their AI (which sends them to the dashboard if that's done too).
  */
 export default async function OnboardingPage() {
+  const access = await resolveOnboardingAccess("questions");
+  if (access.kind === "load-failed") return <LoadFailed />;
+
+  // Still read directly from the backend until these have endpoints.
   const user = await requireUser();
-
-  const answered = await readOnboardingStatus(user.id);
-  if (answered === null) return <LoadFailed />;
-  if (answered) redirect(AI_SETUP_HREF);
-
   const [catalogue, saved] = await Promise.all([
     getJobCatalogueModule()
       .listFields.execute()
@@ -47,7 +42,7 @@ export default async function OnboardingPage() {
     <OnboardingFlow
       catalogue={catalogue}
       initial={saved ?? undefined}
-      firstName={user.fullName?.split(/\s+/)[0] ?? null}
+      firstName={access.user.fullName?.split(/\s+/)[0] ?? null}
     />
   );
 }
