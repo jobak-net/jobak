@@ -3,6 +3,7 @@
 import React from "react";
 
 import { AuthModeProvider } from "./auth-mode-provider";
+import { QueryProvider } from "./query-provider";
 
 export function RootProvider({
   authEnabled,
@@ -12,6 +13,8 @@ export function RootProvider({
   children: React.ReactNode;
 }) {
   return (
-    <AuthModeProvider authEnabled={authEnabled}>{children}</AuthModeProvider>
+    <AuthModeProvider authEnabled={authEnabled}>
+      <QueryProvider>{children}</QueryProvider>
+    </AuthModeProvider>
   );
 }

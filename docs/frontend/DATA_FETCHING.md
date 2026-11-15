@@ -104,18 +104,21 @@ server-only. Its result is plain JSON, so React can pass it to the client.
 
 ## 3. Started in the browser: TanStack Query
 
-> **Not set up yet.** Install `@tanstack/react-query`, add a
-> `QueryClientProvider` in `src/frontend/providers/`, and create `clientFetch`
-> (below) when the first client-side fetch arrives.
+TanStack Query is set up for the whole app (`QueryProvider` in
+`src/frontend/providers/`, inside `RootProvider`).
 
-`clientFetch<T>(path, options)` will live in `src/frontend/lib/api/client-fetch.ts`.
-It mirrors `serverFetch`: same result kinds and same options. It calls the API
-on the same origin with the browser's own cookies, or
-`NEXT_PUBLIC_API_BASE_URL` when the backend moves elsewhere. Its own file
-keeps server-only code like `next/headers` out of the browser bundle.
+`clientFetch<T>(path, options)` lives in `src/frontend/lib/api/client-fetch.ts`.
+It mirrors `serverFetch`: same result kinds (both use `fetch-result.ts`) and
+same options. It calls the API on the same origin with the browser's own
+cookies, or `NEXT_PUBLIC_API_BASE_URL` when the backend moves elsewhere. Its
+own file keeps server-only code like `next/headers` out of the browser bundle.
+
+Real example: the onboarding submit,
+`src/frontend/components/onboarding/questions/orchestrator/save-onboarding.ts`
+(`useMutation` → `POST /api/v1/onboarding`).
 
 The endpoints below are illustrative: `/api/v1/job-titles` and
-`/api/v1/preferences` don't exist yet.
+`/api/v1/preferences` (PUT) don't exist yet.
 
 ```tsx
 "use client";

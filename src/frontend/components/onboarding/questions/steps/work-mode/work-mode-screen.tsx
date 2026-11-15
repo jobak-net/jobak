@@ -1,0 +1,46 @@
+"use client";
+
+import { useCallback } from "react";
+import { ArrowLeftRight, Building2, Laptop } from "lucide-react";
+
+import { WORK_MODE_LABEL } from "@/frontend/components/onboarding/labels";
+import type { WorkMode } from "@/shared/contracts/preferences";
+import { WORK_MODES } from "@/shared/preferences/search-rules";
+
+import type { StepScreenProps } from "../../orchestrator/step-strategy";
+import { OptionCard } from "../../ui/option-card";
+import { riseStyle } from "../../ui/rise-style";
+import { toggle } from "../../ui/toggle";
+
+const WORK_MODE_COPY: Record<WorkMode, { description: string; icon: React.ReactNode }> = {
+    remote: { description: "Work from home or anywhere in your country.", icon: <Laptop className="size-5" /> },
+    hybrid: { description: "Some days in the office, some at home.", icon: <ArrowLeftRight className="size-5" /> },
+    "on-site": { description: "At the employer's office every day.", icon: <Building2 className="size-5" /> },
+};
+
+/** The work mode step's screen. Draws and reports changes; the rules are in `work-mode-step.ts`. */
+export function WorkModeScreen({ draft, update }: StepScreenProps) {
+    const toggleMode = useCallback(
+        (mode: WorkMode) => update((d) => ({ workModes: toggle(d.workModes, mode) })),
+        [update],
+    );
+
+    return (
+        <div className="grid gap-3 sm:grid-cols-3">
+            {WORK_MODES.map((mode, i) => (
+                <OptionCard
+                    key={mode}
+                    className="ob-rise"
+                    style={riseStyle(i)}
+                    layout="stack"
+                    value={mode}
+                    selected={draft.workModes.includes(mode)}
+                    onSelect={toggleMode}
+                    icon={WORK_MODE_COPY[mode].icon}
+                    title={WORK_MODE_LABEL[mode]}
+                    description={WORK_MODE_COPY[mode].description}
+                />
+            ))}
+        </div>
+    );
+}

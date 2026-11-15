@@ -1,55 +1,19 @@
-import type { JobPreferences, WorkMode } from "@/backend/modules/preferences/domain/job-preferences";
+import type { JobPreferences } from "@/backend/modules/preferences/domain/job-preferences";
 
-/**
- * The setup that runs between the job questions and connecting the AI.
- *
- * Each step is real work against the database — basic filters over the jobs
- * and sources Jobak has collected — not a timed animation. Pure and
- * browser-safe: the setup screen imports these types to draw the results.
+/*
+ * The step ids and result shapes are the API contract
+ * (`@/shared/contracts/setup-steps`), shared with the frontend. Re-exported
+ * for the rest of the backend; the query criteria below are the server's own.
  */
-export type SetupStepId = "preferences" | "search" | "sources";
-
-export const SETUP_STEPS: readonly SetupStepId[] = ["preferences", "search", "sources"];
-
-export function isSetupStepId(value: unknown): value is SetupStepId {
-    return typeof value === "string" && (SETUP_STEPS as readonly string[]).includes(value);
-}
-
-/** Step 1: the answers, read back from where they were saved. */
-export interface PreferencesStepData {
-    titles: number;
-    countries: string[];
-    worldwide: boolean;
-    workModes: WorkMode[];
-}
-
-/**
- * Step 2: the search as a funnel. Each count narrows the one before it —
- * every active job, then those matching a title, then in the user's
- * locations, then in a work mode they accept.
- */
-export interface SearchStepData {
-    total: number;
-    matchingTitles: number;
-    inLocations: number;
-    matching: number;
-}
-
-/** Step 3: where the jobs come from. */
-export interface SourcesStepData {
-    /** Sources Jobak collects from (`sources.is_active`). */
-    active: number;
-    /** Sources with at least one job in the user's search, most jobs first. */
-    withJobs: { name: string; jobs: number }[];
-    /** When the newest matching job was collected (ISO), or null when there are none. */
-    newestAt: string | null;
-}
-
-export type SetupStepResult =
-    | { ok: true; step: "preferences"; data: PreferencesStepData }
-    | { ok: true; step: "search"; data: SearchStepData }
-    | { ok: true; step: "sources"; data: SourcesStepData }
-    | { ok: false; step: SetupStepId; message: string };
+export {
+    isSetupStepId,
+    SETUP_STEPS,
+    type PreferencesStepData,
+    type SearchStepData,
+    type SetupStepId,
+    type SetupStepResult,
+    type SourcesStepData,
+} from "@/shared/contracts/setup-steps";
 
 /**
  * The filters, in the shape the jobs table speaks. Mirrors

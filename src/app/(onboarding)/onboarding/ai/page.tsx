@@ -1,5 +1,5 @@
 import { LoadFailed } from "@/frontend/components/dashboard/load-failed";
-import { AiSetupFlow } from "@/frontend/components/onboarding/ai/ai-setup-flow";
+import { AiSetupFlow } from "@/frontend/components/onboarding/ai/orchestrator/ai-setup-flow";
 import { resolveOnboardingAccess } from "@/frontend/lib/api/guards/onboarding-access";
 import { loadAiSetup } from "@/frontend/lib/api/loaders/onboarding";
 

@@ -12,12 +12,13 @@ import type { JobPreferences } from "@/shared/contracts/preferences";
  *  - `validate`: is it complete? A message the user can act on, or null.
  *
  * No step knows which step comes before or after it. The order is a plain
- * list (`STEP_ORDER` in `./steps.ts`), and the steps actually shown are that
+ * list (`STEP_ORDER` in `./steps/index.ts`), and the steps actually shown are that
  * list minus the ones that don't apply.
  *
  * Stateless and shared: the browser (driving the screens) and the backend
  * (re-checking on save) run the same rules and can't disagree. The frontend
- * pairs each with its screen (`frontend/components/onboarding/questions/steps/`).
+ * pairs each with its screen in a matching folder
+ * (`frontend/components/onboarding/questions/steps/<step>/`).
  */
 
 export type StepId = "location" | "workMode" | "titles" | "details" | "review";

@@ -16,9 +16,10 @@ import {
 } from "lucide-react";
 
 import { StepTabs, stepTabId, useSlideDirection } from "@/frontend/components/dashboard/step-tabs";
-import { ChooseScreen, KEY_FORM_ID, KeyScreen } from "@/frontend/components/onboarding/ai/ai-screens";
-import { ConnectionPanel, type ConnectionStatus } from "@/frontend/components/onboarding/ai/connection-panel";
-import { previewVerifyKey } from "@/frontend/components/onboarding/ai/preview-verify";
+import { ConnectionPanel, type ConnectionStatus } from "@/frontend/components/onboarding/ai/orchestrator/connection-panel";
+import { ChooseScreen } from "@/frontend/components/onboarding/ai/phases/choose-provider/choose-provider-screen";
+import { KEY_FORM_ID, KeyScreen } from "@/frontend/components/onboarding/ai/phases/key/key-screen";
+import { previewVerifyKey } from "@/frontend/components/onboarding/ai/phases/key/preview-verify";
 import { PROVIDER_INFO } from "@/frontend/components/onboarding/ai/providers";
 import { JobakMark } from "@/frontend/components/shared/jobak-logo";
 import { Button } from "@/frontend/components/ui";

@@ -23,4 +23,4 @@ Never:
 - calling `fetch` directly instead of `serverFetch` or `clientFetch`;
 - importing from `src/backend` in frontend code.
 
-TanStack Query and `clientFetch` aren't set up yet. Add them with the first client-side fetch (see the guide).
+TanStack Query is set up (`QueryProvider` in `src/frontend/providers/`); `clientFetch` is `src/frontend/lib/api/client-fetch.ts`. First real use: `components/onboarding/questions/orchestrator/save-onboarding.ts`.

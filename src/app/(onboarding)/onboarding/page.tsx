@@ -1,5 +1,5 @@
 import { LoadFailed } from "@/frontend/components/dashboard/load-failed";
-import { OnboardingFlow } from "@/frontend/components/onboarding/questions/onboarding-flow";
+import { OnboardingFlow } from "@/frontend/components/onboarding/questions/orchestrator/onboarding-flow";
 import { resolveOnboardingAccess } from "@/frontend/lib/api/guards/onboarding-access";
 import { loadOnboardingQuestions } from "@/frontend/lib/api/loaders/onboarding";
 

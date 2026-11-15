@@ -2,6 +2,8 @@ import "server-only";
 
 import { headers } from "next/headers";
 
+import type { FetchOptions, FetchResult } from "./fetch-result";
+
 /**
  * The frontend's one way to call the backend from the server (server
  * components, layouts, guards). Consumers only pick a path and a type:
@@ -23,21 +25,9 @@ import { headers } from "next/headers";
  *  - **Freshness:** never cached. The answers are per-user.
  */
 
-export type ServerFetchResult<T> =
-  | { kind: "ok"; data: T }
-  /** 401: nobody is signed in. */
-  | { kind: "unauthorized" }
-  /**
-   * Anything else: an error status, an unreachable backend (`status: null`),
-   * or a body that isn't JSON. "Couldn't tell", never "signed out".
-   */
-  | { kind: "failed"; status: number | null };
-
-export interface ServerFetchOptions {
-  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  /** Sent as JSON. */
-  body?: unknown;
-}
+/** The same result shape as `clientFetch`'s (see `./fetch-result.ts`). */
+export type ServerFetchResult<T> = FetchResult<T>;
+export type ServerFetchOptions = FetchOptions;
 
 /** `API_BASE_URL`, or this deployment's origin as the request saw it. */
 function apiBaseUrl(incoming: Headers): string {

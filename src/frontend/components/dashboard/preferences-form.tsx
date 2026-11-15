@@ -4,8 +4,8 @@ import { useCallback, useEffect, useReducer, useState, useTransition } from "rea
 import { ArrowLeft, ArrowRight, Check, Globe2, Loader2, RotateCcw } from "lucide-react";
 
 import { updatePreferencesAction } from "@/backend/actions/preferences";
-import { applyDraftPatch, type DraftPatch } from "@/frontend/components/onboarding/questions/draft";
-import { createStep, createSteps } from "@/frontend/components/onboarding/questions/steps/step-factory";
+import { applyDraftPatch, type DraftPatch } from "@/frontend/components/onboarding/questions/orchestrator/draft";
+import { createStep, createSteps } from "@/frontend/components/onboarding/questions/orchestrator/step-factory";
 import type { JobPreferences } from "@/shared/contracts/preferences";
 import type { StepId } from "@/shared/onboarding/step-rules";
 import { routeFor, validateForCompletion } from "@/shared/onboarding/steps";
