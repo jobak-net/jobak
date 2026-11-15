@@ -4,30 +4,22 @@ import { useCallback, useEffect, useReducer, useState, useTransition } from "rea
 import { ArrowLeft, ArrowRight, Check, Globe2, Loader2, RotateCcw } from "lucide-react";
 
 import { updatePreferencesAction } from "@/backend/actions/preferences";
-import {
-    EMPTY_PREFERENCES,
-    applySearchRules,
-    type JobPreferences,
-} from "@/backend/modules/preferences/domain/job-preferences";
-import {
-    STEPS,
-    applyDraftPatch,
-    routeFor,
-    validateForCompletion,
-    type DraftPatch,
-    type StepId,
-} from "@/backend/modules/preferences/domain/onboarding";
+import { applyDraftPatch, type DraftPatch } from "@/frontend/components/onboarding/questions/draft";
+import { createStep, createSteps } from "@/frontend/components/onboarding/questions/steps/step-factory";
+import type { JobPreferences } from "@/shared/contracts/preferences";
+import type { StepId } from "@/shared/onboarding/step-rules";
+import { routeFor, validateForCompletion } from "@/shared/onboarding/steps";
+import { applySearchRules, EMPTY_PREFERENCES } from "@/shared/preferences/search-rules";
 import { WORK_MODE_LABEL } from "@/frontend/components/onboarding/labels";
 import { SearchPreview } from "@/frontend/components/onboarding/search-preview";
-import { STEP_SCREENS } from "@/frontend/components/onboarding/step-screens";
 import { StepTabs, stepTabId, useSlideDirection } from "@/frontend/components/dashboard/step-tabs";
 import { Button } from "@/frontend/components/ui";
 import { countryName } from "@/frontend/lib/configs/countries";
 import type { JobField } from "@/frontend/lib/configs/job-titles";
 import { cn } from "@/frontend/lib/utils/utils";
 
-/** The onboarding steps that are answers; the review step has no place on a settings page. */
-const GROUPS: StepId[] = ["location", "workMode", "titles", "details"];
+/** The onboarding steps that are answers — the factory leaves out the review step for settings. */
+const GROUPS: StepId[] = createSteps("settings").map((step) => step.id);
 
 const GROUP_LABEL: Record<StepId, string> = {
     location: "Location",
@@ -81,7 +73,7 @@ function groupKey(stepId: StepId, d: JobPreferences): string {
  * The dashboard's Preferences page: the onboarding answers, one group at a time.
  *
  * Onboarding without the wizard's order. Tabs across the top open each group;
- * each group is the very screen the onboarding step draws (`STEP_SCREENS`),
+ * each group is the very screen the onboarding step draws (`createStep(id).Screen`),
  * edits go through the same rules (`applyDraftPatch`), the same steps decide
  * what is complete and the save runs the same server checks — so the two
  * pages can never disagree about what a valid search is. Beside the form,
@@ -156,8 +148,8 @@ export function PreferencesForm({ initial, catalogue }: { initial: JobPreference
         setError(null);
     }
 
-    const step = STEPS[active];
-    const Screen = STEP_SCREENS[active];
+    const step = createStep(active);
+    const Screen = step.Screen;
     const previous = GROUPS[index - 1];
     const next = GROUPS[index + 1];
 

@@ -1,4 +1,4 @@
-import type { JobType, Seniority, WorkMode } from "@/backend/modules/preferences/domain/job-preferences";
+import type { JobType, Seniority, WorkMode } from "@/shared/contracts/preferences";
 
 /** How each stored value reads on screen. One place, so the steps and the review agree. */
 

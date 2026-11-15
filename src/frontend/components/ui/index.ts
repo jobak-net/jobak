@@ -6,5 +6,6 @@ export { GradientOrb } from "./gradient-orb";
 export { Card, Eyebrow, Section } from "./surface";
 export { PageHeader } from "./page-header";
 export { Field, Input, Textarea, inputClass, textareaClass } from "./field";
+export { SearchableSelect, type SelectOption } from "./searchable-select";
 export { Chip, FilterChip } from "./chip";
 export { Stat } from "./stat";

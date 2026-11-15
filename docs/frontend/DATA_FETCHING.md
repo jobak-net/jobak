@@ -16,10 +16,12 @@ backend to another service or technology doesn't touch the frontend.
   `account.ts` for `GET /api/v1/me`). Both sides import it; neither imports the
   other.
 - **`src/app/` holds only UI (pages, layouts) and API routes**, with no
-  `_lib/` folders. Frontend logic lives in `src/frontend/lib/`: `guards/`
-  decide whether a page may render (redirects, retry screen), and `loaders/`
-  fetch a page's data and shape it for the UI (e.g. sample data as a
-  fallback).
+  `_lib/` folders. Everything that calls the backend lives together in
+  `src/frontend/lib/api/`:
+  - `server-fetch.ts`: the one fetch every server-side call goes through;
+  - `guards/`: decide whether a page may render (redirects, retry screen);
+  - `loaders/`: fetch a page's data and shape it into the component's props
+    (e.g. sample data as a fallback).
 
 ## Which tool, where
 
@@ -63,8 +65,8 @@ What it does for every call:
 
 For writes, pass a method and a body: `serverFetch<T>(path, { method: "POST", body })`.
 
-Real examples: `src/frontend/lib/guards/dashboard-access.ts`,
-`guards/onboarding-access.ts` and `loaders/jobs.ts`.
+Real examples: `src/frontend/lib/api/guards/dashboard-access.ts`,
+`guards/onboarding-access.ts`, `loaders/jobs.ts` and `loaders/onboarding.ts`.
 
 ## 2. Server data in a client component: `use()`
 

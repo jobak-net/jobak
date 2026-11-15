@@ -1,5 +1,6 @@
 import { parsePreferences, type JobPreferences, type StoredPreferences } from "../domain/job-preferences";
-import { validateForCompletion, type StepId } from "../domain/onboarding";
+import type { StepId } from "@/shared/onboarding/step-rules";
+import { validateForCompletion } from "@/shared/onboarding/steps";
 import type { PreferencesRepository } from "../domain/preferences.repository";
 import { unknownTitlesMessage, type TitleCatalogue } from "../domain/title-catalogue";
 

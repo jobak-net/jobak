@@ -9,7 +9,7 @@
  * reached through `searchJobTitlesAction`.
  */
 
-import type { JobField } from "@/backend/modules/job-catalogue/domain/job-catalogue";
+import type { JobField } from "@/shared/contracts/job-catalogue";
 
 export type { JobField };
 

@@ -3,11 +3,9 @@
 import { memo, type CSSProperties, type ReactNode } from "react";
 import { Globe2, Search } from "lucide-react";
 
-import type { JobPreferences } from "@/backend/modules/preferences/domain/job-preferences";
-import {
-  validateForCompletion,
-  type StepId,
-} from "@/backend/modules/preferences/domain/onboarding";
+import type { JobPreferences } from "@/shared/contracts/preferences";
+import type { StepId } from "@/shared/onboarding/step-rules";
+import { validateForCompletion } from "@/shared/onboarding/steps";
 import { Flag } from "@/frontend/components/shared/flag";
 import { countryName } from "@/frontend/lib/configs/countries";
 import { cn } from "@/frontend/lib/utils/utils";

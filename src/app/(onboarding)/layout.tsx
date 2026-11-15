@@ -10,7 +10,7 @@ export const metadata: Metadata = {
  * sidebar, no site navigation — one question at a time, nothing else to click.
  *
  * No gate here. Each page asks `resolveOnboardingAccess()`
- * (`frontend/lib/guards/onboarding-access.ts`) for its own step, because the
+ * (`frontend/lib/api/guards/onboarding-access.ts`) for its own step, because the
  * two pages send people in opposite directions — and that check covers signed
  * out and "couldn't tell" as well.
  */

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
-import { initialsFor } from "@/frontend/lib/utils/initials";
+import { initialsFor } from "@/frontend/lib/utils/names";
 import { cn } from "@/frontend/lib/utils/utils";
 
 import { Sidebar } from "./sidebar";

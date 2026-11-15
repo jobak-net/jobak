@@ -9,14 +9,10 @@
  * collector sweeps and the titles the matcher compares are one list.
  */
 
-/** A field, with a handful of its most common titles to suggest. */
-export interface JobField {
-    /** Stable value persisted to `user_preferences.field`. */
-    value: string;
-    label: string;
-    /** Suggestions only — the first few by catalogue order, not every title. */
-    titles: string[];
-}
+import type { JobField } from "@/shared/contracts/job-catalogue";
+
+/** The shape is the API contract (`@/shared/contracts/job-catalogue`). */
+export type { JobField };
 
 /** One search hit. */
 export interface JobTitleMatch {

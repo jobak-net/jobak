@@ -53,7 +53,7 @@ sequenceDiagram
     C->>V: session cookie, redirect to /onboarding
     V->>P: GET /onboarding
     P->>L: session read, request goes on
-    L->>U: requireUser()
+    L->>U: guard, GET /api/v1/me
     U->>U: auth() gives Clerk id user_…
     U->>DB: find by external_id
     DB-->>U: no row yet
@@ -119,7 +119,7 @@ asks the backend over HTTP:
 
 ```
 (protected)/layout.tsx
-  └─ resolveDashboardAccess()        frontend/lib/guards/dashboard-access.ts
+  └─ resolveDashboardAccess()        frontend/lib/api/guards/dashboard-access.ts
       └─ serverFetch()               frontend/lib/api/server-fetch.ts
           └─ GET /api/v1/me          forwards the visitor's cookie header
               └─ account module      backend/modules/account: auth + preferences
