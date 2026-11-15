@@ -172,6 +172,28 @@ export const authFormAppearance = {
             background: "transparent",
             padding: 0,
             gap: "28px",
+
+            /*
+             * Verification steps — "check your email" for a link or a code, in
+             * sign-up and sign-in — are centred. They have no form fields to
+             * line the heading up with, and Clerk centres their own parts (the
+             * Resend link, the code boxes), so a left-aligned heading above them
+             * read as a misaligned form.
+             *
+             * Picked out by the Resend link, which only those steps have,
+             * rather than by step name (`cl-signUp-emailLink`, …), so a step
+             * Clerk adds or renames is still covered. These selectors out-rank
+             * the left alignment set on `header` below.
+             */
+            "&:has(.cl-formResendCodeLink)": {
+                "& .cl-header": { alignItems: "center", textAlign: "center" },
+                "& .cl-headerTitle, & .cl-headerSubtitle": { textAlign: "center" },
+                "& .cl-identityPreview": {
+                    width: "fit-content",
+                    maxWidth: "100%",
+                    marginInline: "auto",
+                },
+            },
         },
 
         /*
@@ -182,7 +204,8 @@ export const authFormAppearance = {
         logoBox: { display: "none" },
         logoImage: { display: "none" },
 
-        // Left-aligned, under the logo in the column's top-left corner.
+        // Left-aligned, under the logo in the column's top-left corner — except on
+        // verification steps, which `card` above centres.
         header: { alignItems: "flex-start", textAlign: "left" },
         headerTitle: {
             fontSize: "28px",
@@ -252,7 +275,17 @@ export const authFormAppearance = {
             background: t.field,
             color: t.text,
         },
-        identityPreview: { borderRadius: t.radius, border: `1px solid ${t.border}`, background: t.field },
+        // The email being verified, with its edit pencil: a compact chip, not a full-width bar.
+        identityPreview: {
+            gap: "8px",
+            padding: "6px 8px 6px 14px",
+            borderRadius: t.radius,
+            border: `1px solid ${t.border}`,
+            background: t.field,
+        },
+        identityPreviewText: { fontSize: "14px", color: t.textSecondary },
+        identityPreviewEditButton: { color: t.accentText, "&:hover": { color: t.accent } },
+        formResendCodeLink: { fontSize: "13px", fontWeight: 500, color: t.accentText, "&:hover": { color: t.accent } },
 
         // The grey strip under the form, gone: its contents sit on the column.
         footer: {
