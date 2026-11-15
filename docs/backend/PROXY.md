@@ -4,6 +4,9 @@ Everything that happens to a request before it reaches a page or an API route.
 Next 16 calls this file `proxy.ts` (it used to be `middleware.ts`). There is
 exactly one, at `src/proxy.ts`.
 
+New to the codebase? Read [`AUTH.md`](AUTH.md) first: it covers the whole auth
+and referral cycle, which this pipeline is one part of.
+
 ```ts
 export const proxy = withAuthSession(
   runSteps([
