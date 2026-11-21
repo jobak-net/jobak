@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageIntro, PageShell } from "@/frontend/components/public/shared/page-intro";
-import { FeedbackForm } from "@/frontend/components/public/feedback/feedback-form";
+import { FeedbackForm } from "@/frontend/components/public/feedback";
 
 const TITLE = "Feedback";
 const DESCRIPTION =

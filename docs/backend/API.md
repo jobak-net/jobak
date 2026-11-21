@@ -14,6 +14,7 @@ src/app/api/
 └── v1/
     ├── (account)/            the signed-in user: me, preferences, onboarding, referrals
     ├── (jobs)/               jobs (+ jobs/[jobId]/bookmark), job-fields, job-titles
+    ├── (public)/             open to anyone: feedback
     └── (integrations)/       called by other systems: webhooks/clerk
 ```
 
@@ -70,6 +71,7 @@ them too.
 | `ForbiddenError` | 403 | `forbidden` |
 | `NotFoundError` | 404 | `not-found` |
 | `UnsupportedMediaTypeError` | 415 | `unsupported-media-type` |
+| `TooManyRequestsError` | 429 | `rate-limited` |
 | `InternalServerError` | 500 | `internal` |
 | `ServiceUnavailableError` | 503 | `service-unavailable` |
 

@@ -22,6 +22,8 @@ export type ErrorCode =
   | "not-found"
   /** 415 — a body that wasn't sent as JSON. */
   | "unsupported-media-type"
+  /** 429 — too many requests in a short time (a held-down button, a flood). */
+  | "rate-limited"
   /** 503 — the database or an upstream service didn't answer. */
   | "service-unavailable"
   /** 500 — a bug on our side. */
@@ -35,6 +37,7 @@ export const ERROR_MESSAGES: Readonly<Record<ErrorCode, string>> = {
   forbidden: "You don't have access to that.",
   "not-found": "That doesn't exist.",
   "unsupported-media-type": "That request couldn't be read.",
+  "rate-limited": "That's a lot at once. Give it a moment and try again.",
   "service-unavailable": "Couldn't do that right now. Try again in a moment.",
   internal: "Something went wrong on our side. Try again.",
   network: "Couldn't reach Jobak. Check your connection and try again.",

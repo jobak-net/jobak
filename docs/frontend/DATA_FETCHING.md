@@ -118,7 +118,7 @@ Real example: the onboarding submit,
 (`useMutation` → `POST /api/v1/onboarding`).
 
 Code is grouped per API resource in `src/frontend/lib/api/<resource>/`
-(`onboarding/`, `preferences/`, `job-catalogue/`, `jobs/`), with shared setup in
+(`onboarding/`, `preferences/`, `job-catalogue/`, `jobs/`, `feedback/`), with shared setup in
 `config.ts`:
 
 ```

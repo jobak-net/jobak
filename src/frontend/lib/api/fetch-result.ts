@@ -32,6 +32,7 @@ function codeForStatus(status: number): ErrorCode {
   if (status === 403) return "forbidden";
   if (status === 404) return "not-found";
   if (status === 415) return "unsupported-media-type";
+  if (status === 429) return "rate-limited";
   if (status === 500) return "internal";
   return "service-unavailable";
 }

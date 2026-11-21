@@ -17,6 +17,7 @@ export {
   InternalServerError,
   NotFoundError,
   ServiceUnavailableError,
+  TooManyRequestsError,
   UnauthorizedError,
   UnsupportedMediaTypeError,
   ValidationError,
