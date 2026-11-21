@@ -7,7 +7,9 @@ export { useSphereLogic } from "./ui/use-sphere-logic";
 export { useIsMobile } from "./ui/use-is-mobile";
 export { useIntersectionVisible } from "./ui/use-intersection-visible";
 export { useAutoRotate } from "./ui/use-auto-rotate";
+export { useDebouncedValue } from "./ui/use-debounced-value";
 
 // API — TanStack Query hooks that call the backend (see docs/frontend/DATA_FETCHING.md)
+export { useJobTitleSearch } from "./api/use-job-title-search";
 export { useSaveOnboarding } from "./api/use-save-onboarding";
 export { useSavePreferences } from "./api/use-save-preferences";

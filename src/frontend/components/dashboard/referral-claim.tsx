@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { REFERRAL_COOKIE } from "@/shared/referral/referral-cookie";
+import { REFERRAL_COOKIE } from "@/shared/referral";
 
 /**
  * Claims a pending referral, once, on the dashboard.

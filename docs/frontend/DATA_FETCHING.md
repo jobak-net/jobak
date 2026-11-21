@@ -117,27 +117,38 @@ Real example: the onboarding submit,
 `src/frontend/hooks/api/use-save-onboarding.ts`
 (`useMutation` → `POST /api/v1/onboarding`).
 
-The endpoints below are illustrative: `/api/v1/job-titles` and
-`/api/v1/preferences` (PUT) don't exist yet.
+Both shapes, from the real hooks in `src/frontend/hooks/api/`:
 
 ```tsx
 "use client";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
 
-// Read: keyed by the API path and its parameters.
-const titles = useQuery({
-  queryKey: ["/api/v1/job-titles", query],
-  queryFn: () => clientFetch<JobTitleMatch[]>(`/api/v1/job-titles?q=${encodeURIComponent(query)}`),
-  enabled: query.length >= MIN_QUERY_LENGTH,
-});
+// Read — use-job-title-search.ts: keyed by the API path and its parameters.
+// Debounce the input first (useDebouncedValue, in hooks/ui/).
+export function useJobTitleSearch(query: string) {
+  const q = query.trim();
+  return useQuery({
+    queryKey: [JOB_TITLES_API_PATH, q],
+    queryFn: async () => {
+      const result = await clientFetch<JobTitleMatch[]>(`${JOB_TITLES_API_PATH}?q=${encodeURIComponent(q)}`);
+      if (result.kind === "ok") return result.data;
+      throw ApiError.from(result);            // shared code + message
+    },
+    enabled: q.length >= MIN_QUERY_LENGTH,
+    placeholderData: keepPreviousData,        // keep the last results while the next load
+  });
+}
 
-// Write: refresh what the save changed.
-const queryClient = useQueryClient();
-const save = useMutation({
-  mutationFn: (prefs: JobPreferences) =>
-    clientFetch<SaveResult>("/api/v1/preferences", { method: "PUT", body: prefs }),
-  onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/v1/preferences"] }),
-});
+// Write — use-save-preferences.ts.
+export function useSavePreferences() {
+  return useMutation({
+    mutationFn: async (draft: JobPreferences) => {
+      const result = await clientFetch<PreferencesSaveResult>(PREFERENCES_API_PATH, { method: "PUT", body: draft });
+      if (result.kind === "ok") return result.data;
+      throw ApiError.from(result);
+    },
+  });
+}
 ```
 
 Conventions:

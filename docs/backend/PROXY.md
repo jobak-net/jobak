@@ -107,7 +107,7 @@ src/backend/shared/proxy/
 ├── retired-paths.ts     redirectRetired + the old-URL table
 └── referral-capture.ts  captureReferral
 src/backend/shared/http/path.ts                  isUnder(): `/register/x` yes, `/registered` no
-src/shared/routes.ts                             page URLs (SIGN_IN_HREF, …), used by both sides
+src/shared/routes/routes.ts                      page URLs (SIGN_IN_HREF, …), used by both sides
 src/shared/referral/referral-cookie.ts           REFERRAL_COOKIE, used by both sides
 ```
 

@@ -2,7 +2,7 @@ import { unstable_rethrow } from "next/navigation";
 
 import { BaseError } from "@/backend/shared/exceptions";
 import type { Middleware } from "@/backend/shared/types/middleware";
-import { ERROR_MESSAGES, type ErrorResponseBody } from "@/shared/errors/error-codes";
+import { ERROR_MESSAGES, type ErrorResponseBody } from "@/shared/errors";
 
 import { json } from "../respond";
 

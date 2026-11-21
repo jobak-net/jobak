@@ -1,7 +1,7 @@
 import { requireUser } from "@/backend/modules/auth/interface";
 import { getJobCatalogueModule } from "@/backend/modules/job-catalogue";
 import { getPreferencesModule } from "@/backend/modules/preferences";
-import { PreferencesForm } from "@/frontend/components/dashboard/preferences/preferences-form";
+import { PreferencesForm } from "@/frontend/components/dashboard/preferences";
 import { PageHeader } from "@/frontend/components/ui";
 
 /**

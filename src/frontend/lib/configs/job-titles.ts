@@ -6,7 +6,7 @@
  * through the `job-catalogue` module. Fetch the fields server-side with
  * `getJobCatalogueModule().listFields.execute()` and pass them down; a field's
  * `titles` are its first few suggestions, not every title — the rest is
- * reached through `searchJobTitlesAction`.
+ * reached through the title search (`GET /api/v1/job-titles`).
  */
 
 import type { JobField } from "@/shared/contracts/job-catalogue";

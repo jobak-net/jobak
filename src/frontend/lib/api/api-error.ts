@@ -1,4 +1,4 @@
-import { ERROR_MESSAGES, type ErrorCode } from "@/shared/errors/error-codes";
+import { ERROR_MESSAGES, type ErrorCode } from "@/shared/errors";
 
 import type { FetchResult } from "./fetch-result";
 
@@ -7,7 +7,7 @@ import type { FetchResult } from "./fetch-result";
  * `src/frontend/hooks/api/` throw, and what screens catch.
  *
  * Its `message` is always the shared message for its `code`
- * (`@/shared/errors/error-codes`), the same words the backend sent, so a
+ * (`@/shared/errors`), the same words the backend sent, so a
  * screen shows `error.message` and never words an error itself.
  *
  *   onError: (error) => {

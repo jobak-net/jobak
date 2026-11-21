@@ -32,7 +32,7 @@ depth.
 | Sign-in / sign-up pages | `src/app/(auth)/` | Clerk's `<SignIn />` / `<SignUp />` at `/login`, `/register` |
 | Clerk on the client | `src/app/layout.tsx`, `src/frontend/providers/auth-mode-provider.tsx` | `ClerkProvider` only with auth on; `useAuthEnabled()` |
 | Keeping `users` in sync | `src/app/api/v1/(integrations)/webhooks/clerk/route.ts` | Clerk's `user.updated` / `user.deleted` |
-| Page URLs | `src/shared/routes.ts` | `SIGN_IN_HREF` (`/login`), `SIGN_UP_HREF` (`/register`), … |
+| Page URLs | `src/shared/routes/routes.ts` | `SIGN_IN_HREF` (`/login`), `SIGN_UP_HREF` (`/register`), … |
 
 ## 1. Sign-up, start to dashboard
 

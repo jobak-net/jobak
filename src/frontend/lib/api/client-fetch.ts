@@ -12,7 +12,7 @@ import { failureFrom, malformedSuccess, networkFailure, type FetchOptions, type 
  *    default; a backend on another origin gets them with `credentials:
  *    "include"` (and must allow it with CORS).
  *  - **Errors:** a failure carries the shared error `code` and its message
- *    (`@/shared/errors/error-codes`) — the same words the backend sent.
+ *    (`@/shared/errors`) — the same words the backend sent.
  *  - **Freshness:** never cached by the browser. TanStack Query does the
  *    caching, on purpose and per key.
  *

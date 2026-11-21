@@ -1,11 +1,11 @@
-import { ERROR_MESSAGES, isErrorCode, type ErrorCode } from "@/shared/errors/error-codes";
+import { ERROR_MESSAGES, isErrorCode, type ErrorCode } from "@/shared/errors";
 
 /**
  * What `serverFetch` and `clientFetch` both return, so a caller handles a
  * backend answer the same way wherever it ran.
  *
  * A failure always carries a shared error `code` and its `message` — the same
- * words the backend sent (`@/shared/errors/error-codes`), never wording of the
+ * words the backend sent (`@/shared/errors`), never wording of the
  * frontend's own.
  */
 export type FetchResult<T> =

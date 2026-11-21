@@ -74,7 +74,7 @@ const MARKETS: string[] = [
     "DJ", // Djibouti
 ];
 
-const OUT_FILE = join(process.cwd(), "src/shared/countries.ts");
+const OUT_FILE = join(process.cwd(), "src/shared/countries/countries.ts");
 const FLAG_DIR = join(process.cwd(), "public/flags");
 
 function main() {
@@ -153,7 +153,7 @@ export function countryName(code: string): string {
         "utf8"
     );
 
-    console.log(`✓ ${rows.length} countries → src/shared/countries.ts`);
+    console.log(`✓ ${rows.length} countries → src/shared/countries/countries.ts`);
     console.log(`✓ ${copied} flags → public/flags/`);
     if (EXCLUDED.length) console.log(`  excluded: ${EXCLUDED.join(", ")}`);
 }

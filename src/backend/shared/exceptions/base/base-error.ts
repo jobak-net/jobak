@@ -1,4 +1,4 @@
-import { ERROR_MESSAGES, type ErrorCode } from "@/shared/errors/error-codes";
+import { ERROR_MESSAGES, type ErrorCode } from "@/shared/errors";
 
 /**
  * The base of every exception the backend throws on purpose.
