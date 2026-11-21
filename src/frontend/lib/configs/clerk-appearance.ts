@@ -204,9 +204,17 @@ export const authFormAppearance = {
         logoBox: { display: "none" },
         logoImage: { display: "none" },
 
-        // Left-aligned, under the logo in the column's top-left corner — except on
-        // verification steps, which `card` above centres.
-        header: { alignItems: "flex-start", textAlign: "left" },
+        /*
+         * Left-aligned, under the logo in the column's top-left corner — except on
+         * verification steps, which `card` above centres.
+         *
+         * `stretch`, not `flex-start`: Clerk wraps the title, subtitle and email
+         * box in an unnamed inner column inside `header`. Aligned to the start,
+         * that column shrank to its widest line (the subtitle), so the email box
+         * came out narrower than the fields below. Stretched, it's the form's
+         * full width; `textAlign` keeps the text on the left.
+         */
+        header: { alignItems: "stretch", textAlign: "left", width: "100%" },
         headerTitle: {
             fontSize: "28px",
             fontWeight: 600,
@@ -275,8 +283,17 @@ export const authFormAppearance = {
             background: t.field,
             color: t.text,
         },
-        // The email being verified, with its edit pencil: a compact chip, not a full-width bar.
+        /*
+         * The email being signed in with, and its edit pencil. On sign-in steps
+         * (the password step, say) it reads as a read-only field: as wide and as
+         * tall as the inputs below it, the email on the left, the pencil on the
+         * right. Verification steps turn it back into a compact centred chip
+         * (see `card` above).
+         */
         identityPreview: {
+            width: "100%",
+            minHeight: "44px",
+            justifyContent: "space-between",
             gap: "8px",
             padding: "6px 8px 6px 14px",
             borderRadius: t.radius,
