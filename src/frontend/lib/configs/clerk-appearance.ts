@@ -172,28 +172,6 @@ export const authFormAppearance = {
             background: "transparent",
             padding: 0,
             gap: "28px",
-
-            /*
-             * Verification steps — "check your email" for a link or a code, in
-             * sign-up and sign-in — are centred. They have no form fields to
-             * line the heading up with, and Clerk centres their own parts (the
-             * Resend link, the code boxes), so a left-aligned heading above them
-             * read as a misaligned form.
-             *
-             * Picked out by the Resend link, which only those steps have,
-             * rather than by step name (`cl-signUp-emailLink`, …), so a step
-             * Clerk adds or renames is still covered. These selectors out-rank
-             * the left alignment set on `header` below.
-             */
-            "&:has(.cl-formResendCodeLink)": {
-                "& .cl-header": { alignItems: "center", textAlign: "center" },
-                "& .cl-headerTitle, & .cl-headerSubtitle": { textAlign: "center" },
-                "& .cl-identityPreview": {
-                    width: "fit-content",
-                    maxWidth: "100%",
-                    marginInline: "auto",
-                },
-            },
         },
 
         /*
@@ -205,8 +183,10 @@ export const authFormAppearance = {
         logoImage: { display: "none" },
 
         /*
-         * Left-aligned, under the logo in the column's top-left corner — except on
-         * verification steps, which `card` above centres.
+         * Left-aligned, under the logo in the column's top-left corner — on every
+         * step, verification ("Check your email") included, so all the forms
+         * share one layout. (Centring the verification steps was tried and
+         * dropped: it made them look unlike every other step.)
          *
          * `stretch`, not `flex-start`: Clerk wraps the title, subtitle and email
          * box in an unnamed inner column inside `header`. Aligned to the start,
@@ -284,11 +264,10 @@ export const authFormAppearance = {
             color: t.text,
         },
         /*
-         * The email being signed in with, and its edit pencil. On sign-in steps
-         * (the password step, say) it reads as a read-only field: as wide and as
-         * tall as the inputs below it, the email on the left, the pencil on the
-         * right. Verification steps turn it back into a compact centred chip
-         * (see `card` above).
+         * The email being signed in or verified with, and its edit pencil — on
+         * the password step and on "Check your email" alike. It reads as a
+         * read-only field: as wide and as tall as the inputs, the email on the
+         * left, the pencil on the right.
          */
         identityPreview: {
             width: "100%",
