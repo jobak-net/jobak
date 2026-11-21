@@ -66,7 +66,7 @@ What it does for every call:
 For writes, pass a method and a body: `serverFetch<T>(path, { method: "POST", body })`.
 
 Real examples: `src/frontend/lib/api/guards/dashboard-access.ts`,
-`guards/onboarding-access.ts`, `loaders/jobs.ts` and `loaders/onboarding.ts`.
+`guards/onboarding-access.ts`, `loaders/jobs.ts`, `loaders/onboarding.ts` and `loaders/talent.ts`.
 
 ## 2. Server data in a client component: `use()`
 
