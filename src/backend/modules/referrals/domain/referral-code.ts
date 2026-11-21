@@ -4,7 +4,7 @@
  * Imports only from `@/shared`, so the proxy can read this as well as the
  * server code.
  */
-import { REFERRAL_COOKIE } from "@/shared/referral-cookie";
+import { REFERRAL_COOKIE } from "@/shared/referral/referral-cookie";
 
 /** Re-exported so backend code keeps one import for everything referral. */
 export { REFERRAL_COOKIE };

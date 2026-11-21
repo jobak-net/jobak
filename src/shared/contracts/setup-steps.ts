@@ -1,7 +1,7 @@
 /**
  * The contract of `GET /api/v1/onboarding/setup-steps/[step]`: one step of the
  * setup shown between the job questions and connecting the AI. Imports only
- * other contracts (see `../referral-cookie` for the rule of this folder).
+ * other contracts (see `src/shared/README.md`).
  *
  *   200  SetupStepResult   the step's numbers, or `ok: false` with a message
  *                          (a step that can't run is skipped, not an error)

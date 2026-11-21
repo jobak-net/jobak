@@ -7,7 +7,7 @@
  * ── Clerk ───────────────────────────────────────────────────
  * With auth enabled, every request passes through `clerkMiddleware()`, which
  * reads the session so `auth()` works further in. It is bare on purpose: it
- * protects nothing. Route protection is `requireUser()` / `requireApiUser()` in
+ * protects nothing. Route protection is `requireUser()` (pages) / `withMiddlewares({ auth: "required" })` (API routes) in
  * the page or handler itself.
  *
  * With `AUTH_ENABLED=false` Clerk is never called. There are no keys to give

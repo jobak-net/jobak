@@ -1,6 +1,6 @@
 /**
  * The contract of `GET /api/v1/me`: what the backend answers and the frontend
- * reads. Imports nothing (see `../referral-cookie` for the rule of this folder).
+ * reads. Imports nothing (see `src/shared/README.md`).
  *
  *   200  AccountStatus           signed in
  *   401  { error }               nobody is signed in

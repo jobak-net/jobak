@@ -65,7 +65,7 @@ Route protection is **not** done here. Pages and handlers call `requireUser()` /
 
 ## Steps
 
-A step is a `ProxyStep` (`src/backend/shared/middleware/pipeline.ts`):
+A step is a `ProxyStep` (`src/backend/shared/proxy/pipeline.ts`):
 
 ```ts
 type ProxyStep = (request, response) => NextResponse | void | Promise<NextResponse | void>;
@@ -79,18 +79,18 @@ type ProxyStep = (request, response) => NextResponse | void | Promise<NextRespon
 
 | Step | File | Auth off | Auth on |
 |---|---|---|---|
-| `redirectRetired` | `shared/middleware/retired-paths.ts` | runs | runs |
-| `captureReferral` | `shared/middleware/referral-capture.ts` | passes (no accounts, no referrals) | sets the `jobak_ref` cookie on `/register?ref=<code>` |
+| `redirectRetired` | `shared/proxy/retired-paths.ts` | runs | runs |
+| `captureReferral` | `shared/proxy/referral-capture.ts` | passes (no accounts, no referrals) | sets the `jobak_ref` cookie on `/register?ref=<code>` |
 
 ### Adding a step
 
-1. Write a `ProxyStep` in `src/backend/shared/middleware/`.
+1. Write a `ProxyStep` in `src/backend/shared/proxy/`.
 2. List it in `runSteps([...])` in `src/proxy.ts`. Steps that end the request go
    first, so no work is done for a request that is about to leave.
 3. If it should only run with auth on, check `isAuthEnabled()` inside the step,
    like `captureReferral` does.
 
-Two import rules hold for `src/backend/shared/middleware/`. The proxy loads
+Two import rules hold for `src/backend/shared/proxy/`. The proxy loads
 these files, and a `server-only` import there breaks the proxy:
 
 - From a module, import only its `domain/` files or its plain config, never its
@@ -101,14 +101,14 @@ these files, and a `server-only` import there breaks the proxy:
 
 ```
 src/proxy.ts                                     the steps in order + config.matcher
-src/backend/shared/middleware/
+src/backend/shared/proxy/
 ├── pipeline.ts          ProxyStep, runSteps, import rules
 ├── auth-session.ts      withAuthSession: Clerk or not
 ├── retired-paths.ts     redirectRetired + the old-URL table
 └── referral-capture.ts  captureReferral
 src/backend/shared/http/path.ts                  isUnder(): `/register/x` yes, `/registered` no
 src/shared/routes.ts                             page URLs (SIGN_IN_HREF, …), used by both sides
-src/shared/referral-cookie.ts                    REFERRAL_COOKIE, used by both sides
+src/shared/referral/referral-cookie.ts           REFERRAL_COOKIE, used by both sides
 ```
 
 `config.matcher` must stay written out in `src/proxy.ts`. Next reads it at

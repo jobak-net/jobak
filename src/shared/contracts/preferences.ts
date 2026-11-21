@@ -1,16 +1,25 @@
 /**
- * The contract of `GET /api/v1/preferences`: what the signed-in user wants the
- * job search to look for. Imports only other contracts (see `../referral-cookie`
- * for the rule of this folder).
+ * The contract of `/api/v1/preferences`: what the signed-in user wants the
+ * job search to look for. Imports only other shared files (see
+ * `src/shared/README.md` for the rule of this folder).
  *
+ * GET — read them
  *   200  SavedPreferencesResponse   `preferences` is null until they've saved any
  *   401  { error }                  nobody is signed in
  *   503  { error }                  couldn't read them
+ *
+ * PUT — save them (the dashboard's Preferences page), JobPreferences as JSON
+ *   200  PreferencesSaveResult      saved, or refused with the section to fix
+ *   400 / 415  { error }            not JSON
+ *   401  { error }                  nobody is signed in
+ *   503  { error }                  couldn't save
  *
  * The rules that make a submission valid (`applySearchRules`, the MENA country
  * list, the caps) stay in the backend's preferences domain; this is only the
  * shape both sides agree on.
  */
+
+import type { StepId } from "@/shared/onboarding/step-rules";
 
 import type { JobType } from "./jobs";
 
@@ -57,3 +66,15 @@ export interface JobPreferences {
 export interface SavedPreferencesResponse {
   preferences: JobPreferences | null;
 }
+
+/**
+ * The answer to saving preferences — from the Preferences page (`PUT` here) or
+ * by finishing onboarding (`POST /api/v1/onboarding`). A refusal is a normal
+ * answer, not an error: the server re-ran the step rules and the catalogue
+ * check, and names the step (section) to fix.
+ */
+export type PreferencesSaveResult =
+  /** Saved. `preferences` is what was stored (catalogue spelling of each title). */
+  | { ok: true; preferences: JobPreferences }
+  /** Refused: go to `stepId` and show `message`. */
+  | { ok: false; stepId: StepId; message: string };

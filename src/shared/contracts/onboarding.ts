@@ -1,6 +1,6 @@
 /**
  * The contract of `POST /api/v1/onboarding`: finishing onboarding with the
- * user's answers. Imports only other shared files (see `../referral-cookie`
+ * user's answers. Imports only other shared files (see `src/shared/README.md`
  * for the rule of this folder).
  *
  *   request   JobPreferences as JSON (`Content-Type: application/json`)
@@ -15,16 +15,11 @@
  * names the step the form should go back to.
  */
 
-import type { StepId } from "@/shared/onboarding/step-rules";
-
-import type { JobPreferences } from "./preferences";
+import type { JobPreferences, PreferencesSaveResult } from "./preferences";
 
 export const ONBOARDING_API_PATH = "/api/v1/onboarding";
 
 export type SaveOnboardingRequest = JobPreferences;
 
-export type SaveOnboardingResponse =
-  /** Saved. `preferences` is what was stored (catalogue spelling of each title). */
-  | { ok: true; preferences: JobPreferences }
-  /** Refused: go back to `stepId` and show `message`. */
-  | { ok: false; stepId: StepId; message: string };
+/** Saved, or refused with the step to go back to — the same answer as saving from Preferences. */
+export type SaveOnboardingResponse = PreferencesSaveResult;

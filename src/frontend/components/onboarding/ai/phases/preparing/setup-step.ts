@@ -13,5 +13,6 @@ export const setupStepQueryKey = (step: SetupStepId) => [SETUP_STEPS_API_PATH, s
  */
 export async function fetchSetupStep(step: SetupStepId): Promise<SetupStepResult> {
     const result = await clientFetch<SetupStepResult>(`${SETUP_STEPS_API_PATH}/${step}`);
-    return result.kind === "ok" ? result.data : { ok: false, step, message: "Couldn't check this right now." };
+    // A failed step shows the shared message for what went wrong — the same words the backend sent.
+    return result.kind === "ok" ? result.data : { ok: false, step, message: result.message };
 }

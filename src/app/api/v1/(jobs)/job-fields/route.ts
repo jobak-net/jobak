@@ -1,6 +1,5 @@
-import { NextResponse } from "next/server";
-
 import { getJobCatalogueModule } from "@/backend/modules/job-catalogue";
+import { withMiddlewares } from "@/backend/shared/http/middlewares/with-middlewares";
 import type { JobField } from "@/shared/contracts/job-catalogue";
 
 /**
@@ -15,16 +14,7 @@ import type { JobField } from "@/shared/contracts/job-catalogue";
  */
 export const dynamic = "force-dynamic";
 
-const noStore = { "Cache-Control": "no-store" };
-
-export async function GET() {
-  let fields: JobField[];
-  try {
-    fields = await getJobCatalogueModule().listFields.execute();
-  } catch (error) {
-    console.error("[api/job-fields] could not list the catalogue", error);
-    return NextResponse.json({ error: "Could not load job fields" }, { status: 503, headers: noStore });
-  }
-
-  return NextResponse.json(fields, { headers: noStore });
-}
+export const GET = withMiddlewares(
+  { label: "job-fields.list" },
+  async (): Promise<JobField[]> => getJobCatalogueModule().listFields.execute(),
+);

@@ -189,6 +189,7 @@ What every part of the app does in each mode: [`docs/backend/AUTH.md`](docs/back
 - [`docs/frontend/ONBOARDING.md`](docs/frontend/ONBOARDING.md) — how the onboarding steps work (Strategy + Factory), with diagrams, and how to add a step.
 - [`docs/frontend/DATA_FETCHING.md`](docs/frontend/DATA_FETCHING.md) — how the frontend gets data: `serverFetch` on the server, `use()` for server data in client components, TanStack Query in the browser.
 - [`docs/backend/AUTH.md`](docs/backend/AUTH.md) — the full auth cycle (Clerk, the `users` row, the gates), referrals on top of it, and running without auth. Start here if you're new.
+- [`docs/backend/API.md`](docs/backend/API.md) — how API routes are written: `withMiddlewares`, Zod schemas, thrown errors.
 - [`docs/backend/PROXY.md`](docs/backend/PROXY.md) — the request pipeline (`src/proxy.ts`): auth session, steps, and how to add one.
 - [`db/README.md`](db/README.md) — database migrations, one subfolder per database.
 - [`docs/general/scripts/README.md`](docs/general/scripts/README.md) — the project scripts CLI (`pnpm scripts`).

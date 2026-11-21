@@ -114,7 +114,7 @@ cookies, or `NEXT_PUBLIC_API_BASE_URL` when the backend moves elsewhere. Its
 own file keeps server-only code like `next/headers` out of the browser bundle.
 
 Real example: the onboarding submit,
-`src/frontend/components/onboarding/questions/orchestrator/save-onboarding.ts`
+`src/frontend/hooks/api/use-save-onboarding.ts`
 (`useMutation` → `POST /api/v1/onboarding`).
 
 The endpoints below are illustrative: `/api/v1/job-titles` and
@@ -146,5 +146,9 @@ Conventions:
 - **Writes** go through `useMutation`, never a bare `clientFetch` in an event
   handler. That keeps the loading and error state and the invalidation in one
   place.
+- **Errors:** a failed result carries the shared error `code` and its
+  `message` (`src/shared/errors/error-codes.ts`). Hooks throw
+  `ApiError.from(result)` (`src/frontend/lib/api/api-error.ts`); screens show
+  `error.message`, never their own wording.
 - **`unauthorized`** in the browser means the session ended: send the user to
-  sign in. **`failed`** shows an error with a retry.
+  sign in. **`failed`** shows the error with a retry.

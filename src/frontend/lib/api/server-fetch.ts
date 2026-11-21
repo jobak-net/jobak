@@ -2,7 +2,7 @@ import "server-only";
 
 import { headers } from "next/headers";
 
-import type { FetchOptions, FetchResult } from "./fetch-result";
+import { failureFrom, malformedSuccess, networkFailure, type FetchOptions, type FetchResult } from "./fetch-result";
 
 /**
  * The frontend's one way to call the backend from the server (server
@@ -62,13 +62,13 @@ export async function serverFetch<T>(
     });
   } catch (error) {
     console.error(`[server-fetch] ${method} ${path}: backend unreachable`, error);
-    return { kind: "failed", status: null };
+    return networkFailure();
   }
 
-  if (response.status === 401) return { kind: "unauthorized" };
   if (!response.ok) {
-    console.error(`[server-fetch] ${method} ${path}: ${response.status}`);
-    return { kind: "failed", status: response.status };
+    const failure = await failureFrom(response);
+    if (failure.kind === "failed") console.error(`[server-fetch] ${method} ${path}: ${response.status} ${failure.code}`);
+    return failure;
   }
 
   try {
@@ -76,6 +76,6 @@ export async function serverFetch<T>(
     return { kind: "ok", data: (await response.json()) as T };
   } catch (error) {
     console.error(`[server-fetch] ${method} ${path}: response is not JSON`, error);
-    return { kind: "failed", status: response.status };
+    return malformedSuccess(response.status);
   }
 }

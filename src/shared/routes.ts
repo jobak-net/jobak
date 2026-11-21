@@ -1,7 +1,7 @@
 /**
  * The app's own page URLs, for every side that needs them: links and redirects
  * in the frontend, Clerk's settings and the proxy steps in the backend.
- * Imports nothing (see `./referral-cookie` for the rule of this folder).
+ * Imports nothing (see `src/shared/README.md`).
  */
 
 /**

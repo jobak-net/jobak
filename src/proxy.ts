@@ -1,13 +1,13 @@
-import { withAuthSession } from "@/backend/shared/middleware/auth-session";
-import { runSteps } from "@/backend/shared/middleware/pipeline";
-import { captureReferral } from "@/backend/shared/middleware/referral-capture";
-import { redirectRetired } from "@/backend/shared/middleware/retired-paths";
+import { withAuthSession } from "@/backend/shared/proxy/auth-session";
+import { runSteps } from "@/backend/shared/proxy/pipeline";
+import { captureReferral } from "@/backend/shared/proxy/referral-capture";
+import { redirectRetired } from "@/backend/shared/proxy/retired-paths";
 
 /**
  * Request handling in front of every route: these steps, in order, inside the
  * auth session.
  *
- * To add one, write a `ProxyStep` in `backend/shared/middleware/` (see
+ * To add one, write a `ProxyStep` in `backend/shared/proxy/` (see
  * `pipeline.ts` for the contract and the import rules) and list it here. Steps
  * that end the request, like redirects, go first, so no work is done for a
  * request that is about to leave.

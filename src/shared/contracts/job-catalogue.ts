@@ -1,6 +1,6 @@
 /**
  * The contract of `GET /api/v1/job-fields`: the job catalogue's fields, each
- * with a few titles to suggest. Imports nothing (see `../referral-cookie` for
+ * with a few titles to suggest. Imports nothing (see `src/shared/README.md` for
  * the rule of this folder).
  *
  *   200  JobField[]

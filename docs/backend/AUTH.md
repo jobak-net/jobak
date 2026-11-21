@@ -28,7 +28,7 @@ depth.
 | Gate for pages | `src/backend/modules/auth/interface/session.ts` | `requireUser()`, `getCurrentUser()` |
 | Gate for API routes | `src/backend/modules/auth/interface/api.ts` | `requireApiUser()`, `getApiUser()` |
 | "Who is this, onboarded?" over HTTP | `src/app/api/v1/(account)/me/route.ts`, `src/backend/modules/account/` | `GET /api/v1/me`: what the dashboard layout reads (contract: `src/shared/contracts/account.ts`) |
-| Session in the proxy | `src/backend/shared/middleware/auth-session.ts` | `clerkMiddleware()`, or nothing with auth off |
+| Session in the proxy | `src/backend/shared/proxy/auth-session.ts` | `clerkMiddleware()`, or nothing with auth off |
 | Sign-in / sign-up pages | `src/app/(auth)/` | Clerk's `<SignIn />` / `<SignUp />` at `/login`, `/register` |
 | Clerk on the client | `src/app/layout.tsx`, `src/frontend/providers/auth-mode-provider.tsx` | `ClerkProvider` only with auth on; `useAuthEnabled()` |
 | Keeping `users` in sync | `src/app/api/v1/(integrations)/webhooks/clerk/route.ts` | Clerk's `user.updated` / `user.deleted` |
@@ -187,8 +187,8 @@ Why each part is there:
 - **A cookie, not the URL.** Sign-up isn't one request. It spans Clerk's own
   steps and, for GitHub or LinkedIn, a round trip to another site, and the
   `?ref=` doesn't survive that. The proxy step `captureReferral`
-  (`src/backend/shared/middleware/referral-capture.ts`) saves it in
-  `jobak_ref`. The cookie name lives in `src/shared/referral-cookie.ts`,
+  (`src/backend/shared/proxy/referral-capture.ts`) saves it in
+  `jobak_ref`. The cookie name lives in `src/shared/referral/referral-cookie.ts`,
   because the frontend checks for it too. An invalid code is ignored, and a
   newer link replaces an older one.
 - **Claimed after sign-up, not during.** The claim needs the new `users.id`,

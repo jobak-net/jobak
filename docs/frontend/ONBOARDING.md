@@ -17,7 +17,7 @@ src/frontend/components/onboarding/questions/
 │   ├── use-onboarding.ts        state: current step, answers, next / back / goTo / finish
 │   ├── step-factory.ts          createSteps(context), createStep(id)
 │   ├── step-strategy.ts         the StepStrategy interface
-│   ├── save-onboarding.ts       the final submit: POST /api/v1/onboarding
+│   │   (the final submit is src/frontend/hooks/api/use-save-onboarding.ts)
 │   ├── saved-progress.ts        unsaved answers in localStorage
 │   ├── draft.ts                 applyDraftPatch
 │   └── segmented-progress.tsx   the progress bar
@@ -82,7 +82,7 @@ Where each part lives:
 | The screen | `questions/steps/<step>/<step>-screen.tsx` |
 | The factory | `questions/orchestrator/step-factory.ts` |
 | The state (current step, answers) | `questions/orchestrator/use-onboarding.ts` |
-| The final submit | `questions/orchestrator/save-onboarding.ts` → `POST /api/v1/onboarding` |
+| The final submit | `src/frontend/hooks/api/use-save-onboarding.ts` → `POST /api/v1/onboarding` |
 | The layout | `questions/orchestrator/onboarding-flow.tsx` |
 
 ## 2. The factory

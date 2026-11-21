@@ -9,7 +9,8 @@ import { applySearchRules, EMPTY_PREFERENCES } from "@/shared/preferences/search
 import { AI_SETUP_HREF, SIGN_IN_HREF } from "@/shared/routes";
 
 import { applyDraftPatch, type DraftPatch } from "./draft";
-import { SaveOnboardingError, useSaveOnboarding } from "./save-onboarding";
+import { useSaveOnboarding } from "@/frontend/hooks/api/use-save-onboarding";
+import { ApiError, errorMessageOf } from "@/frontend/lib/api/api-error";
 import { clearProgress, readProgress, writeProgress } from "./saved-progress";
 import { createSteps } from "./step-factory";
 
@@ -26,7 +27,7 @@ const STEPS = createSteps("onboarding");
  *    otherwise its message is shown.
  *  - `goTo` jumps back to edit (from the review), never forward past an
  *    unanswered step.
- *  - `finish` saves (`POST /api/v1/onboarding`, see `save-onboarding.ts`). The
+ *  - `finish` saves (`POST /api/v1/onboarding`, see `hooks/api/use-save-onboarding.ts`). The
  *    server runs the same rules again; if it refuses (a hand-edited request,
  *    say), the flow goes to the step it named and shows its message there.
  *  - Every answer and the current step are kept in this browser
@@ -153,12 +154,13 @@ export function useOnboarding(initial: JobPreferences | undefined, storageKey: s
                 setServerError(result.message);
             },
             onError: (error) => {
-                if (error instanceof SaveOnboardingError && error.reason === "signed-out") {
+                if (error instanceof ApiError && error.code === "unauthorized") {
                     // The answers are kept in this browser, so signing back in resumes here.
                     router.push(SIGN_IN_HREF);
                     return;
                 }
-                setServerError("We couldn't save your answers. Check your connection and try again.");
+                // The shared message for whatever went wrong — the same words the backend sent.
+                setServerError(errorMessageOf(error));
             },
         });
     }

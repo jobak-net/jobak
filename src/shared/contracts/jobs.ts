@@ -1,6 +1,6 @@
 /**
  * The contract of `GET /api/v1/jobs`: the jobs worth showing the signed-in
- * user. Imports nothing (see `../referral-cookie` for the rule of this folder).
+ * user. Imports nothing (see `src/shared/README.md`).
  *
  *   200  Job[]       best matches first; empty until the user has preferences
  *   401  { error }   nobody is signed in

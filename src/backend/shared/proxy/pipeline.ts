@@ -1,8 +1,8 @@
 /**
- * The middleware pipeline: the steps `src/proxy.ts` runs on every request, and
+ * The proxy pipeline: the steps `src/proxy.ts` runs on every request, and
  * the runner for them.
  *
- * Everything in `shared/middleware/` is loaded by the proxy, so:
+ * Everything in `shared/proxy/` is loaded by the proxy, so:
  *  - no server-only imports. From a module, take only its `domain/` files or
  *    its plain config — never its `index.ts`, which pulls in `server-only`.
  *  - no `index.ts` barrel here either. Import each file by its own path.
