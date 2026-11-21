@@ -9,8 +9,8 @@ import { applySearchRules, EMPTY_PREFERENCES } from "@/shared/preferences/search
 import { AI_SETUP_HREF, SIGN_IN_HREF } from "@/shared/routes";
 
 import { applyDraftPatch, type DraftPatch } from "./draft";
-import { useSaveOnboarding } from "@/frontend/hooks/api/use-save-onboarding";
-import { ApiError, errorMessageOf } from "@/frontend/lib/api/api-error";
+import { useSaveOnboarding } from "@/frontend/lib/api/onboarding";
+import { ApiError, errorMessageOf } from "@/frontend/lib/errors";
 import { clearProgress, readProgress, writeProgress } from "./saved-progress";
 import { createSteps } from "./step-factory";
 
@@ -27,7 +27,7 @@ const STEPS = createSteps("onboarding");
  *    otherwise its message is shown.
  *  - `goTo` jumps back to edit (from the review), never forward past an
  *    unanswered step.
- *  - `finish` saves (`POST /api/v1/onboarding`, see `hooks/api/use-save-onboarding.ts`). The
+ *  - `finish` saves (`POST /api/v1/onboarding`, see `lib/api/onboarding`). The
  *    server runs the same rules again; if it refuses (a hand-edited request,
  *    say), the flow goes to the step it named and shows its message there.
  *  - Every answer and the current step are kept in this browser

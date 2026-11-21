@@ -11,7 +11,7 @@ import { countryName } from "@/frontend/lib/configs/countries";
 import { cn } from "@/frontend/lib/utils/utils";
 import { SETUP_STEPS, type SetupStepId, type SetupStepResult } from "@/shared/contracts/setup-steps";
 
-import { fetchSetupStep, setupStepQueryKey } from "./setup-step";
+import { fetchSetupStep, setupStepQueryKey } from "@/frontend/lib/api/onboarding";
 
 const STEP_TITLE: Record<SetupStepId, string> = {
     preferences: "Saving your job preferences",
@@ -119,7 +119,7 @@ function recapOf(result: SetupStepResult | undefined): string | null {
  *
  * Runs the setup steps one after another — each a request doing real work
  * against the database (`GET /api/v1/onboarding/setup-steps/[step]`, see
- * `setup-step.ts`) — and shows only the step
+ * `lib/api/onboarding`) — and shows only the step
  * in progress: its title, then its sub-steps one by one, numbers counting up.
  * The ring around the logo fills a segment as each step finishes; the last
  * segment is connecting the AI, left for the user.

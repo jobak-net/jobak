@@ -114,41 +114,45 @@ cookies, or `NEXT_PUBLIC_API_BASE_URL` when the backend moves elsewhere. Its
 own file keeps server-only code like `next/headers` out of the browser bundle.
 
 Real example: the onboarding submit,
-`src/frontend/hooks/api/use-save-onboarding.ts`
+`src/frontend/lib/api/onboarding/` (`useSaveOnboarding`)
 (`useMutation` → `POST /api/v1/onboarding`).
 
-Both shapes, from the real hooks in `src/frontend/hooks/api/`:
+Code is grouped per API resource in `src/frontend/lib/api/<resource>/`
+(`onboarding/`, `preferences/`, `job-catalogue/`), with shared setup in
+`config.ts`:
+
+```
+lib/api/
+├── config.ts          queryClientConfig, smartRetry, unwrap, useGenericQuery, useGenericMutation
+├── client-fetch.ts    the browser's fetch       server-fetch.ts   the server's fetch
+└── <resource>/
+    ├── api.ts         plain async functions, one per endpoint
+    ├── queries.ts     useQuery hooks on them
+    ├── mutations.ts   useMutation hooks on them
+    └── index.ts       what the app imports
+```
+
+From the real `job-catalogue/` and `preferences/` resources:
 
 ```tsx
-"use client";
-import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
+// job-catalogue/api.ts — a plain function: one endpoint, data or a thrown ApiError.
+export async function searchJobTitles(q: string, field: string | null) {
+  const params = new URLSearchParams({ q });
+  if (field) params.set("field", field);
+  return unwrap(await clientFetch<JobTitleMatch[]>(`${JOB_TITLES_API_PATH}?${params}`));
+}
 
-// Read — use-job-title-search.ts: keyed by the API path and its parameters.
-// Debounce the input first (useDebouncedValue, in hooks/ui/).
-export function useJobTitleSearch(query: string) {
+// job-catalogue/queries.ts — the hook, keyed by the API path and its parameters.
+export function useJobTitleSearch(query: string, field?: string | null) {
   const q = query.trim();
-  return useQuery({
-    queryKey: [JOB_TITLES_API_PATH, q],
-    queryFn: async () => {
-      const result = await clientFetch<JobTitleMatch[]>(`${JOB_TITLES_API_PATH}?q=${encodeURIComponent(q)}`);
-      if (result.kind === "ok") return result.data;
-      throw ApiError.from(result);            // shared code + message
-    },
+  return useGenericQuery(jobTitleSearchKey(q, field ?? null), () => searchJobTitles(q, field ?? null), {
     enabled: q.length >= MIN_QUERY_LENGTH,
-    placeholderData: keepPreviousData,        // keep the last results while the next load
+    placeholderData: keepPreviousData,
   });
 }
 
-// Write — use-save-preferences.ts.
-export function useSavePreferences() {
-  return useMutation({
-    mutationFn: async (draft: JobPreferences) => {
-      const result = await clientFetch<PreferencesSaveResult>(PREFERENCES_API_PATH, { method: "PUT", body: draft });
-      if (result.kind === "ok") return result.data;
-      throw ApiError.from(result);
-    },
-  });
-}
+// preferences/mutations.ts — invalidateKeys refreshes what a save made stale.
+export const useSavePreferences = () => useGenericMutation({ mutationFn: savePreferences });
 ```
 
 Conventions:
@@ -159,7 +163,7 @@ Conventions:
   place.
 - **Errors:** a failed result carries the shared error `code` and its
   `message` (`src/shared/errors/error-codes.ts`). Hooks throw
-  `ApiError.from(result)` (`src/frontend/lib/api/api-error.ts`); screens show
+  `ApiError.from(result)` via `unwrap()` (`src/frontend/lib/errors/`); screens show
   `error.message`, never their own wording.
 - **`unauthorized`** in the browser means the session ended: send the user to
   sign in. **`failed`** shows the error with a retry.

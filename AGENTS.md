@@ -23,7 +23,15 @@ Never:
 - calling `fetch` directly instead of `serverFetch` or `clientFetch`;
 - importing from `src/backend` in frontend code.
 
-TanStack Query is set up (`QueryProvider` in `src/frontend/providers/`); `clientFetch` is `src/frontend/lib/api/client-fetch.ts`. Every hook that calls the backend lives in `src/frontend/hooks/api/` (e.g. `use-save-preferences.ts`), never next to a component.
+TanStack Query is set up (`QueryProvider` in `src/frontend/providers/`, defaults in `src/frontend/lib/api/config.ts`); `clientFetch` is `src/frontend/lib/api/client-fetch.ts`.
+
+Everything that calls the backend from the browser is grouped **per API resource** in `src/frontend/lib/api/<resource>/` (e.g. `preferences/`):
+
+- `api.ts` — plain async functions that call one endpoint each (`savePreferences`), returning through `unwrap()` so a failure is a thrown `ApiError`;
+- `queries.ts` / `mutations.ts` — the `useQuery` / `useMutation` hooks built on them, using `useGenericQuery` / `useGenericMutation` from `config.ts`;
+- `index.ts` — what the app imports: `import { useSavePreferences } from "@/frontend/lib/api/preferences"`.
+
+Types are the shared contracts (`src/shared/contracts/`), re-exported from the resource's `index.ts`. `src/frontend/hooks/` holds only hooks that don't call the backend, grouped by use case (`hooks/ui/`).
 
 ## API routes (project rule)
 
@@ -43,7 +51,7 @@ export const PUT = withMiddlewares(
 
 ## Errors (project rule)
 
-Error codes and the messages users read live in one place, `src/shared/errors/error-codes.ts`, shared by both sides. The backend's exceptions carry a code; the frontend reads it (`serverFetch` / `clientFetch`), throws `ApiError` (`src/frontend/lib/api/api-error.ts`) from hooks, and shows `error.message` — never its own wording for an API error.
+Error codes and the messages users read live in one place, `src/shared/errors/error-codes.ts`, shared by both sides. The backend's exceptions carry a code; the frontend reads it (`serverFetch` / `clientFetch`), throws `ApiError` (`src/frontend/lib/errors/`) from the `api.ts` functions, and shows `error.message` — never its own wording for an API error.
 
 ## Components (project rule)
 

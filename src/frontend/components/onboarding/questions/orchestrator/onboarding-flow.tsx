@@ -25,7 +25,7 @@ import { useOnboarding } from "./use-onboarding";
  *       use-onboarding.ts        the state: current step, answers, next / back / goTo / finish
  *       step-factory.ts          builds the step strategies (createSteps / createStep)
  *       step-strategy.ts         the interface every step implements
- *       (the final submit, POST /api/v1/onboarding, is `hooks/api/use-save-onboarding.ts`)
+ *       (the final submit, POST /api/v1/onboarding, is `lib/api/onboarding`)
  *       saved-progress.ts        unsaved answers kept in this browser
  *       draft.ts                 how an edit is applied to the answers
  *     steps/<step>/            one folder per step: everything for that step

@@ -1,10 +1,10 @@
 import { ERROR_MESSAGES, type ErrorCode } from "@/shared/errors";
 
-import type { FetchResult } from "./fetch-result";
+import type { FetchResult } from "@/frontend/lib/api/fetch-result";
 
 /**
- * The frontend's one error type for a failed backend call — what the hooks in
- * `src/frontend/hooks/api/` throw, and what screens catch.
+ * The frontend's one error type for a failed backend call — what the query and mutation hooks in
+ * `src/frontend/lib/api/<resource>/` throw, and what screens catch.
  *
  * Its `message` is always the shared message for its `code`
  * (`@/shared/errors`), the same words the backend sent, so a

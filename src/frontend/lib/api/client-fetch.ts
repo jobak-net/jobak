@@ -4,7 +4,7 @@ import { failureFrom, malformedSuccess, networkFailure, type FetchOptions, type 
  * The browser's one way to call the backend — the client-side twin of
  * `serverFetch`, with the same options and the same result kinds. Used as the
  * function inside TanStack Query (`useQuery` / `useMutation`, in
- * `src/frontend/hooks/api/`), never in a bare `useEffect`.
+ * `src/frontend/lib/api/<resource>/`), never in a bare `useEffect`.
  *
  *  - **Where:** `NEXT_PUBLIC_API_BASE_URL` when set, otherwise the same origin
  *    (a relative URL) — today the API routes are part of this Next app.

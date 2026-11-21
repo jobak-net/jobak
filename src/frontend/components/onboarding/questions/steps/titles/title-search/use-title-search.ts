@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 
-import { useJobTitleSearch } from "@/frontend/hooks/api/use-job-title-search";
+import { useJobTitleSearch } from "@/frontend/lib/api/job-catalogue";
 import { useDebouncedValue } from "@/frontend/hooks/ui/use-debounced-value";
-import { errorMessageOf } from "@/frontend/lib/api/api-error";
+import { errorMessageOf } from "@/frontend/lib/errors";
 import { MIN_QUERY_LENGTH } from "@/shared/contracts/job-catalogue";
 
 /** How long typing must pause before the search runs. */

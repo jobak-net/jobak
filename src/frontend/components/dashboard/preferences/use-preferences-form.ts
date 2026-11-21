@@ -4,8 +4,8 @@ import { useCallback, useEffect, useReducer, useState } from "react";
 
 import { useSlideDirection } from "@/frontend/components/dashboard/step-tabs";
 import { applyDraftPatch, type DraftPatch } from "@/frontend/components/onboarding/questions/orchestrator/draft";
-import { useSavePreferences } from "@/frontend/hooks/api/use-save-preferences";
-import { errorMessageOf } from "@/frontend/lib/api/api-error";
+import { useSavePreferences } from "@/frontend/lib/api/preferences";
+import { errorMessageOf } from "@/frontend/lib/errors";
 import type { JobPreferences } from "@/shared/contracts/preferences";
 import type { StepId } from "@/shared/onboarding/step-rules";
 import { routeFor, validateForCompletion } from "@/shared/onboarding/steps";
