@@ -27,11 +27,11 @@ depth.
 | "Who is this?" | `src/backend/modules/auth/application/use-cases/get-current-user.use-case.ts` | Session → `users` row, creating it on first sight |
 | Gate for pages | `src/backend/modules/auth/interface/session.ts` | `requireUser()`, `getCurrentUser()` |
 | Gate for API routes | `src/backend/modules/auth/interface/api.ts` | `requireApiUser()`, `getApiUser()` |
-| "Who is this, onboarded?" over HTTP | `src/app/api/v1/me/route.ts`, `src/backend/modules/account/` | `GET /api/v1/me`: what the dashboard layout reads (contract: `src/shared/contracts/account.ts`) |
+| "Who is this, onboarded?" over HTTP | `src/app/api/v1/(account)/me/route.ts`, `src/backend/modules/account/` | `GET /api/v1/me`: what the dashboard layout reads (contract: `src/shared/contracts/account.ts`) |
 | Session in the proxy | `src/backend/shared/middleware/auth-session.ts` | `clerkMiddleware()`, or nothing with auth off |
 | Sign-in / sign-up pages | `src/app/(auth)/` | Clerk's `<SignIn />` / `<SignUp />` at `/login`, `/register` |
 | Clerk on the client | `src/app/layout.tsx`, `src/frontend/providers/auth-mode-provider.tsx` | `ClerkProvider` only with auth on; `useAuthEnabled()` |
-| Keeping `users` in sync | `src/app/api/v1/webhooks/clerk/route.ts` | Clerk's `user.updated` / `user.deleted` |
+| Keeping `users` in sync | `src/app/api/v1/(integrations)/webhooks/clerk/route.ts` | Clerk's `user.updated` / `user.deleted` |
 | Page URLs | `src/shared/routes.ts` | `SIGN_IN_HREF` (`/login`), `SIGN_UP_HREF` (`/register`), … |
 
 ## 1. Sign-up, start to dashboard

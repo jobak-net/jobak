@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
  *
  * Without this, a request to an unknown /api path falls through to the app
  * router and returns the HTML 404 page, which breaks any client expecting JSON.
- * Real route files (e.g. /api/v1/jobs/refresh) are more specific than this
+ * Real route files (e.g. /api/v1/jobs) are more specific than this
  * optional catch-all, so they still win the match.
  */
 
