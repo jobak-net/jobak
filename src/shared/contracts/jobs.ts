@@ -9,6 +9,24 @@
 
 export const JOBS_API_PATH = "/api/v1/jobs";
 
+/**
+ * `PUT /api/v1/jobs/{jobId}/bookmark` — saves whether the user has bookmarked
+ * a job. Body and answer are both a `JobBookmark`.
+ *
+ *   200  JobBookmark   what is stored now
+ *   400  { error }     not a job id, or no `bookmarked` boolean
+ *   401  { error }     nobody is signed in
+ *   404  { error }     no such job
+ *
+ * It sets the value rather than toggling it, so sending it twice (a double
+ * click, a retry) leaves the same answer instead of undoing itself.
+ */
+export const jobBookmarkApiPath = (jobId: string) => `${JOBS_API_PATH}/${encodeURIComponent(jobId)}/bookmark`;
+
+export interface JobBookmark {
+  bookmarked: boolean;
+}
+
 export type JobType = "full-time" | "part-time" | "freelance" | "contract";
 
 /**

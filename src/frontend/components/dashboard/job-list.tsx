@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Bookmark, BriefcaseBusiness, ExternalLink, MapPin, Search, Wallet } from "lucide-react";
 
-import { toggleBookmarkAction } from "@/backend/actions/jobs";
 import { Card, Chip, FilterChip, Input } from "@/frontend/components/ui";
+import { useSetBookmark } from "@/frontend/lib/api/jobs";
 import { cn } from "@/frontend/lib/utils/utils";
 import type { Job } from "@/shared/contracts/jobs";
 
@@ -29,7 +29,8 @@ const FILTERS: { id: Filter; label: string }[] = [
  * `?q=` so the top bar's search lands here pre-filled.
  *
  * `sample` jobs are not in the database, so bookmarking them changes this view
- * only; real jobs go through the server action and are rolled back if it fails.
+ * only; real jobs are saved (`PUT /api/v1/jobs/{id}/bookmark`) and rolled back
+ * if the save fails.
  */
 export function JobList({
     jobs: initialJobs,
@@ -47,7 +48,7 @@ export function JobList({
     const [jobs, setJobs] = useState(initialJobs);
     const [filter, setFilter] = useState<Filter>(initialFilter);
     const [query, setQuery] = useState(searchParams.get("q") ?? "");
-    const [, startTransition] = useTransition();
+    const saveBookmark = useSetBookmark();
 
     const visible = useMemo(() => {
         const q = query.trim().toLowerCase();
@@ -64,18 +65,18 @@ export function JobList({
             .sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
     }, [jobs, filter, query]);
 
-    function toggleBookmark(id: string) {
-        const flip = (list: Job[]) => list.map((j) => (j.id === id ? { ...j, bookmarked: !j.bookmarked } : j));
-        setJobs(flip);
+    function setBookmarked(id: string, bookmarked: boolean) {
+        setJobs((list) => list.map((j) => (j.id === id ? { ...j, bookmarked } : j)));
+    }
+
+    function toggleBookmark(job: Job) {
+        const bookmarked = !job.bookmarked;
+        setBookmarked(job.id, bookmarked); // shown at once
 
         if (sample) return;
-        startTransition(async () => {
-            try {
-                await toggleBookmarkAction(id);
-            } catch {
-                setJobs(flip); // undo
-            }
-        });
+        // `mutateAsync`, not `mutate` with callbacks: those fire only for the
+        // latest call, so a failed earlier click would never be rolled back.
+        saveBookmark.mutateAsync({ jobId: job.id, bookmarked }).catch(() => setBookmarked(job.id, !bookmarked));
     }
 
     return (
@@ -142,7 +143,7 @@ export function JobList({
                                         </div>
                                         <button
                                             type="button"
-                                            onClick={() => toggleBookmark(job.id)}
+                                            onClick={() => toggleBookmark(job)}
                                             aria-pressed={job.bookmarked}
                                             aria-label={job.bookmarked ? "Remove bookmark" : "Bookmark job"}
                                             className="rounded-control p-2 text-fg-tertiary transition-colors hover:bg-white/4 hover:text-fg-primary"

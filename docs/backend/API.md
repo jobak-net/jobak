@@ -13,7 +13,7 @@ src/app/api/
 ├── [[...slug]]/              JSON 404 for unknown /api paths
 └── v1/
     ├── (account)/            the signed-in user: me, preferences, onboarding, referrals
-    ├── (jobs)/               jobs, job-fields, job-titles
+    ├── (jobs)/               jobs (+ jobs/[jobId]/bookmark), job-fields, job-titles
     └── (integrations)/       called by other systems: webhooks/clerk
 ```
 
