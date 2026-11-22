@@ -6,7 +6,9 @@ import { DASHBOARD_HREF, REFERRALS_HREF, SIGN_UP_HREF } from "@/shared/routes";
 import { notFound } from "next/navigation";
 import { ArrowUpRight, Banknote, Building2, Clock, MapPin, Wifi } from "lucide-react";
 import { LinkedInIcon } from "@/frontend/components/shared/brand-icons";
-import { formatPostedAt, getPublicJob } from "@/backend/actions/public-jobs";
+import { Pill, jobPostingJsonLd } from "@/frontend/components/public/jobs";
+import { loadJobBoardJob } from "@/frontend/lib/api/loaders/job-board";
+import { formatPostedAt } from "@/frontend/lib/utils/format-posted-at";
 import { isProductionSite } from "@/frontend/lib/configs/site";
 import { JsonLd } from "@/frontend/components/shared/json-ld";
 
@@ -45,7 +47,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const job = await getPublicJob(slug);
+  const job = await loadJobBoardJob(slug);
 
   if (!job) return { title: "Job not found — Jobak" };
 
@@ -81,33 +83,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function PublicJobPage({ params }: PageProps) {
   const { slug } = await params;
-  const job = await getPublicJob(slug);
+  const job = await loadJobBoardJob(slug);
 
   if (!job) notFound();
-
-  /*
-   * schema.org JobPosting, for the same reason this service *reads* it from
-   * other boards: it is the contract search engines and aggregators understand.
-   * A page that consumes structured data and publishes none would be taking
-   * without giving.
-   */
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "JobPosting",
-    title: job.title,
-    description: job.description || job.title,
-    datePosted: job.postedAt,
-    hiringOrganization: {
-      "@type": "Organization",
-      name: job.company,
-      ...(job.companyWebsite ? { sameAs: job.companyWebsite } : {}),
-    },
-    ...(job.workplace === "remote" ? { jobLocationType: "TELECOMMUTE" } : {}),
-    ...(job.location
-      ? { jobLocation: { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: job.location } } }
-      : {}),
-    directApply: false,
-  };
 
   return (
     <main className="relative min-h-screen overflow-x-hidden noise-overlay">
@@ -118,7 +96,7 @@ export default async function PublicJobPage({ params }: PageProps) {
         script element. An earlier comment here claimed these were values we
         control. They are not.
       */}
-      <JsonLd data={jsonLd} />
+      <JsonLd data={jobPostingJsonLd(job)} />
 
       <section className="relative pt-40 pb-24 lg:pt-48 lg:pb-32">
         <div className="max-w-4xl mx-auto px-6 lg:px-12">
@@ -217,8 +195,8 @@ export default async function PublicJobPage({ params }: PageProps) {
                          [&_strong]:text-foreground [&_b]:text-foreground
                          [&_a]:text-accent [&_a]:underline [&_a]:underline-offset-2 [&_a]:break-words
                          [&_blockquote]:border-l-2 [&_blockquote]:border-border-standard [&_blockquote]:pl-4 [&_blockquote]:italic"
-              // Sanitised server-side in `getPublicJob`; see
-              // backend/lib/html/sanitize-description.ts for the allowlist.
+              // Sanitised server-side by the job board module
+              // (`GetJobBoardJobUseCase`) before it reaches this page.
               dangerouslySetInnerHTML={{ __html: job.description }}
             />
           ) : (
@@ -276,28 +254,5 @@ export default async function PublicJobPage({ params }: PageProps) {
         </div>
       </section>
     </main>
-  );
-}
-
-function Pill({
-  icon: Icon,
-  children,
-  accent,
-}: {
-  icon?: React.ElementType;
-  children: React.ReactNode;
-  accent?: boolean;
-}) {
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs ${
-        accent
-          ? "border-accent/30 bg-accent/8 text-accent-text"
-          : "border-border-standard text-muted-foreground"
-      }`}
-    >
-      {Icon && <Icon className="w-3 h-3 shrink-0" />}
-      {children}
-    </span>
   );
 }

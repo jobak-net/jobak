@@ -22,6 +22,9 @@ export const RATE_LIMIT_POLICIES = {
     /** The public feedback form. Backed by the database's own flood guard (011_feedback.sql). */
     feedback: { limit: 3, windowSeconds: 60, by: "user" },
 
+    /** The public job board and its job pages: a page view is one call. */
+    "job-board": { limit: 120, windowSeconds: 60, by: "ip" },
+
     /** The public talent directory: a page view is one call. */
     talent: { limit: 60, windowSeconds: 60, by: "ip" },
 

@@ -50,6 +50,7 @@ From `policies.ts`:
 | Policy | Default | Counts | Used by |
 |---|---|---|---|
 | `feedback` | 3 / minute | user, else address | `POST /api/v1/feedback` (the database's flood guard stays as a backstop) |
+| `job-board` | 120 / minute | address | `GET /api/v1/job-board`, `GET /api/v1/job-board/[slug]` |
 | `talent` | 60 / minute | address | `GET /api/v1/talent` |
 | `job-titles` | 120 / minute | user | `GET /api/v1/job-titles` (search as you type) |
 | `referrals.claim` | 10 / minute | user, else address | `POST /api/v1/referrals/claim` |

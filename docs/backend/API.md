@@ -14,7 +14,7 @@ src/app/api/
 └── v1/
     ├── (account)/            the signed-in user: me, preferences, onboarding, referrals
     ├── (jobs)/               jobs (+ jobs/[jobId]/bookmark), job-fields, job-titles
-    ├── (public)/             open to anyone: feedback, talent
+    ├── (public)/             open to anyone: feedback, talent, job-board (+ job-board/[slug])
     └── (integrations)/       called by other systems: webhooks/clerk
 ```
 
