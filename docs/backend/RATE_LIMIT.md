@@ -54,6 +54,8 @@ From `policies.ts`:
 | `talent` | 60 / minute | address | `GET /api/v1/talent` |
 | `job-titles` | 120 / minute | user | `GET /api/v1/job-titles` (search as you type) |
 | `referrals.claim` | 10 / minute | user, else address | `POST /api/v1/referrals/claim` |
+| `ai-settings.key` | 10 / minute | user | `PUT /api/v1/ai-settings/key` (each try calls the provider) |
+| `groq`, `gemini`, `openai`, `anthropic` | 20, 8, 30, 30 / minute | the user (outbound, keyed by user id) | every AI call, from the AI client factory ([AI_PROVIDERS.md](AI_PROVIDERS.md)) |
 
 Not limited on purpose: the Clerk webhook (Clerk retries, and a refused event
 would leave a user unsynced) and the signed-in reads and writes. Opt a route

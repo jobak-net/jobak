@@ -34,8 +34,27 @@ export const RATE_LIMIT_POLICIES = {
     /** Claiming a referral code: a handful per minute is plenty for a person, too few to guess codes. */
     "referrals.claim": { limit: 10, windowSeconds: 60, by: "user" },
 
+    /** Connecting an AI key: each try calls the provider. Plenty for typos, too few to test stolen keys through us. */
+    "ai-settings.key": { limit: 10, windowSeconds: 60, by: "user" },
+
     /* ── Services we call ────────────────────────────────────── */
-    // e.g.  openai: { limit: 500, windowSeconds: 60 },  — then `enforceRateLimit("openai", userId)`
+
+    // The AI providers, per user: each user brings their own key, so each
+    // counts against their own quota. Counted by every AI client before it
+    // calls (integrations module, `ai/infrastructure/base-ai-client.ts`),
+    // keyed by provider id — so a policy per id in `AI_PROVIDER_IDS` is
+    // required, or the build fails.
+    // Set under each provider's entry-level limit, so a user hits ours (a
+    // clear wait) before theirs.
+
+    /** Groq's free tier allows about 30 requests a minute on most models. */
+    groq: { limit: 20, windowSeconds: 60 },
+    /** Gemini's free tier allows about 10 a minute on Flash. */
+    gemini: { limit: 8, windowSeconds: 60 },
+    /** Paid only; the lowest tier allows hundreds a minute. This bounds a runaway loop, not the quota. */
+    openai: { limit: 30, windowSeconds: 60 },
+    /** Paid only; the lowest tier allows 50 a minute. */
+    anthropic: { limit: 30, windowSeconds: 60 },
 } as const satisfies Record<string, RateLimitPolicy>;
 
 export type RateLimitPolicyName = keyof typeof RATE_LIMIT_POLICIES;

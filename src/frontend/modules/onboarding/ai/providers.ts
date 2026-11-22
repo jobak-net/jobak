@@ -4,7 +4,7 @@ import type { AiProvider } from "../types/onboarding.types";
  * How each AI provider is presented in the AI setup.
  *
  * Which providers exist, and what their keys look like, is not decided here:
- * that is `AI_PROVIDERS` and `keyRules` in `./provider-keys.ts`,
+ * that is `AI_PROVIDER_IDS` (`@/shared/ai`) and `keyRules` (`@/shared/credentials`),
  * shared with the server. This is only the copy and the links.
  */
 export interface ProviderInfo {

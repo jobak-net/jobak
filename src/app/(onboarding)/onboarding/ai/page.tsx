@@ -5,8 +5,7 @@ import { resolveOnboardingAccess, loadAiSetup } from "@/frontend/modules/onboard
 /**
  * /onboarding/ai — the second onboarding: connecting the AI. Comes after the
  * job questions, so anyone who hasn't answered them is sent back (see the
- * guard). Once connecting is real, a connected user will be sent on to the
- * dashboard from here — part of the backend still to build.
+ * guard), and anyone with an AI already connected is sent on to the dashboard.
  */
 export default async function AiSetupPage() {
   const access = await resolveOnboardingAccess("ai-setup");

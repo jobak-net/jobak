@@ -3,17 +3,24 @@ import { ArrowRight, Check } from "lucide-react";
 
 import { cn } from "@/frontend/shared/lib";
 
-const STEPS = [
-    {
-        title: "Preferences set",
-        body: "Change your roles, countries or work mode any time.",
-        href: "/dashboard/preferences",
-        done: true,
-    },
-    { title: "Connect your AI key", body: "Jobak ranks jobs with your own Groq key.", href: "/dashboard/settings", done: false },
-    { title: "Review your CV", body: "See what to fix before you apply.", href: "/dashboard/cv-review", done: false },
-    { title: "Check your matches", body: "Scored 0 to 100, best fit first.", href: "/dashboard/matches", done: false },
-];
+function stepsFor(aiConnected: boolean) {
+    return [
+        {
+            title: "Preferences set",
+            body: "Change your roles, countries or work mode any time.",
+            href: "/dashboard/preferences",
+            done: true,
+        },
+        {
+            title: aiConnected ? "AI key connected" : "Connect your AI key",
+            body: aiConnected ? "Switch provider or model in Settings." : "Jobak ranks jobs with your own AI key.",
+            href: "/dashboard/settings",
+            done: aiConnected,
+        },
+        { title: "Review your CV", body: "See what to fix before you apply.", href: "/dashboard/cv-review", done: false },
+        { title: "Check your matches", body: "Scored 0 to 100, best fit first.", href: "/dashboard/matches", done: false },
+    ];
+}
 
 /**
  * What to do while the first matches are found, as one strip.
@@ -21,13 +28,14 @@ const STEPS = [
  * Shown until the user has real matches. Nobody reaches the dashboard without
  * finishing onboarding, so the first step — the search preferences — is always
  * done here; it stays in the strip, ticked, as the place to change them. The
- * others link to their pages and are numbered as a suggested order, not
- * tracked: the settings and CV pages are previews that can't be completed yet.
+ * AI key is ticked once a provider is connected (`GET /api/v1/ai-settings`).
+ * The last two link to their pages and are numbered as a suggested order, not
+ * tracked: the CV page is a preview that can't be completed yet.
  */
-export function GettingStarted() {
+export function GettingStarted({ aiConnected }: { aiConnected: boolean }) {
     return (
         <ol className="grid overflow-hidden rounded-card border border-border-subtle sm:grid-cols-2 xl:grid-cols-4">
-            {STEPS.map((step, i) => (
+            {stepsFor(aiConnected).map((step, i) => (
                 <li
                     key={step.href}
                     className="border-border-subtle not-last:border-b sm:odd:border-r sm:nth-[-n+2]:border-b xl:border-b-0! xl:not-last:border-r"

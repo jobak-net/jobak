@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 
 import { serverFetch } from "@/frontend/shared/api/server";
 import { ACCOUNT_API_PATH, type AccountStatus } from "@/shared/contracts/account";
-import { AI_SETUP_HREF, ONBOARDING_HREF, SIGN_IN_HREF } from "@/shared/routes";
+import { AI_SETTINGS_API_PATH, type AiSettingsResponse } from "@/shared/contracts/ai-settings";
+import { AI_SETUP_HREF, DASHBOARD_HREF, ONBOARDING_HREF, SIGN_IN_HREF } from "@/shared/routes";
 
 /** The two onboarding pages, in order. */
 export type OnboardingStep = "questions" | "ai-setup";
@@ -23,6 +24,9 @@ export type OnboardingAccess =
  *  - On the questions with the questions already answered: sent on to the AI
  *    step, so they're asked once.
  *  - On the AI step without having answered the questions: sent back to them.
+ *  - On the AI step with an AI already connected (`GET /api/v1/ai-settings`):
+ *    sent on to the dashboard. Changing it is Settings' job. If that read
+ *    fails, the step is shown: connecting again is harmless.
  *  - The backend couldn't tell: `load-failed`, never a redirect on a guess.
  *    The two steps — and the dashboard — redirect in opposite directions, so
  *    guessing is how someone ends up bounced between them.
@@ -36,6 +40,10 @@ export async function resolveOnboardingAccess(step: OnboardingStep): Promise<Onb
   const { onboarded } = result.data;
   if (step === "questions" && onboarded) redirect(AI_SETUP_HREF);
   if (step === "ai-setup" && !onboarded) redirect(ONBOARDING_HREF);
+  if (step === "ai-setup") {
+    const ai = await serverFetch<AiSettingsResponse>(AI_SETTINGS_API_PATH);
+    if (ai.kind === "ok" && ai.data.connected.length > 0) redirect(DASHBOARD_HREF);
+  }
 
   return { kind: "ready", user: result.data.user };
 }

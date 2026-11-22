@@ -10,13 +10,15 @@ import { PROVIDER_INFO, PROVIDER_ORDER } from "../../providers";
 
 const rise = (i: number) => ({ "--i": i }) as CSSProperties;
 
-/** The providers to pick from, one card each. */
+/** The providers to pick from, one card each. `saved` (Settings) marks the ones with a key already. */
 export function ChooseScreen({
     selected,
     onSelect,
+    saved = [],
 }: {
     selected: AiProvider | null;
     onSelect: (provider: AiProvider) => void;
+    saved?: AiProvider[];
 }) {
     return (
         <div role="radiogroup" aria-label="AI provider" className="grid gap-3 sm:grid-cols-2">
@@ -44,7 +46,12 @@ export function ChooseScreen({
                         <span className="min-w-0">
                             <span className="flex flex-wrap items-center gap-2">
                                 <span className="text-[15px] font-medium text-fg-primary">{info.name}</span>
-                                {info.recommended && (
+                                {saved.includes(provider) && (
+                                    <span className="rounded-full border border-accent/30 px-2 py-0.5 text-[11px] font-medium text-accent-text">
+                                        Key saved
+                                    </span>
+                                )}
+                                {info.recommended && !saved.includes(provider) && (
                                     <span className="rounded-full bg-accent/14 px-2 py-0.5 text-[11px] font-medium text-accent-text">
                                         Recommended
                                     </span>

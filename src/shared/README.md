@@ -13,6 +13,8 @@ barrel could pull server code into the proxy.
 
 | Folder | Holds |
 |---|---|
+| `ai/` | The AI provider ids (`AI_PROVIDER_IDS`): what onboarding offers and what the backend's AI factory must implement. The models a user can pick per provider, and each default (`AI_MODELS`, `AI_DEFAULT_MODELS`). |
+| `credentials/` | What each provider's keys look like (`keyRules`, `checkKeyFormat`): checked in the browser and again by the API. |
 | `auth/` | Whether sign-in is on (`AUTH_ENABLED`) and Clerk's public key. Read on the server; the secret key stays in the backend. |
 | `contracts/` | The shape of every API request and response (one file per API area). |
 | `errors/` | Error codes and the one message each shows, on both sides. |

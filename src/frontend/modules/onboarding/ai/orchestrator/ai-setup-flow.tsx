@@ -1,19 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
 
+import { errorMessageOf } from "@/frontend/shared/api";
 import { JobakLogo, Button } from "@/frontend/shared/ui";
 import { DASHBOARD_HREF } from "@/shared/routes";
 import { cn } from "@/frontend/shared/lib";
 
+import { useConnectAiKey } from "../../api/ai-key.mutations";
 import { checkKeyFormat } from "../provider-keys";
 import type { AiProvider } from "../../types/onboarding.types";
 import { ChooseScreen } from "../phases/choose-provider/choose-provider-screen";
 import { ConnectedScreen } from "../phases/connected/connected-screen";
 import { KEY_FORM_ID, KeyScreen } from "../phases/key/key-screen";
-import { previewVerifyKey } from "../phases/key/preview-verify";
 import { PreparingScreen } from "../phases/preparing/preparing-screen";
 import { PROVIDER_INFO } from "../providers";
 import { ConnectionPanel, type ConnectionStatus } from "./connection-panel";
@@ -42,9 +43,10 @@ const STEPS: Exclude<Phase, "preparing">[] = ["choose", "key", "connected"];
  *                            connected)
  *     providers.ts           the providers' names, links and copy
  *
- * DESIGN STAGE: verification is `previewVerifyKey`, a stand-in that checks
- * the format only and saves nothing. The backend (verify with the provider,
- * encrypt, store, then gate the dashboard on it) is the next conversation.
+ * "Verify and connect" is real: `PUT /api/v1/ai-settings/key` asks the
+ * provider whether the key works (its free model list), then stores it
+ * encrypted. A refused key stays on this step, with the provider's verdict
+ * under the field (`ai-key-rejected`).
  */
 export function AiSetupFlow({ summary, firstName }: { summary: string; firstName: string | null }) {
     const router = useRouter();
@@ -53,7 +55,8 @@ export function AiSetupFlow({ summary, firstName }: { summary: string; firstName
     /** Kept per provider, so switching to compare and back doesn't lose a paste. */
     const [keys, setKeys] = useState<Partial<Record<AiProvider, string>>>({});
     const [error, setError] = useState<string | null>(null);
-    const [checking, startChecking] = useTransition();
+    const connectKey = useConnectAiKey();
+    const checking = connectKey.isPending;
     const scroller = useRef<HTMLElement>(null);
 
     const key = provider ? (keys[provider] ?? "") : "";
@@ -72,13 +75,15 @@ export function AiSetupFlow({ summary, firstName }: { summary: string; firstName
         phase === "connected" ? "connected" : checking ? "checking" : error ? "failed" : provider ? "chosen" : "waiting";
 
     function verify() {
-        if (!provider) return;
+        if (!provider || checking) return;
         setError(null);
-        startChecking(async () => {
-            const result = await previewVerifyKey(provider, key);
-            if (result.ok) setPhase("connected");
-            else setError(result.message);
-        });
+        connectKey.mutate(
+            { provider, key },
+            {
+                onSuccess: () => setPhase("connected"),
+                onError: (failure) => setError(errorMessageOf(failure)),
+            },
+        );
     }
 
     // ── The bridge screen: full width, centred, before the two columns. ──
