@@ -1,22 +1,18 @@
 import { ClerkProvider } from "@clerk/nextjs";
 
 // Providers
-import { RootProvider } from "@/frontend/providers";
+import { RootProvider } from "@/frontend/shared/providers";
 
 // AUTH
-import {
-  getClerkKeys,
-  isAuthEnabled,
-} from "@/backend/modules/auth/infrastructure/config";
-import { clerkAppearance } from "@/frontend/lib/configs/clerk-appearance";
+import { clerkPublishableKey, isAuthEnabled } from "@/shared/auth";
+import { clerkAppearance, jobakMetadata, jobakViewport } from "@/frontend/shared/config";
 import { DASHBOARD_HREF, ONBOARDING_HREF, SIGN_IN_HREF, SIGN_UP_HREF } from "@/shared/routes";
 
 // STYLES
-import { geistSans, geistMono } from "@/frontend/lib";
+import { geistSans, geistMono } from "@/frontend/shared/styles/fonts";
 import "./globals.css";
 
 // SEO
-import { jobakMetadata, jobakViewport } from "@/frontend/lib";
 export const metadata = jobakMetadata;
 export const viewport = jobakViewport;
 
@@ -42,7 +38,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         {authEnabled ? (
           <ClerkProvider
-            publishableKey={getClerkKeys().publishableKey}
+            publishableKey={clerkPublishableKey()}
             signInUrl={SIGN_IN_HREF}
             signUpUrl={SIGN_UP_HREF}
             // Unless the visitor was sent to sign in from a specific page,

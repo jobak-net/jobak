@@ -18,7 +18,7 @@ import type { JobPreferences } from "@/shared/contracts/preferences";
  * Stateless and shared: the browser (driving the screens) and the backend
  * (re-checking on save) run the same rules and can't disagree. The frontend
  * pairs each with its screen in a matching folder
- * (`frontend/components/onboarding/questions/steps/<step>/`).
+ * (`frontend/modules/onboarding/questions/steps/<step>/`).
  */
 
 export type StepId = "location" | "workMode" | "titles" | "details" | "review";

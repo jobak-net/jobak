@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
-import { LoadFailed } from "@/frontend/components/dashboard/load-failed";
-import { DashboardShell } from "@/frontend/components/dashboard/shell/dashboard-shell";
-import { resolveDashboardAccess } from "@/frontend/lib/api/guards/dashboard-access";
+import { LoadFailed } from "@/frontend/shared/components";
+import { DashboardShell } from "@/frontend/modules/dashboard";
+import { resolveDashboardAccess } from "@/frontend/modules/dashboard/server";
 
 export const metadata: Metadata = {
   title: "Dashboard — Jobak",
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 /**
  * Everything under /dashboard: asks whether this visitor may see it
- * (`frontend/lib/api/guards/dashboard-access.ts`), then renders the shell.
+ * (`frontend/modules/dashboard/api/dashboard-access.guard.ts`), then renders the shell.
  */
 export default async function ProtectedLayout({
   children,

@@ -1,17 +1,20 @@
-// Shared Layout
-import { Navigation, FooterSection } from "@/frontend/components/public";
+import { Navigation, FooterSection } from "@/frontend/modules/marketing";
 
-export default async function RootLayout({
+/**
+ * Every public page: the site navigation and footer around it. Reads no auth
+ * state on the server — the nav's account controls decide "Sign in" or
+ * "Dashboard" in the browser — so the static pages stay static.
+ */
+export default function PublicLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Reading auth state opts the public pages into dynamic rendering. That is the
-
   return (
-  <>
-    <Navigation />
-    {children}
-    <FooterSection />
-  </>);
+    <>
+      <Navigation />
+      {children}
+      <FooterSection />
+    </>
+  );
 }

@@ -60,8 +60,9 @@ proxy (withAuthSession)         ← Next calls this on every request
          └─ captureReferral      ← skips itself when auth is off
 ```
 
-Route protection is **not** done here. Pages and handlers call `requireUser()` /
-`requireApiUser()` themselves.
+Route protection is **not** done here. API routes declare it with
+`withMiddlewares({ auth: "required" })`, and pages reach data only through those
+routes (see `docs/backend/AUTH.md`).
 
 ## Steps
 

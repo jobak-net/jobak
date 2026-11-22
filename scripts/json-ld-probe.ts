@@ -14,7 +14,7 @@
  *   npx tsx scripts/json-ld-probe.ts
  */
 import { readFileSync } from "node:fs";
-import { serializeJsonLd } from "../src/frontend/lib/utils/json-ld";
+import { serializeJsonLd } from "../src/frontend/shared/lib/json-ld";
 
 const LINE_SEPARATOR = " ";
 const PARAGRAPH_SEPARATOR = " ";

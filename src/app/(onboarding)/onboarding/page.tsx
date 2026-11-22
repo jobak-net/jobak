@@ -1,7 +1,6 @@
-import { LoadFailed } from "@/frontend/components/dashboard/load-failed";
-import { OnboardingFlow } from "@/frontend/components/onboarding/questions/orchestrator/onboarding-flow";
-import { resolveOnboardingAccess } from "@/frontend/lib/api/guards/onboarding-access";
-import { loadOnboardingQuestions } from "@/frontend/lib/api/loaders/onboarding";
+import { LoadFailed } from "@/frontend/shared/components";
+import { OnboardingFlow } from "@/frontend/modules/onboarding";
+import { resolveOnboardingAccess, loadOnboardingQuestions } from "@/frontend/modules/onboarding/server";
 
 /**
  * /onboarding — the first-time setup: the job questions, prefilled with any

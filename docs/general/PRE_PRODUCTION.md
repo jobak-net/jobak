@@ -67,7 +67,7 @@ neutral collection wording. What is left is not copy — it is the system itself
 Sign-in moved to Clerk in `017_clerk_auth.sql`; the custom JWT/session code and
 all Resend mail are gone. A self-hosted instance can run with
 `AUTH_ENABLED=false`, which removes sign-in entirely — every visitor is the local
-owner. See `src/backend/modules/auth/infrastructure/config/auth-config.ts`.
+owner. See `src/shared/auth/auth-mode.ts`.
 
 - [ ] **Run `017_clerk_auth.sql`.** Destructive: it deletes every existing
       `users` row and everything that cascades from it.
@@ -80,7 +80,7 @@ owner. See `src/backend/modules/auth/infrastructure/config/auth-config.ts`.
       `CLERK_WEBHOOK_SIGNING_SECRET`. Without `user.deleted`, a deleted
       account's preferences, matches and saved keys outlive it.
 - [x] **Sign-in pages.** `/login` and `/register` render Clerk's `<SignIn />`
-      and `<SignUp />`; `requireUser()` redirects to `/login`. The waitlist was
+      and `<SignUp />`; signed-out dashboard visits redirect to `/login`. The waitlist was
       removed on 2026-11-07. With `AUTH_ENABLED=false` both pages redirect home.
 - [ ] **Clerk Dashboard → Paths:** set sign-in to `/login` and sign-up to
       `/register` on each instance, so links in Clerk's own emails land on our
@@ -246,7 +246,7 @@ and throttles to 12 checks/minute.
 - [ ] **The throttle is in-memory**, so it resets on deploy and is per-instance.
       Move it to the real rate-limiting story tracked under "Functional gaps".
 - [ ] **Replace the AI provider marks with official artwork, or keep them
-      deliberately abstract.** `src/frontend/components/shared/ai-provider-marks.tsx`
+      deliberately abstract.** `src/frontend/modules/onboarding/ai/ai-provider-marks.tsx`
       draws geometric stand-ins, not the real Claude / OpenAI / Gemini / Groq
       logos. Using the real marks means reading each brand's usage terms first.
 - [ ] **Prefixes are checked client-of-provider-side too**
@@ -396,7 +396,7 @@ pages that do not exist.
       every row per user, no resale of user data.
 - [ ] **Cookie consent / banner** — Supabase Auth sets session cookies. Decide whether
       a consent banner is required for the launch regions.
-- [ ] Re-add the Legal column to `src/frontend/components/public/shared/footer/data.ts`
+- [ ] Re-add the Legal column to `src/frontend/modules/marketing/components/footer/data.ts`
       once these exist.
 
 ## Static assets — resolved
@@ -432,9 +432,9 @@ icon is invisible until someone installs the app.
 
 Indexing is gated on the environment so the development pipeline never competes
 with production in search results, or leaks pre-release copy into the index.
-The switch is `isProductionSite` in `src/frontend/lib/configs/site.ts`, read from
+The switch is `isProductionSite` in `src/frontend/shared/config/site.ts`, read from
 `NEXT_PUBLIC_APP_ENV` (falling back to `NEXT_PUBLIC_VERCEL_ENV`). It drives two
-things: the `robots` block in `src/frontend/lib/configs/metadata.ts`, and
+things: the `robots` block in `src/frontend/shared/config/metadata.ts`, and
 `src/app/robots.ts`, which serves `Disallow: /` off production.
 
 **It fails closed — unset means noindex.** That is the safe direction for the dev
@@ -492,7 +492,7 @@ just a page.
 - [ ] **No rate limiting on `/api/v1/jobs/refresh`.** Any authenticated user can trigger
       the n8n workflow as often as they like. The landing page advertises unlimited
       searches, so if that needs to change, the copy in
-      `src/frontend/components/public/home/free/data.ts` has to change with it.
+      `src/frontend/modules/marketing/components/home/free/data.ts` has to change with it.
 
 ## Housekeeping
 
@@ -591,7 +591,7 @@ whatever language the source published them.
 
 ### Wallets — read before adding one
 
-`supportWallets` in `src/frontend/components/public/shared/footer/data.ts` is
+`supportWallets` in `src/frontend/modules/marketing/components/footer/data.ts` is
 **empty on purpose**, and both the footer strip and `/support` render nothing
 while it is. That is not an oversight to tidy up: a placeholder tip address that
 ships is money sent to a stranger, discovered only when someone tries it.

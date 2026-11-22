@@ -13,6 +13,7 @@ barrel could pull server code into the proxy.
 
 | Folder | Holds |
 |---|---|
+| `auth/` | Whether sign-in is on (`AUTH_ENABLED`) and Clerk's public key. Read on the server; the secret key stays in the backend. |
 | `contracts/` | The shape of every API request and response (one file per API area). |
 | `errors/` | Error codes and the one message each shows, on both sides. |
 | `onboarding/` | The onboarding step rules, which the browser and the backend both run. |

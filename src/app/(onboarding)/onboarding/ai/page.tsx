@@ -1,7 +1,6 @@
-import { LoadFailed } from "@/frontend/components/dashboard/load-failed";
-import { AiSetupFlow } from "@/frontend/components/onboarding/ai/orchestrator/ai-setup-flow";
-import { resolveOnboardingAccess } from "@/frontend/lib/api/guards/onboarding-access";
-import { loadAiSetup } from "@/frontend/lib/api/loaders/onboarding";
+import { LoadFailed } from "@/frontend/shared/components";
+import { AiSetupFlow } from "@/frontend/modules/onboarding";
+import { resolveOnboardingAccess, loadAiSetup } from "@/frontend/modules/onboarding/server";
 
 /**
  * /onboarding/ai — the second onboarding: connecting the AI. Comes after the

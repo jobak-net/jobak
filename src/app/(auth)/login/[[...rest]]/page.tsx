@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { SignIn } from "@clerk/nextjs";
 
-import { authFormAppearance } from "@/frontend/lib/configs/clerk-appearance";
+import { authFormAppearance } from "@/frontend/shared/config";
 import { SIGN_UP_HREF } from "@/shared/routes";
 
 export const metadata: Metadata = {

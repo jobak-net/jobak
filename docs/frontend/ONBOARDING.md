@@ -11,13 +11,13 @@ Code is laid out as **vertical slices** under one orchestrator: everything
 for a step lives in that step's folder.
 
 ```
-src/frontend/components/onboarding/questions/
+src/frontend/modules/onboarding/questions/
 ├── orchestrator/              runs the flow
 │   ├── onboarding-flow.tsx      the layout
 │   ├── use-onboarding.ts        state: current step, answers, next / back / goTo / finish
 │   ├── step-factory.ts          createSteps(context), createStep(id)
 │   ├── step-strategy.ts         the StepStrategy interface
-│   │   (the final submit is src/frontend/lib/api/onboarding — saveOnboarding / useSaveOnboarding)
+│   │   (the final submit is src/frontend/modules/onboarding/api/ — saveOnboarding / useSaveOnboarding)
 │   ├── saved-progress.ts        unsaved answers in localStorage
 │   ├── draft.ts                 applyDraftPatch
 │   └── segmented-progress.tsx   the progress bar
@@ -82,7 +82,7 @@ Where each part lives:
 | The screen | `questions/steps/<step>/<step>-screen.tsx` |
 | The factory | `questions/orchestrator/step-factory.ts` |
 | The state (current step, answers) | `questions/orchestrator/use-onboarding.ts` |
-| The final submit | `src/frontend/lib/api/onboarding` (`useSaveOnboarding`) → `POST /api/v1/onboarding` |
+| The final submit | `src/frontend/modules/onboarding/api/onboarding.mutations.ts` (`useSaveOnboarding`) → `POST /api/v1/onboarding` |
 | The layout | `questions/orchestrator/onboarding-flow.tsx` |
 
 ## 2. The factory
@@ -193,7 +193,7 @@ folders, without the factory and strategies. Its four phases run in a fixed
 order, so `ai-setup-flow.tsx` switches between them directly.
 
 ```
-src/frontend/components/onboarding/ai/
+src/frontend/modules/onboarding/ai/
 ├── orchestrator/
 │   ├── ai-setup-flow.tsx        state (phase, provider, key) and the layout
 │   └── connection-panel.tsx     the right-hand panel

@@ -13,24 +13,27 @@ depth.
 2. **Our `users` table owns the data.** Every preference, match, saved key and
    referral hangs off `users.id`. A row links to its Clerk account through
    `users.external_id` (`user_…` for Clerk, `local:owner` with auth off).
-3. **The page or route handler is the gate, not the proxy.** Server code calls
-   `requireUser()` (pages) or `requireApiUser()` (API routes). The proxy only
-   reads the session so those calls work. It protects nothing.
+3. **The API route is the gate, not the proxy.** Every route that touches a
+   user's data is `withMiddlewares({ auth: "required" })`. Pages never import
+   the backend: they reach data through those routes (`serverFetch`), so the
+   same gate covers them. The proxy only reads the session so those calls
+   work. It protects nothing.
 
 ## Where things live
 
 | Piece | File | Job |
 |---|---|---|
-| Auth switch | `src/backend/modules/auth/infrastructure/config/auth-config.ts` | `isAuthEnabled()`, `getClerkKeys()`, the startup warning |
+| Auth switch | `src/shared/auth/auth-mode.ts` | `isAuthEnabled()`, `clerkPublishableKey()` — read by the layouts and the backend alike |
+| Clerk keys | `src/backend/modules/auth/infrastructure/config/auth-config.ts` | `getClerkKeys()` (secret key), the startup warning; re-exports `isAuthEnabled()` |
 | Composition root | `src/backend/modules/auth/composition.ts` | Picks Clerk or the local owner, once per mode |
 | Identity providers | `src/backend/modules/auth/infrastructure/providers/` | `ClerkIdentityProvider` / `LocalIdentityProvider` |
 | "Who is this?" | `src/backend/modules/auth/application/use-cases/get-current-user.use-case.ts` | Session → `users` row, creating it on first sight |
-| Gate for pages | `src/backend/modules/auth/interface/session.ts` | `requireUser()`, `getCurrentUser()` |
-| Gate for API routes | `src/backend/modules/auth/interface/api.ts` | `requireApiUser()`, `getApiUser()` |
+| Gate for API routes | `src/backend/shared/http/middlewares/with-authentication.ts` | `withMiddlewares({ auth })`: the user, or a 401 |
+| Gate for pages | `src/frontend/modules/dashboard/api/dashboard-access.guard.ts` | `resolveDashboardAccess()` / `requireDashboardUser()`, over `GET /api/v1/me` |
 | "Who is this, onboarded?" over HTTP | `src/app/api/v1/(account)/me/route.ts`, `src/backend/modules/account/` | `GET /api/v1/me`: what the dashboard layout reads (contract: `src/shared/contracts/account.ts`) |
 | Session in the proxy | `src/backend/shared/proxy/auth-session.ts` | `clerkMiddleware()`, or nothing with auth off |
 | Sign-in / sign-up pages | `src/app/(auth)/` | Clerk's `<SignIn />` / `<SignUp />` at `/login`, `/register` |
-| Clerk on the client | `src/app/layout.tsx`, `src/frontend/providers/auth-mode-provider.tsx` | `ClerkProvider` only with auth on; `useAuthEnabled()` |
+| Clerk on the client | `src/app/layout.tsx`, `src/frontend/shared/providers/auth-mode-provider.tsx` | `ClerkProvider` only with auth on; `useAuthEnabled()` |
 | Keeping `users` in sync | `src/app/api/v1/(integrations)/webhooks/clerk/route.ts` | Clerk's `user.updated` / `user.deleted` |
 | Page URLs | `src/shared/routes/routes.ts` | `SIGN_IN_HREF` (`/login`), `SIGN_UP_HREF` (`/register`), … |
 
@@ -81,9 +84,8 @@ What to notice:
 ```
 request
   └─ proxy: clerkMiddleware() reads the session cookie (no network call)
-      └─ page or route handler
-          ├─ page:      requireUser()      → user, or redirect to /login
-          └─ API route: requireApiUser()   → user, or a 401 JSON response
+      └─ API route: withMiddlewares({ auth: "required" }) → user, or a 401 JSON response
+         (pages call these routes through serverFetch; a 401 sends them to /login)
 ```
 
 Both go through the same `GetCurrentUserUseCase`: Clerk id → one indexed lookup
@@ -91,8 +93,7 @@ on `users.external_id`. The lookup is cached per render, so several components
 asking "who is this?" cost one query.
 
 **Failure is not the same as signed out.** If the database can't be reached,
-`requireUser()` throws `UserLookupError` and the page shows an error with
-Retry. It doesn't redirect to `/login`. The user *is* signed in with Clerk, so
+the route answers 503, not 401, and the page shows an error with Retry. It doesn't redirect to `/login`. The user *is* signed in with Clerk, so
 `/login` would bounce them straight back, in an endless loop.
 `getCurrentUser()`, used for cosmetic things like "Sign in" vs "Dashboard" in
 the nav, returns `null` on failure instead, so a database blip can't take the
@@ -101,12 +102,14 @@ homepage down.
 Write a new protected page or route like this:
 
 ```ts
-// page / server action
-const user = await requireUser();          // never check getCurrentUser() by hand
+// API route: the gate
+export const GET = withMiddlewares({ label: "things.list", auth: "required" }, async ({ user }) =>
+  getThingsModule().list.execute(user.id),
+);
 
-// API route
-const { user, response } = await requireApiUser();
-if (!user) return response;                // 401
+// page: through the API, never the backend (docs/frontend/DATA_FETCHING.md)
+const user = await requireDashboardUser();     // GET /api/v1/me, shared with the layout
+const things = await loadThings();             // a module loader on serverFetch
 ```
 
 Then scope every query by `user.id`. Authorization lives in the repository
@@ -119,8 +122,8 @@ asks the backend over HTTP:
 
 ```
 (protected)/layout.tsx
-  └─ resolveDashboardAccess()        frontend/lib/api/guards/dashboard-access.ts
-      └─ serverFetch()               frontend/lib/api/server-fetch.ts
+  └─ resolveDashboardAccess()        frontend/modules/dashboard/api/dashboard-access.guard.ts
+      └─ serverFetch()               frontend/shared/api/server-fetch.ts
           └─ GET /api/v1/me          forwards the visitor's cookie header
               └─ account module      backend/modules/account: auth + preferences
 ```
@@ -176,7 +179,7 @@ sequenceDiagram
     C->>D: first dashboard visit
     D->>D: jobak_ref cookie present?
     D->>A: POST (once)
-    A->>A: requireApiUser()
+    A->>A: withMiddlewares auth: user, or 401
     A->>DB: one INSERT … SELECT with every rule
     A->>D: { claimed }, cookie cleared
     R->>R: friend appears on /dashboard/referrals
@@ -224,7 +227,7 @@ What each piece does in each mode:
 | Clerk keys | required: the app errors on the first request without them | not needed |
 | Proxy | `clerkMiddleware()` reads the session, then the steps run | steps run, Clerk never called |
 | Identity provider | `ClerkIdentityProvider` | `LocalIdentityProvider`: every request is the **local owner** (`external_id = local:owner`) |
-| `requireUser()` | user, or redirect to `/login` | always the owner, never redirects |
+| `auth: "required"` routes | the user, or 401 | always the owner, never 401 |
 | `/login`, `/register` | Clerk's forms | redirect to `/dashboard` (`(auth)/layout.tsx`) |
 | Root layout | wrapped in `ClerkProvider` | no `ClerkProvider`; client code checks `useAuthEnabled()` before any Clerk hook |
 | Webhook route | verifies and syncs | 404 |

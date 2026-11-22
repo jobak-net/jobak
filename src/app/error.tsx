@@ -4,8 +4,7 @@ import { useEffect, useTransition } from "react";
 import Link from "next/link";
 import { RotateCw } from "lucide-react";
 
-import { JobakLogo } from "@/frontend/components/shared/jobak-logo";
-import { Button } from "@/frontend/components/ui";
+import { JobakLogo, Button } from "@/frontend/shared/ui";
 
 /**
  * The error boundary for every route without a closer one: the public pages,

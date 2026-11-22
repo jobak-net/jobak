@@ -16,12 +16,15 @@ backend to another service or technology doesn't touch the frontend.
   `account.ts` for `GET /api/v1/me`). Both sides import it; neither imports the
   other.
 - **`src/app/` holds only UI (pages, layouts) and API routes**, with no
-  `_lib/` folders. Everything that calls the backend lives together in
-  `src/frontend/lib/api/`:
-  - `server-fetch.ts`: the one fetch every server-side call goes through;
-  - `guards/`: decide whether a page may render (redirects, retry screen);
-  - `loaders/`: fetch a page's data and shape it into the component's props
-    (e.g. sample data as a fallback).
+  `_lib/` folders. How the backend is reached lives in
+  `src/frontend/shared/api/` (`serverFetch`, `clientFetch`, `ApiError`, the
+  query setup); what each endpoint is belongs to the module that calls it
+  (see [`ARCHITECTURE.md`](ARCHITECTURE.md)):
+  - `modules/<name>/api/`: the endpoint functions and their query / mutation hooks;
+  - guards (decide whether a page may render: redirects, retry screen) and
+    loaders (fetch a page's data and shape it into props, e.g. sample data as a
+    fallback) — `api/<name>.guard.ts` and `api/<name>.loader.ts`, exported
+    from the module's `server.ts`.
 
 ## Which tool, where
 
@@ -42,10 +45,11 @@ Not allowed:
 
 ## 1. On the server: `serverFetch`
 
-`src/frontend/lib/api/server-fetch.ts`. Server-only.
+`src/frontend/shared/api/server-fetch.ts`, imported from its server-only
+entry, `@/frontend/shared/api/server`.
 
 ```ts
-import { serverFetch } from "@/frontend/lib/api/server-fetch";
+import { serverFetch } from "@/frontend/shared/api/server";
 import { ACCOUNT_API_PATH, type AccountStatus } from "@/shared/contracts/account";
 
 const result = await serverFetch<AccountStatus>(ACCOUNT_API_PATH);
@@ -65,8 +69,10 @@ What it does for every call:
 
 For writes, pass a method and a body: `serverFetch<T>(path, { method: "POST", body })`.
 
-Real examples: `src/frontend/lib/api/guards/dashboard-access.ts`,
-`guards/onboarding-access.ts`, `loaders/jobs.ts`, `loaders/job-board.ts`, `loaders/onboarding.ts` and `loaders/talent.ts`.
+Real examples, all in `src/frontend/modules/`: `dashboard/api/dashboard-access.guard.ts`,
+`onboarding/api/onboarding-access.guard.ts`, `job-search/api/job-search.loader.ts`,
+`job-board/api/job-board.loader.ts`, `onboarding/api/onboarding.loader.ts` and
+`talent/api/talent.loader.ts`.
 
 ## 2. Server data in a client component: `use()`
 
@@ -88,7 +94,7 @@ export default function Page() {
 ```
 
 ```tsx
-// src/frontend/components/.../account-card.tsx
+// src/frontend/modules/<name>/components/account-card.tsx
 "use client";
 import { use } from "react";
 
@@ -105,44 +111,44 @@ server-only. Its result is plain JSON, so React can pass it to the client.
 ## 3. Started in the browser: TanStack Query
 
 TanStack Query is set up for the whole app (`QueryProvider` in
-`src/frontend/providers/`, inside `RootProvider`).
+`src/frontend/shared/providers/`, inside `RootProvider`).
 
-`clientFetch<T>(path, options)` lives in `src/frontend/lib/api/client-fetch.ts`.
+`clientFetch<T>(path, options)` lives in `src/frontend/shared/api/client-fetch.ts`
+(imported from `@/frontend/shared/api`).
 It mirrors `serverFetch`: same result kinds (both use `fetch-result.ts`) and
 same options. It calls the API on the same origin with the browser's own
 cookies, or `NEXT_PUBLIC_API_BASE_URL` when the backend moves elsewhere. Its
 own file keeps server-only code like `next/headers` out of the browser bundle.
 
-Real example: the onboarding submit,
-`src/frontend/lib/api/onboarding/` (`useSaveOnboarding`)
-(`useMutation` → `POST /api/v1/onboarding`).
+Real example: the feedback form, `src/frontend/modules/feedback/api/`
+(`useSendFeedback`: `useMutation` → `POST /api/v1/feedback`).
 
-Code is grouped per API resource in `src/frontend/lib/api/<resource>/`
-(`onboarding/`, `preferences/`, `job-catalogue/`, `jobs/`, `feedback/`), with shared setup in
-`config.ts`:
+Each module keeps its endpoints in its own `api/` folder; the shared setup is
+`src/frontend/shared/api/`:
 
 ```
-lib/api/
-├── config.ts          queryClientConfig, smartRetry, unwrap, useGenericQuery, useGenericMutation
-├── client-fetch.ts    the browser's fetch       server-fetch.ts   the server's fetch
-└── <resource>/
-    ├── api.ts         plain async functions, one per endpoint
-    ├── queries.ts     useQuery hooks on them
-    ├── mutations.ts   useMutation hooks on them
-    └── index.ts       what the app imports
+frontend/shared/api/
+├── index.ts           clientFetch, ApiError, unwrap, useGenericQuery, useGenericMutation, queryClientConfig
+├── server.ts          serverFetch (server-only entry)
+└── client-fetch.ts · server-fetch.ts · fetch-result.ts · api-error.ts · query-config.ts
+
+frontend/modules/<name>/api/
+├── <name>.api.ts        plain async functions, one per endpoint
+├── <name>.queries.ts    useQuery hooks on them
+└── <name>.mutations.ts  useMutation hooks on them
 ```
 
-From the real `job-catalogue/` and `preferences/` resources:
+From the real onboarding and preferences modules:
 
 ```tsx
-// job-catalogue/api.ts — a plain function: one endpoint, data or a thrown ApiError.
+// onboarding/api/job-catalogue.api.ts — a plain function: one endpoint, data or a thrown ApiError.
 export async function searchJobTitles(q: string, field: string | null) {
   const params = new URLSearchParams({ q });
   if (field) params.set("field", field);
   return unwrap(await clientFetch<JobTitleMatch[]>(`${JOB_TITLES_API_PATH}?${params}`));
 }
 
-// job-catalogue/queries.ts — the hook, keyed by the API path and its parameters.
+// onboarding/api/job-catalogue.queries.ts — the hook, keyed by the API path and its parameters.
 export function useJobTitleSearch(query: string, field?: string | null) {
   const q = query.trim();
   return useGenericQuery(jobTitleSearchKey(q, field ?? null), () => searchJobTitles(q, field ?? null), {
@@ -151,7 +157,7 @@ export function useJobTitleSearch(query: string, field?: string | null) {
   });
 }
 
-// preferences/mutations.ts — invalidateKeys refreshes what a save made stale.
+// preferences/api/preferences.mutations.ts — invalidateKeys refreshes what a save made stale.
 export const useSavePreferences = () => useGenericMutation({ mutationFn: savePreferences });
 ```
 
@@ -163,7 +169,7 @@ Conventions:
   place.
 - **Errors:** a failed result carries the shared error `code` and its
   `message` (`src/shared/errors/error-codes.ts`). Hooks throw
-  `ApiError.from(result)` via `unwrap()` (`src/frontend/lib/errors/`); screens show
+  `ApiError.from(result)` via `unwrap()` (`@/frontend/shared/api`); screens show
   `error.message`, never their own wording.
 - **`unauthorized`** in the browser means the session ended: send the user to
   sign in. **`failed`** shows the error with a retry.

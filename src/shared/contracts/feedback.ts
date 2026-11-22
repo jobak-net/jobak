@@ -13,7 +13,7 @@ export const FEEDBACK_API_PATH = "/api/v1/feedback";
 
 /**
  * What feedback can be about. The same list is the form's options (with their
- * labels, `frontend/lib/configs/feedback.ts`), the API's check, and the
+ * labels, `frontend/modules/feedback/config/feedback-categories.ts`), the API's check, and the
  * database's `CHECK` in `db/supabase/011_feedback.sql`: the UI offers, the
  * server verifies, the database enforces.
  */
