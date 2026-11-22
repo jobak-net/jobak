@@ -13,6 +13,9 @@
  */
 export { BaseError } from "./base";
 export {
+  AiKeyRejectedError,
+  AiNotConnectedError,
+  AiProviderLimitedError,
   ForbiddenError,
   InternalServerError,
   NotFoundError,

@@ -66,6 +66,16 @@ export const PUT = withMiddlewares(
 - Never in a route: a hand-written `try/catch`, auth check, `request.json()` or content-type check.
 - Route handlers stay thin: the work is a module's use case — including integrations (the Clerk webhook's logic lives in the auth module). In a module, split the repository (database calls) from the use case, unless it's trivial.
 
+## AI providers (project rule)
+
+Every call to an AI provider goes through the factory in the integrations module (`src/backend/modules/integrations/ai/`), imported from `@/backend/modules/integrations`. An AI feature asks for the user's client, `await getIntegrationsModule().ai.clientForUser.execute(user.id)` (their preferred provider, its key decrypted, their model; `ai-not-connected` without one), and calls `complete()`, the same for every provider. Only code that has a key in hand (verifying one) calls `createAiClient` directly. Full guide: `docs/backend/AI_PROVIDERS.md`.
+
+- The frontend never names a provider: an AI endpoint takes the tool's input, and the backend reads the user's provider and key.
+- Keys go in through `PUT /api/v1/ai-settings/key` only (checked with the provider, stored with `encryptSecret` from `@/backend/shared/crypto`) and never come back out in a response or a log. `decryptSecret` is called in one place: `CreateAiClientForUserUseCase`.
+- Outside `src/backend/modules/integrations/ai/infrastructure/providers/`, never: a `switch` on the provider, a provider's URL or SDK, or a `fetch` to one.
+- The provider ids are `AI_PROVIDER_IDS` (`@/shared/ai`). A new provider is a client class plus one line in the factory's registry, and the compiler lists everything else it needs.
+- The models a user may pick, and each default, are `AI_MODELS` / `AI_DEFAULT_MODELS` (`@/shared/ai`); no model id is written anywhere else. `clientForUser` applies the user's pick, and the factory falls back to the default when it isn't on the list.
+
 ## Errors (project rule)
 
 Error codes and the messages users read live in one place, `src/shared/errors/error-codes.ts`, shared by both sides. The backend's exceptions carry a code; the frontend reads it (`serverFetch` / `clientFetch`), throws `ApiError` (`@/frontend/shared/api`) from the `<name>.api.ts` functions, and shows `error.message` — never its own wording for an API error.

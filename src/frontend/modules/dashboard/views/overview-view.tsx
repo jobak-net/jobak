@@ -30,10 +30,13 @@ export function OverviewView({
   firstName,
   jobs,
   sample,
+  aiConnected,
 }: {
   firstName: string | null;
   jobs: Job[];
   sample: boolean;
+  /** At least one AI provider has a stored key: ticks the getting-started step. */
+  aiConnected: boolean;
 }) {
   const { avgScore, strong, saved, topMatches } = overviewStats(jobs);
 
@@ -66,7 +69,7 @@ export function OverviewView({
       </header>
 
       {/* Until the first real matches arrive: what to do while Jobak searches. */}
-      {sample && <GettingStarted />}
+      {sample && <GettingStarted aiConnected={aiConnected} />}
 
       <div className="space-y-3">
         <StatStrip

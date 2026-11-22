@@ -6,11 +6,12 @@
  * the AI connection screens. The preferences page and the settings page reuse
  * them through this file, which is why it exports more than its own pages need.
  */
+export { useConnectAiKey } from "./api/ai-key.mutations";
+export { AiProviderMark } from "./ai/ai-provider-marks";
 export { AiSetupFlow } from "./ai/orchestrator/ai-setup-flow";
 export { ConnectionPanel, type ConnectionStatus } from "./ai/orchestrator/connection-panel";
 export { ChooseScreen } from "./ai/phases/choose-provider/choose-provider-screen";
 export { KEY_FORM_ID, KeyScreen } from "./ai/phases/key/key-screen";
-export { previewVerifyKey } from "./ai/phases/key/preview-verify";
 export { checkKeyFormat } from "./ai/provider-keys";
 export { PROVIDER_INFO } from "./ai/providers";
 export { type DraftPatch, applyDraftPatch } from "./questions/orchestrator/draft";

@@ -30,6 +30,7 @@ comment explains what it does and why; this table is just the map.
 | `021_fix_location_shape_check.sql` | Fixes 020's location shape check, which let a value with missing keys through (NULL passes a CHECK). |
 | `022_job_title_catalogue.sql` | The catalogue grows past tech: 16 more fields, `source` / `onet_code` on `job_titles`, one spelling per title (unique on `lower(title)`), a trigram index for search, and a 200-title ceiling per `next_linkedin_posts` call. |
 | `023_seed_onet_job_titles.sql` | ~7,600 titles from O*NET 31.0 (CC BY 4.0). **Generated** by `scripts/job-titles/generate-onet-seed.ts`; regenerate as a new seed file for a new O*NET release instead of editing it. |
+| `024_ai_models.sql` | `user_preferences.ai_models`: the AI model each user picked, per provider (`{ provider: modelId }`, no entry = the default). Shape checked here; ids checked by the API. |
 
 ## Requirements
 

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useTransition, type CSSProperties, type ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import {
     ArrowLeft,
     ArrowRight,
     BellRing,
+    CircleAlert,
     CalendarDays,
     Check,
     Loader2,
@@ -16,19 +17,14 @@ import {
 } from "lucide-react";
 
 import { StepTabs, stepTabId, useSlideDirection, JobakMark, Button } from "@/frontend/shared/ui";
-import {
-    ConnectionPanel,
-    type ConnectionStatus,
-    ChooseScreen,
-    KEY_FORM_ID,
-    KeyScreen,
-    previewVerifyKey,
-    PROVIDER_INFO,
-    checkKeyFormat,
-} from "@/frontend/modules/onboarding";
+import { ConnectionPanel, ChooseScreen, KeyScreen, PROVIDER_INFO } from "@/frontend/modules/onboarding";
 import { cn } from "@/frontend/shared/lib";
 import { useAuthEnabled } from "@/frontend/shared/providers";
-import type { AiProvider } from "@/frontend/modules/onboarding";
+import type { AiSettingsResponse } from "@/shared/contracts/ai-settings";
+
+import { useAiConnection } from "../hooks/use-ai-connection";
+import { ModelPicker } from "./model-picker";
+import { SavedKeys } from "./saved-keys";
 
 type TabId = "ai" | "notifications" | "account";
 const TABS: TabId[] = ["ai", "notifications", "account"];
@@ -69,34 +65,28 @@ type NotificationId = (typeof NOTIFICATIONS)[number]["id"];
  * key steps and field, the Jobak ⟷ provider connection — so changing the key
  * later looks and behaves exactly like connecting it the first time.
  *
- * PREVIEW: nothing here is saved yet. The key check is `previewVerifyKey`
- * (format only), and notifications live in this page's state.
+ * The AI tab is real, in this order: the saved keys (switch, remove), the
+ * provider, its model, its key, and one Save for the model and key together
+ * (`useAiConnection`). Notifications are still a PREVIEW, kept in this page's state.
  */
-export function SettingsPanels({ email, fullName }: { email: string | null; fullName: string | null }) {
+export function SettingsPanels({
+    email,
+    fullName,
+    aiSettings,
+}: {
+    email: string | null;
+    fullName: string | null;
+    /** `GET /api/v1/ai-settings` (`loadAiSettings`); null when it couldn't be read. */
+    aiSettings: AiSettingsResponse | null;
+}) {
     const authEnabled = useAuthEnabled();
     const [active, setActive] = useState<TabId>("ai");
     const index = TABS.indexOf(active);
     const direction = useSlideDirection(active, index);
 
     // ── AI provider ──
-    const [provider, setProvider] = useState<AiProvider>("groq");
-    const [keys, setKeys] = useState<Partial<Record<AiProvider, string>>>({});
-    const [connected, setConnected] = useState<AiProvider | null>(null);
-    const [keyError, setKeyError] = useState<string | null>(null);
-    const [checking, startChecking] = useTransition();
-    const key = keys[provider] ?? "";
-
-    const aiStatus: ConnectionStatus =
-        connected === provider ? "connected" : checking ? "checking" : keyError ? "failed" : "chosen";
-
-    function verify() {
-        setKeyError(null);
-        startChecking(async () => {
-            const result = await previewVerifyKey(provider, key);
-            if (result.ok) setConnected(provider);
-            else setKeyError(result.message);
-        });
-    }
+    const ai = useAiConnection(aiSettings);
+    const { provider } = ai;
 
     // ── Notifications ──
     const [notify, setNotify] = useState<Record<NotificationId, boolean>>({ strong: true, digest: true, status: false });
@@ -136,7 +126,11 @@ export function SettingsPanels({ email, fullName }: { email: string | null; full
                     {
                         id: "ai",
                         label: TAB_LABEL.ai,
-                        summary: `${PROVIDER_INFO[connected ?? provider].name} · ${connected ? "Connected" : "Not connected"}`,
+                        summary: ai.preferred
+                            ? `${PROVIDER_INFO[ai.preferred].name} · Connected`
+                            : aiSettings
+                              ? "Not connected"
+                              : "Couldn't load",
                     },
                     { id: "notifications", label: TAB_LABEL.notifications, summary: `${onCount} of ${NOTIFICATIONS.length} on` },
                     { id: "account", label: TAB_LABEL.account, summary: authEnabled ? (email ?? name) : "Local owner" },
@@ -162,49 +156,100 @@ export function SettingsPanels({ email, fullName }: { email: string | null; full
                         <div className="mt-8">
                             {active === "ai" && (
                                 <div className="space-y-10">
-                                    <ChooseScreen
-                                        selected={provider}
-                                        onSelect={(next) => {
-                                            setProvider(next);
-                                            setKeyError(null);
-                                        }}
-                                    />
+                                    {aiSettings && (
+                                        <div>
+                                            <h3 className="text-[15px] font-medium text-fg-primary">Your saved keys</h3>
+                                            <p className="mb-5 mt-1 text-[13px] leading-relaxed text-fg-tertiary">
+                                                Your AI tools and match scoring run on the key marked In use. Switch to any
+                                                other saved key, or remove one.
+                                            </p>
+                                            <SavedKeys
+                                                connected={ai.connected}
+                                                preferred={ai.preferred}
+                                                busy={ai.savedKeysBusy}
+                                                pendingFor={ai.savedKeysPendingFor}
+                                                error={ai.savedKeysError}
+                                                onPrefer={ai.prefer}
+                                                onRemove={ai.remove}
+                                            />
+                                        </div>
+                                    )}
+
+                                    <div className={aiSettings ? "border-t border-border-subtle pt-8" : undefined}>
+                                        <h3 className="mb-5 text-[15px] font-medium text-fg-primary">
+                                            {ai.connected.length > 0 ? "Add or replace a key" : "Pick a provider"}
+                                        </h3>
+                                        <ChooseScreen selected={provider} onSelect={ai.selectProvider} saved={ai.connected} />
+                                    </div>
+
+                                    {ai.defaultModel ? (
+                                        <div className="border-t border-border-subtle pt-8">
+                                            <h3 className="text-[15px] font-medium text-fg-primary">
+                                                Which {PROVIDER_INFO[provider].name} model?
+                                            </h3>
+                                            <p className="mb-5 mt-1 text-[13px] leading-relaxed text-fg-tertiary">
+                                                Runs your AI tools. Kept per provider, so switching back keeps your pick.
+                                            </p>
+                                            <ModelPicker
+                                                provider={provider}
+                                                providerName={PROVIDER_INFO[provider].name}
+                                                defaultModel={ai.defaultModel}
+                                                value={ai.model ?? ai.defaultModel}
+                                                onChange={ai.pickModel}
+                                                disabled={ai.saving}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <p className="flex items-center gap-2 border-t border-border-subtle pt-8 text-[13px] text-fg-tertiary">
+                                            <CircleAlert className="size-4 shrink-0 text-status-amber" />
+                                            Couldn&apos;t load your AI settings. Reload the page to try again.
+                                        </p>
+                                    )}
 
                                     <div className="border-t border-border-subtle pt-8">
                                         <h3 className="mb-5 text-[15px] font-medium text-fg-primary">
-                                            {connected === provider ? `Replace your ${PROVIDER_INFO[provider].name} key` : `Add your ${PROVIDER_INFO[provider].name} key`}
+                                            {ai.isConnected ? `Replace your ${PROVIDER_INFO[provider].name} key` : `Add your ${PROVIDER_INFO[provider].name} key`}
                                         </h3>
+                                        {ai.isConnected && (
+                                            <p className="-mt-3 mb-5 text-[13px] leading-relaxed text-fg-tertiary">
+                                                Your key is saved and never shown again. Leave this empty to keep it, or
+                                                paste a new one to replace it.
+                                            </p>
+                                        )}
                                         {/* Keyed on the provider: its steps, link and field are that provider's. */}
                                         <div key={provider}>
                                             <KeyScreen
                                                 provider={provider}
-                                                value={key}
-                                                onChange={(value) => {
-                                                    setKeys((all) => ({ ...all, [provider]: value }));
-                                                    setKeyError(null);
-                                                    if (connected === provider) setConnected(null);
-                                                }}
-                                                error={keyError}
-                                                checking={checking}
-                                                onSubmit={verify}
+                                                value={ai.key}
+                                                onChange={ai.setKey}
+                                                error={ai.keyError}
+                                                checking={ai.checking}
+                                                onSubmit={ai.save}
                                             />
                                         </div>
-                                        <div className="mt-5 flex flex-wrap items-center gap-3">
-                                            <Button
-                                                variant="primary"
-                                                type="submit"
-                                                form={KEY_FORM_ID}
-                                                disabled={checking || !checkKeyFormat(provider, key).ok}
-                                            >
-                                                {checking ? <Loader2 className="animate-spin" /> : <Check />}
-                                                {checking ? "Checking key" : "Verify and connect"}
-                                            </Button>
-                                            {connected === provider && !checking && (
-                                                <span className="ob-pop inline-flex items-center gap-1.5 text-[13px] text-accent-text">
-                                                    <Check className="size-3.5" /> {PROVIDER_INFO[provider].name} is connected
+                                    </div>
+
+                                    {/* The tab's one Save: the model and the key together, in one request. */}
+                                    <div className="flex flex-wrap items-center gap-3 border-t border-border-subtle pt-6">
+                                        <Button variant="primary" type="button" onClick={ai.save} disabled={!ai.canSave}>
+                                            {ai.saving ? <Loader2 className="animate-spin" /> : <Check />}
+                                            {ai.saveLabel}
+                                        </Button>
+                                        <p aria-live="polite" className="text-[13px]">
+                                            {ai.saveError ? (
+                                                <span role="alert" className="inline-flex items-center gap-1.5 text-status-amber">
+                                                    <CircleAlert className="size-3.5" /> {ai.saveError}
                                                 </span>
-                                            )}
-                                        </div>
+                                            ) : ai.savedFor === provider && !ai.saving ? (
+                                                <span className="ob-pop inline-flex items-center gap-1.5 text-accent-text">
+                                                    <Check className="size-3.5" /> Saved. Your AI tools use it from the next run.
+                                                </span>
+                                            ) : ai.modelChanged && !ai.saving ? (
+                                                <span className="text-fg-tertiary">Unsaved change</span>
+                                            ) : ai.saveHint ? (
+                                                <span className="text-fg-tertiary">{ai.saveHint}</span>
+                                            ) : null}
+                                        </p>
                                     </div>
                                 </div>
                             )}
@@ -306,7 +351,7 @@ export function SettingsPanels({ email, fullName }: { email: string | null; full
                 {/* The live companion to the open tab. Wide screens only. */}
                 <aside className="hidden xl:block">
                     <div className="sticky top-6 h-[min(720px,calc(100dvh-3rem))]">
-                        {active === "ai" && <ConnectionPanel provider={provider} status={aiStatus} />}
+                        {active === "ai" && <ConnectionPanel provider={provider} status={ai.status} />}
                         {active === "notifications" && <NotificationsPreview notify={notify} />}
                         {active === "account" && <AccountPanel name={name} fullName={fullName} email={email} authEnabled={authEnabled} />}
                     </div>

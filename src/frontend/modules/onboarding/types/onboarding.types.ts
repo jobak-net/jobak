@@ -1,14 +1,18 @@
+import type { AiProviderId } from "@/shared/ai";
+import type { CredentialProvider as SharedCredentialProvider } from "@/shared/credentials";
+
 export type WorkPreference = "remote" | "on-site" | "hybrid";
 export type JobType = "full-time" | "part-time" | "freelance" | "contract";
 export type Seniority = "entry" | "mid" | "senior" | "lead";
-export type AiProvider = "anthropic" | "openai" | "gemini" | "groq";
+/** The shared provider ids (`@/shared/ai`), so the list the user picks from is the list the backend can run. */
+export type AiProvider = AiProviderId;
 
 /**
  * Apify is not an LLM — it runs the actors that collect the job listings, so it
  * is required rather than chosen, and it is kept out of `AiProvider` so that
  * "at least one AI" stays a question about scoring models only.
  */
-export type CredentialProvider = AiProvider | "apify";
+export type CredentialProvider = SharedCredentialProvider;
 
 /** Result of asking a provider whether a key is live. */
 export type KeyCheckStatus = "idle" | "checking" | "valid" | "invalid";

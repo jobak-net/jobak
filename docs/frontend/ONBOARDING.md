@@ -200,7 +200,7 @@ src/frontend/modules/onboarding/ai/
 ├── phases/
 │   ├── preparing/               preparing-screen.tsx
 │   ├── choose-provider/         choose-provider-screen.tsx
-│   ├── key/                     key-screen.tsx, preview-verify.ts
+│   ├── key/                     key-screen.tsx
 │   └── connected/               connected-screen.tsx
 └── providers.ts                 the providers' names, links and copy
 ```
@@ -216,8 +216,14 @@ flowchart LR
   `src/shared/contracts/setup-steps.ts`) through TanStack Query, and shows
   their numbers as they arrive. A step that fails is shown as skipped and the
   setup carries on.
-- **key** verification is still a design-stage stand-in (`preview-verify.ts`
-  checks the format only and saves nothing).
+- **key** is checked in the browser for its shape (`checkKeyFormat`,
+  `src/shared/credentials/`), then sent with `useConnectAiKey`
+  (`api/ai-key.mutations.ts`) to `PUT /api/v1/ai-settings/key`. The server
+  asks the provider whether it works, at no cost to the user, and stores it
+  encrypted. A refused key stays on this step with the message under the
+  field. See [AI_PROVIDERS.md](../backend/AI_PROVIDERS.md#connecting-a-key).
+- Someone who already has an AI connected is sent from `/onboarding/ai` to
+  the dashboard by the guard.
 
 The dashboard's Settings page reuses `ChooseScreen`, `KeyScreen`,
-`ConnectionPanel` and `previewVerifyKey` from these folders.
+`ConnectionPanel` and `useConnectAiKey` from this module.
