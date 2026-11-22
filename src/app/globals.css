@@ -420,9 +420,20 @@ body {
   animation-delay: var(--ob-delay, 0ms);
 }
 
-/* AI setup: the dashed connection line flows; a ring ripples out on success. */
+/*
+ * AI setup: the dashed connection line flows; a ring ripples out on success.
+ *
+ * Both animate only `transform` and `opacity`, so the compositor runs them on
+ * the GPU without repainting anything. The line used to animate
+ * `stroke-dashoffset`, which repainted part of the panel on every frame,
+ * forever: measured on /dashboard/settings it was ~130x the GPU work of the
+ * same page without it, and made scrolling stutter. The dashes are now a
+ * repeating pattern on a strip one period wider than the line, slid by
+ * exactly two periods (28px = 2 × (6px dash + 8px gap)) so the loop is seamless.
+ */
 @keyframes ob-dash {
-  to { stroke-dashoffset: -28; }
+  from { transform: translateX(-28px); }
+  to { transform: translateX(0); }
 }
 
 @keyframes ob-ripple {
@@ -438,11 +449,18 @@ body {
 
 .ob-dash {
   animation: ob-dash var(--ob-dash, 1.6s) linear infinite;
+  will-change: transform;
 }
 
+/*
+ * Endless by default, for "working on it" (a key being checked). A success
+ * ripple sets `--ob-ripple-count` (3) and then stops: an announcement, not a
+ * loop that keeps the compositor busy for as long as the page is open.
+ */
 .ob-ripple {
-  animation: ob-ripple 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  animation: ob-ripple 1.8s cubic-bezier(0.22, 1, 0.36, 1) var(--ob-ripple-count, infinite) both;
   animation-delay: var(--ob-delay, 0ms);
+  will-change: transform, opacity;
 }
 
 @media (prefers-reduced-motion: reduce) {

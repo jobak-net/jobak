@@ -56,13 +56,15 @@ export function ConnectionPanel({ provider, status }: { provider: AiProvider | n
     const failed = status === "failed";
     const checking = status === "checking";
 
+    // The line's colour, as `currentColor` for the dash pattern below.
     const lineClass = connected
-        ? "stroke-accent"
+        ? "text-accent"
         : failed
-          ? "stroke-status-rose"
+          ? "text-status-rose"
           : checking
-            ? "stroke-accent/80"
-            : "stroke-white/20";
+            ? "text-accent/80"
+            : "text-white/20";
+    const flowing = checking || status === "chosen";
 
     return (
         <div
@@ -104,28 +106,41 @@ export function ConnectionPanel({ provider, status }: { provider: AiProvider | n
                         <JobakMark size={34} />
                     </Node>
 
-                    <svg className="absolute inset-x-[72px] top-1/2 h-2 -translate-y-1/2 overflow-visible" preserveAspectRatio="none">
-                        <line
-                            x1="0"
-                            y1="4"
-                            x2="100%"
-                            y2="4"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeDasharray={connected ? undefined : "6 8"}
-                            className={cn(
-                                "transition-[stroke] duration-500",
-                                lineClass,
-                                (checking || status === "chosen") && "ob-dash",
-                            )}
-                            style={{ "--ob-dash": checking ? "0.6s" : "2.4s" } as CSSProperties}
-                        />
-                    </svg>
+                    {/*
+                      The line: solid once connected, else 6px dashes with 8px
+                      gaps that flow while waiting or checking. The dashes are a
+                      repeating gradient on a strip 28px wider than the line,
+                      slid with `transform` (`ob-dash`) so the GPU moves it
+                      without repainting — see the note on ob-dash in globals.css.
+                    */}
+                    <span
+                        className={cn(
+                            "absolute inset-x-[72px] top-1/2 h-0.5 -translate-y-1/2 overflow-hidden rounded-full transition-colors duration-500",
+                            lineClass,
+                        )}
+                    >
+                        {connected ? (
+                            <span className="block size-full bg-current" />
+                        ) : (
+                            <span
+                                className={cn(
+                                    "-ml-7 block h-full w-[calc(100%+28px)] bg-[repeating-linear-gradient(90deg,currentColor_0_6px,transparent_6px_14px)]",
+                                    flowing && "ob-dash",
+                                )}
+                                style={{ "--ob-dash": checking ? "0.6s" : "2.4s" } as CSSProperties}
+                            />
+                        )}
+                    </span>
 
                     {/* The result, on the line between them. */}
                     {(connected || failed) && (
                         <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                            {connected && <span className="ob-ripple absolute inset-0 rounded-full bg-accent/40" />}
+                            {connected && (
+                                <span
+                                    className="ob-ripple absolute inset-0 rounded-full bg-accent/40"
+                                    style={{ "--ob-ripple-count": 3 } as CSSProperties}
+                                />
+                            )}
                             <span
                                 className={cn(
                                     "ob-pop relative flex size-9 items-center justify-center rounded-full",

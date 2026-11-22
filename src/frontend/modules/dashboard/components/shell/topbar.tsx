@@ -18,6 +18,11 @@ interface TopbarProps {
 /**
  * The bar across the top of every dashboard page: search and account.
  *
+ * A near-opaque background, not a backdrop blur: a sticky blur re-blurs
+ * whatever scrolls under it on every frame (two thirds of the GPU work while
+ * scrolling /dashboard/settings), and over a near-black page at 80% it was
+ * barely visible anyway.
+ *
  * No page title here — each page's own header carries it, and saying it twice
  * one inch apart was redundant.
  *
@@ -38,7 +43,7 @@ export function Topbar({ onMenuClick, userInitials }: TopbarProps) {
     }
 
     return (
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-border-subtle bg-(--bg-canvas)/80 px-4 backdrop-blur-md sm:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b border-border-subtle bg-(--bg-canvas)/95 px-4 sm:px-6">
             <div className="flex min-w-0 flex-1 items-center gap-3">
                 <button
                     type="button"
