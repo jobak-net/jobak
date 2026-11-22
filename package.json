@@ -53,8 +53,6 @@
   "dependencies": {
     "@clerk/nextjs": "^7.9.25",
     "@radix-ui/react-slot": "^1.2.4",
-    "@supabase/ssr": "^0.10.2",
-    "@supabase/supabase-js": "^2.105.1",
     "@tanstack/react-query": "^5.107.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

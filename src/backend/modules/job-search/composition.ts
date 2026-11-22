@@ -3,9 +3,11 @@ import "server-only";
 import { getPreferencesModule } from "@/backend/modules/preferences";
 
 import { ListUserJobsUseCase } from "./application/list-user-jobs.use-case";
-import { RunSetupStepUseCase, type PreferencesReader } from "./application/run-setup-step.use-case";
+import { RunSetupStepUseCase } from "./application/run-setup-step.use-case";
 import { SetBookmarkUseCase } from "./application/set-bookmark.use-case";
+import type { PreferencesReader } from "./domain/preferences-reader";
 import { PgBookmarkRepository } from "./infrastructure/pg-bookmark.repository";
+import { PgJobPoolRepository } from "./infrastructure/pg-job-pool.repository";
 import { PgSearchStatsRepository } from "./infrastructure/pg-search-stats.repository";
 
 /**
@@ -20,7 +22,7 @@ export interface JobSearchModule {
     setBookmark: SetBookmarkUseCase;
 }
 
-const VERSION = 3;
+const VERSION = 4;
 
 const globalForJobSearch = globalThis as unknown as {
     jobSearchModule?: JobSearchModule;
@@ -33,7 +35,7 @@ export function getJobSearchModule(): JobSearchModule {
         const preferences: PreferencesReader = { get: (userId) => getPreferencesModule().get.execute(userId) };
         globalForJobSearch.jobSearchModule = {
             runSetupStep: new RunSetupStepUseCase(preferences, new PgSearchStatsRepository()),
-            listUserJobs: new ListUserJobsUseCase(),
+            listUserJobs: new ListUserJobsUseCase(preferences, new PgJobPoolRepository()),
             setBookmark: new SetBookmarkUseCase(new PgBookmarkRepository()),
         };
         globalForJobSearch.jobSearchModuleVersion = VERSION;

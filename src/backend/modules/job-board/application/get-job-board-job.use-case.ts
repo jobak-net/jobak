@@ -1,4 +1,4 @@
-import { sanitizeDescription } from "@/backend/lib/html/sanitize-description";
+import { sanitizeDescription } from "@/backend/shared/html";
 import { NotFoundError } from "@/backend/shared/exceptions";
 import type { PublicJob } from "@/shared/contracts/job-board";
 

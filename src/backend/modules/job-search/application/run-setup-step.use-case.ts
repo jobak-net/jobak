@@ -1,12 +1,8 @@
 import type { JobPreferences } from "@/backend/modules/preferences/domain/job-preferences";
 
+import type { PreferencesReader } from "../domain/preferences-reader";
 import type { SearchStatsRepository } from "../domain/search-stats.repository";
 import { criteriaFrom, type SetupStepId, type SetupStepResult } from "../domain/setup-steps";
-
-/** What the steps need from preferences: the user's saved answers. A port, so this module doesn't import that one's internals. */
-export interface PreferencesReader {
-    get(userId: string): Promise<JobPreferences | null>;
-}
 
 /** One setup step: given the user's saved answers, do its work and report. */
 type SetupStrategy = (preferences: JobPreferences) => Promise<SetupStepResult>;
