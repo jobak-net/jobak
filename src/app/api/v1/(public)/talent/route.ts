@@ -14,6 +14,6 @@ import type { TalentCard } from "@/shared/contracts/talent";
 export const dynamic = "force-dynamic";
 
 export const GET = withMiddlewares(
-  { label: "talent.list", auth: "none" },
+  { label: "talent.list", auth: "none", rateLimit: "talent" },
   async (): Promise<TalentCard[]> => getTalentModule().listPublic.execute(),
 );

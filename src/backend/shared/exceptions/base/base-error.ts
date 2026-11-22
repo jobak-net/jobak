@@ -21,6 +21,11 @@ export abstract class BaseError extends Error {
     this.name = new.target.name;
   }
 
+  /** Response headers this error should carry (e.g. `Retry-After`). None by default. */
+  get headers(): Record<string, string> | undefined {
+    return undefined;
+  }
+
   /** What the user is shown: the shared message for this code. */
   get userMessage(): string {
     return ERROR_MESSAGES[this.code];

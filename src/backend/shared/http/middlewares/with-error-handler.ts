@@ -9,8 +9,8 @@ import { json } from "../respond";
 /**
  * The outermost middleware: turns whatever the route throws into a response.
  *
- *  - A `BaseError` (`@/backend/shared/exceptions`) → its status, with
- *    `{ error, code, detail? }`. `error` is the shared message for the code —
+ *  - A `BaseError` (`@/backend/shared/exceptions`) → its status and headers
+ *    (`Retry-After` on a 429), with `{ error, code, detail? }`. `error` is the shared message for the code —
  *    the same words the frontend shows — and `detail` is the developer note.
  *  - Next's own control-flow signals → passed on untouched.
  *  - Anything else → logged with the route's label, and answered as
@@ -29,7 +29,7 @@ export function withErrorHandler(label: string): Middleware {
       if (error instanceof BaseError) {
         const body: ErrorResponseBody = { error: error.userMessage, code: error.code };
         if (error.detail) body.detail = error.detail;
-        return json(body, { status: error.status });
+        return json(body, { status: error.status, headers: error.headers });
       }
 
       console.error(`[api] ${label} failed`, error);

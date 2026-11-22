@@ -4,8 +4,7 @@ import { SubmitFeedbackUseCase } from "./application/submit-feedback.use-case";
 import { PgFeedbackRepository } from "./infrastructure/pg-feedback.repository";
 
 /**
- * The feedback module's composition root. Cached per process — which also
- * keeps the per-sender limit's memory between requests — and versioned so a
+ * The feedback module's composition root. Cached per process, versioned so a
  * running dev server rebuilds it when its shape changes.
  */
 export interface FeedbackModule {
@@ -13,7 +12,7 @@ export interface FeedbackModule {
     submit: SubmitFeedbackUseCase;
 }
 
-const VERSION = 1;
+const VERSION = 2;
 
 const globalForFeedback = globalThis as unknown as {
     feedbackModule?: FeedbackModule;

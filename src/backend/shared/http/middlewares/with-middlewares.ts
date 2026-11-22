@@ -1,20 +1,24 @@
 import type { z } from "zod";
 
 import type { PublicUser } from "@/backend/modules/auth/domain/entities";
+import type { RateLimitPolicyName } from "@/backend/shared/rate-limit";
 
 import { json } from "../respond";
 import type { AuthMode, Middleware, Next, RouteContext } from "@/backend/shared/types/middleware";
 import { withAuthentication } from "./with-authentication";
 import { withErrorHandler } from "./with-error-handler";
+import { withRateLimit } from "./with-rate-limit";
 import { withValidation } from "./with-validation";
 
 /**
  * Wraps a route handler in the middlewares every API route shares. Order,
  * outer to inner:
  *
- *     error handler → authentication → validation → handler
+ *     error handler → authentication → rate limit → validation → handler
  *
- * (Rate limiting slots in after the error handler when a route needs it.)
+ * The rate limit runs only when the route names a policy (`rateLimit`), after
+ * authentication so it can count the user, and before validation so junk
+ * requests count too.
  *
  *   export const PUT = withMiddlewares(
  *     { label: "preferences.update", auth: "required", body: preferencesSchema },
@@ -33,6 +37,8 @@ export interface RouteOptions<A extends AuthMode, B, Q, P> {
   label: string;
   /** Who may call it. Default: `none`. */
   auth?: A;
+  /** A rate-limit policy (`@/backend/shared/rate-limit/policies.ts`). Default: none. */
+  rateLimit?: RateLimitPolicyName;
   /** Zod schemas; each one checked, and its parsed value handed to the handler. */
   body?: B;
   query?: Q;
@@ -67,6 +73,7 @@ export function withMiddlewares<
   const chain: Middleware[] = [
     withErrorHandler(options.label),
     withAuthentication(options.auth ?? "none"),
+    ...(options.rateLimit ? [withRateLimit(options.rateLimit)] : []),
     withValidation({ body: options.body, query: options.query, params: options.params }),
   ];
 

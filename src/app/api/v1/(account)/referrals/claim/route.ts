@@ -25,7 +25,7 @@ import { withMiddlewares } from "@/backend/shared/http/middlewares/with-middlewa
 export const dynamic = "force-dynamic";
 
 export const POST = withMiddlewares(
-  { label: "referrals.claim", auth: "optional" },
+  { label: "referrals.claim", auth: "optional", rateLimit: "referrals.claim" },
   async ({ user }): Promise<{ claimed: boolean }> => {
     // No accounts, no referrals.
     if (!isAuthEnabled()) throw new NotFoundError();

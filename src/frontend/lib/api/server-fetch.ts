@@ -21,7 +21,8 @@ import { failureFrom, malformedSuccess, networkFailure, type FetchOptions, type 
  *    cookies by itself, so the visitor's `cookie` header is forwarded; that is
  *    how the backend (Clerk's session) knows the user. A backend on another
  *    domain would rather get just the session token as
- *    `Authorization: Bearer …` — switch it here when that happens.
+ *    `Authorization: Bearer …` — switch it here when that happens. The
+ *    visitor's `x-forwarded-for` goes along too, for per-address rate limits.
  *  - **Freshness:** never cached. The answers are per-user.
  */
 
@@ -50,6 +51,10 @@ export async function serverFetch<T>(
   const outgoing: Record<string, string> = { accept: "application/json" };
   const cookie = incoming.get("cookie");
   if (cookie) outgoing.cookie = cookie;
+  // The visitor's address, so per-address rate limits count the visitor —
+  // not this server, which would put every page view in one shared bucket.
+  const forwardedFor = incoming.get("x-forwarded-for");
+  if (forwardedFor) outgoing["x-forwarded-for"] = forwardedFor;
   if (body !== undefined) outgoing["content-type"] = "application/json";
 
   let response: Response;

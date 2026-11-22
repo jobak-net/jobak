@@ -43,7 +43,8 @@ wraps the handler in the middlewares every route shares, outer to inner:
 flowchart LR
     REQ([request]) --> EH["with-error-handler<br/>thrown errors → responses"]
     EH --> AU["with-authentication<br/>auth: required / optional / none"]
-    AU --> VA["with-validation<br/>Zod: body, query, params"]
+    AU --> RL["with-rate-limit<br/>only when rateLimit is set"]
+    RL --> VA["with-validation<br/>Zod: body, query, params"]
     VA --> H["handler<br/>a module's use case"]
     H --> RES(["200 JSON, no-store"])
 ```
@@ -52,6 +53,7 @@ flowchart LR
 |---|---|
 | `label` | Names the route in logs (`"preferences.update"`). |
 | `auth` | `required`: no user → 401 before the handler. `optional`: the handler gets the user or null. `none` (default): nobody is looked up. The user id always comes from the session, never the request. |
+| `rateLimit` | A policy name from `src/backend/shared/rate-limit/policies.ts` (`"feedback"`). Over the limit → 429 `rate-limited` with `Retry-After`; allowed calls carry `RateLimit-*` headers. Runs after authentication (so it can count the user) and before validation (so junk counts too). Guide: [`RATE_LIMIT.md`](RATE_LIMIT.md). |
 | `body` / `query` / `params` | Zod schemas. A mismatch is a 400 naming the field; the handler gets the parsed, typed value. A body must be JSON (415 otherwise) — which also stops other sites posting with the visitor's cookies. |
 
 The handler returns plain data (sent as 200 JSON, never cached) or a

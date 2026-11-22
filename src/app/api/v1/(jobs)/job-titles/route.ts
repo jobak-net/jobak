@@ -15,7 +15,7 @@ import type { JobTitleMatch } from "@/shared/contracts/job-catalogue";
 export const dynamic = "force-dynamic";
 
 export const GET = withMiddlewares(
-  { label: "job-titles.search", auth: "required", query: jobTitleSearchSchema },
+  { label: "job-titles.search", auth: "required", rateLimit: "job-titles", query: jobTitleSearchSchema },
   async ({ query }): Promise<JobTitleMatch[]> =>
     getJobCatalogueModule().search.execute(query.q, query.field ?? null),
 );

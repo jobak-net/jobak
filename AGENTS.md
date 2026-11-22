@@ -46,6 +46,7 @@ export const PUT = withMiddlewares(
 
 - Inputs (`body`, `query`, `params`) are validated with **Zod** schemas, one per file in the module's `validation/` folder, named after the schema (`modules/preferences/validation/job-preference-schema.ts`), tied to the shared contract with `satisfies z.ZodType<…>`.
 - To fail on purpose, **throw** an exception from `src/backend/shared/exceptions/` (`ValidationError`, `UnauthorizedError`, `ForbiddenError`, `NotFoundError`, …) — from a route, a use case or a repository. The error handler answers `{ error, code, detail? }` with its status; anything unexpected becomes a logged 503.
+- Rate limits are named policies, one per integration, in `src/backend/shared/rate-limit/policies.ts`: a route opts in with `rateLimit: "<name>"`; code calling an outside service runs `enforceRateLimit("<name>", key)` first. Never a hand-rolled counter. Guide: `docs/backend/RATE_LIMIT.md`.
 - Never in a route: a hand-written `try/catch`, auth check, `request.json()` or content-type check.
 - Route handlers stay thin: the work is a module's use case — including integrations (the Clerk webhook's logic lives in the auth module). In a module, split the repository (database calls) from the use case, unless it's trivial.
 
