@@ -1,18 +1,7 @@
-import { requireUser } from "@/backend/modules/auth/interface";
-import { SettingsPanels } from "@/frontend/components/dashboard/settings-panels";
-import { PageHeader } from "@/frontend/components/ui";
+import { requireDashboardUser } from "@/frontend/modules/dashboard/server";
+import { SettingsView } from "@/frontend/modules/settings";
 
 export default async function SettingsPage() {
-  const user = await requireUser();
-
-  return (
-    <>
-      <PageHeader
-        preview="Preview. Changes here are not saved yet."
-        title="Settings"
-        description="Your AI, your emails and your account."
-      />
-      <SettingsPanels email={user.email} fullName={user.fullName} />
-    </>
-  );
+  const user = await requireDashboardUser();
+  return <SettingsView email={user.email} fullName={user.fullName} />;
 }

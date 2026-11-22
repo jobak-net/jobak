@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { isProductionSite } from "@/frontend/lib";
+import { isProductionSite } from "@/frontend/shared/config";
 
 /**
  * The `robots` meta tag only helps once a crawler renders a page. This blocks

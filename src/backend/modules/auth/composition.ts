@@ -9,6 +9,7 @@ import {
 } from "./infrastructure/config";
 import {
   ClerkIdentityProvider,
+  ClerkIdentityWebhook,
   LocalIdentityProvider,
 } from "./infrastructure/providers";
 import { PgUserRepository } from "./infrastructure/repositories/user.repository";
@@ -37,13 +38,21 @@ import { PgUserRepository } from "./infrastructure/repositories/user.repository"
  * and the cache outlives that. A Clerk-mode module surviving a switch to
  * `AUTH_ENABLED=false` sent signed-out requests to /login, whose layout reads
  * the env afresh and sent them straight back: an endless redirect loop.
+ *
+ * ── And by version ──────────────────────────────────────────
+ * Bump `VERSION` when the module's shape changes (as in preferences): the
+ * cache outlives hot reloads, so a dev server running since before a use case
+ * changed would otherwise keep handing out the old object.
  */
+const VERSION = 2;
+
 const globalForAuth = globalThis as unknown as {
-  authModule?: { authEnabled: boolean; module: AuthModule };
+  authModule?: { authEnabled: boolean; version: number; module: AuthModule };
 };
 
 export interface AuthModule {
   getCurrentUser: GetCurrentUserUseCase;
+  /** Applies the identity provider's webhook deliveries to `users`. */
   syncUser: SyncUserUseCase;
   /** Exposed so the DAL can pick how to send a signed-out visitor to sign in. */
   identity: IdentityProvider;
@@ -67,7 +76,7 @@ function build(authEnabled: boolean): AuthModule {
 
   return {
     getCurrentUser: new GetCurrentUserUseCase(identity, users),
-    syncUser: new SyncUserUseCase(users),
+    syncUser: new SyncUserUseCase(new ClerkIdentityWebhook(), users),
     identity,
   };
 }
@@ -78,8 +87,8 @@ export function getAuthModule(): AuthModule {
   const authEnabled = isAuthEnabled();
   const cached = globalForAuth.authModule;
 
-  if (!cached || cached.authEnabled !== authEnabled) {
-    globalForAuth.authModule = { authEnabled, module: build(authEnabled) };
+  if (!cached || cached.authEnabled !== authEnabled || cached.version !== VERSION) {
+    globalForAuth.authModule = { authEnabled, version: VERSION, module: build(authEnabled) };
   }
   return globalForAuth.authModule!.module;
 }

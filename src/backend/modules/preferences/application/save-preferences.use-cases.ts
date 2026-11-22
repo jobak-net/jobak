@@ -1,5 +1,6 @@
 import { parsePreferences, type JobPreferences, type StoredPreferences } from "../domain/job-preferences";
-import { validateForCompletion, type StepId } from "../domain/onboarding";
+import type { StepId } from "@/shared/onboarding/step-rules";
+import { validateForCompletion } from "@/shared/onboarding/steps";
 import type { PreferencesRepository } from "../domain/preferences.repository";
 import { unknownTitlesMessage, type TitleCatalogue } from "../domain/title-catalogue";
 
@@ -79,8 +80,9 @@ export class UpdatePreferencesUseCase {
 
 /**
  * Whether the user has finished onboarding — what sends a new user to
- * /onboarding and a finished one away from it. Read errors propagate: see
- * `hasCompletedOnboarding` in the module's interface for what callers do.
+ * /onboarding and a finished one away from it. Read errors propagate on
+ * purpose: `GET /api/v1/me` turns them into a 503 ("couldn't tell"), and the
+ * frontend shows a retry rather than redirecting on a guess.
  */
 export class GetOnboardingStatusUseCase {
     constructor(private readonly preferences: PreferencesRepository) {}

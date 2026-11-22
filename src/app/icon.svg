@@ -3,7 +3,7 @@
     Jobak — "Horizon J", the same letter as the homepage logo. The J's bowl is
     the horizon; the detached disc is the sun above it. Two elements, one stroke
     weight, so it survives at 16px. Kept in sync with
-    src/frontend/components/shared/jobak-logo.tsx and brand/logo/mark.svg.
+    src/frontend/shared/ui/jobak-logo.tsx and brand/logo/mark.svg.
 
     Adaptive: brand green on dark browser chrome, a deeper green on light
     chrome, where #58e68c on a white tab is too faint to find. Browsers apply

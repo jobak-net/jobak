@@ -2,7 +2,12 @@ import "server-only";
 
 import { getPreferencesModule } from "@/backend/modules/preferences";
 
-import { RunSetupStepUseCase, type PreferencesReader } from "./application/run-setup-step.use-case";
+import { ListUserJobsUseCase } from "./application/list-user-jobs.use-case";
+import { RunSetupStepUseCase } from "./application/run-setup-step.use-case";
+import { SetBookmarkUseCase } from "./application/set-bookmark.use-case";
+import type { PreferencesReader } from "./domain/preferences-reader";
+import { PgBookmarkRepository } from "./infrastructure/pg-bookmark.repository";
+import { PgJobPoolRepository } from "./infrastructure/pg-job-pool.repository";
 import { PgSearchStatsRepository } from "./infrastructure/pg-search-stats.repository";
 
 /**
@@ -11,9 +16,13 @@ import { PgSearchStatsRepository } from "./infrastructure/pg-search-stats.reposi
  */
 export interface JobSearchModule {
     runSetupStep: RunSetupStepUseCase;
+    /** The jobs worth showing a user — `GET /api/v1/jobs`. */
+    listUserJobs: ListUserJobsUseCase;
+    /** Bookmarks a job or removes the bookmark — `PUT /api/v1/jobs/[jobId]/bookmark`. */
+    setBookmark: SetBookmarkUseCase;
 }
 
-const VERSION = 1;
+const VERSION = 4;
 
 const globalForJobSearch = globalThis as unknown as {
     jobSearchModule?: JobSearchModule;
@@ -26,6 +35,8 @@ export function getJobSearchModule(): JobSearchModule {
         const preferences: PreferencesReader = { get: (userId) => getPreferencesModule().get.execute(userId) };
         globalForJobSearch.jobSearchModule = {
             runSetupStep: new RunSetupStepUseCase(preferences, new PgSearchStatsRepository()),
+            listUserJobs: new ListUserJobsUseCase(preferences, new PgJobPoolRepository()),
+            setBookmark: new SetBookmarkUseCase(new PgBookmarkRepository()),
         };
         globalForJobSearch.jobSearchModuleVersion = VERSION;
     }

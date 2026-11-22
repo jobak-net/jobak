@@ -2,7 +2,7 @@
 
 The visual language every signed-in page follows. Tokens live in
 [`src/app/globals.css`](../../src/app/globals.css); the components that consume
-them live in [`src/frontend/components/ui/`](../../src/frontend/components/ui/).
+them live in [`src/frontend/shared/ui/`](../../src/frontend/shared/ui/).
 
 > **Visual reference:**
 > **[Jobak Design Direction](https://claude.ai/code/artifact/7012da4e-7d23-45be-a954-c0d948571ac1)**
@@ -135,7 +135,7 @@ Always `tabular-nums` on anything that lines up in a column or changes in place.
 
 ## Components
 
-Import from `@/frontend/components/ui`.
+Import from `@/frontend/shared/ui`.
 
 ### `<Button>`
 

@@ -1,48 +1,17 @@
 /**
- * Whether sign-in exists at all on this instance, and the keys it needs.
+ * The Clerk keys the backend needs, and the warning for running without auth.
  *
- * ── The switch ──────────────────────────────────────────────
- * `AUTH_ENABLED=false` is for a self-hosted or local copy run by one person.
- * There is no sign-in and no sign-up: every request is the local owner, who
- * sees the dashboard and every feature straight away. Anything else — unset
- * included — means Clerk.
+ * The switch itself (`AUTH_ENABLED`) and the publishable key are read in
+ * `@/shared/auth`, because the frontend's layouts need them too. The switch is
+ * re-exported here so backend code keeps one import. The secret key never
+ * leaves the backend.
  *
- * Unset means *enabled* on purpose. The failure modes are not symmetrical: an
- * instance that wrongly requires sign-in shows a sign-in page, while one that
- * wrongly skips it hands its data to anyone who can reach the port. So "off" is
- * only ever an explicit choice, and missing Clerk keys are a startup error
- * rather than a quiet fallback to open access.
- *
- * ── When it is read ─────────────────────────────────────────
- * Nothing here is `NEXT_PUBLIC_`, which Next inlines into the bundle at build.
- * The proxy, the DAL and every dynamic route read these from the running
- * process. Pages Next prerenders at build — the static marketing pages — read
- * them during `next build` instead, and that decides whether `ClerkProvider`
- * wraps them. So set the same values for the build as for the container; a
- * Docker image should be built with the mode it will run in.
- *
- * No imports, so the proxy, the root layout and the composition root can all
- * read the same answer.
+ * Imports only from `@/shared`, so the proxy, the root layout and the
+ * composition root can all read the same answer.
  */
+import { isAuthEnabled } from "@/shared/auth";
 
-const TRUE_VALUES = new Set(["true", "1", "yes", "on"]);
-const FALSE_VALUES = new Set(["false", "0", "no", "off"]);
-
-export function isAuthEnabled(): boolean {
-  const raw = process.env.AUTH_ENABLED?.trim().toLowerCase();
-
-  if (!raw || TRUE_VALUES.has(raw)) return true;
-  if (FALSE_VALUES.has(raw)) return false;
-
-  /*
-   * A typo ("flase", "disabled") must not silently pick a mode. Guessing "on"
-   * would confuse a self-hoster with a sign-in page they meant to turn off;
-   * guessing "off" would open an instance someone meant to protect.
-   */
-  throw new Error(
-    `AUTH_ENABLED must be "true" or "false" (got "${process.env.AUTH_ENABLED}").`,
-  );
-}
+export { isAuthEnabled };
 
 export interface ClerkKeys {
   publishableKey: string;
@@ -50,14 +19,10 @@ export interface ClerkKeys {
 }
 
 /**
- * The Clerk keys, or a clear error naming what is missing.
- *
- * `CLERK_PUBLISHABLE_KEY` is accepted alongside the usual
- * `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` for the reason above: the public name is
- * frozen into the bundle at build, while the plain one can still be changed
- * for the proxy and dynamic routes at runtime. The publishable key is not a
- * secret — it ships to the browser either way — so passing it from the server
- * is safe.
+ * The Clerk keys, or a clear error naming what is missing. Both are checked
+ * together so one message names everything to set. (The publishable key is
+ * read the same way as `clerkPublishableKey()` in `@/shared/auth`: either
+ * `CLERK_PUBLISHABLE_KEY` or `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`.)
  */
 export function getClerkKeys(): ClerkKeys {
   const publishableKey =
