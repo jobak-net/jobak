@@ -25,3 +25,6 @@ export const AI_SETUP_HREF = "/onboarding/ai";
 
 /** The referral page — what a signed-in visitor is offered instead of sign-up. */
 export const REFERRALS_HREF = "/dashboard/referrals";
+
+/** Settings — where AI keys (and later the Apify token) are added. Opens on the AI tab. */
+export const SETTINGS_HREF = "/dashboard/settings";

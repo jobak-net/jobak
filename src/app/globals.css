@@ -8,6 +8,40 @@
 
 @import "tailwindcss";
 
+/*
+ * The pointer on everything clickable. Tailwind 4's preflight leaves buttons
+ * with the default arrow (as browsers do), so without this only links show a
+ * hand. In `base`, so a component's own `cursor-*` utility still wins.
+ * Disabled controls show "not allowed" instead.
+ */
+@layer base {
+  button,
+  summary,
+  select,
+  [role="button"],
+  [role="tab"],
+  [role="radio"],
+  [role="switch"],
+  [role="checkbox"],
+  [role="option"],
+  [role="menuitem"],
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"],
+  input[type="file"],
+  input[type="range"],
+  label:has(> input[type="checkbox"], > input[type="radio"]) {
+    cursor: pointer;
+  }
+
+  :is(button, select, input):disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
 :root {
   /* Jobak Design System — Linear-inspired */
   
