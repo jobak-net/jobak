@@ -13,7 +13,7 @@ export { ConnectionPanel, type ConnectionStatus } from "./ai/orchestrator/connec
 export { ChooseScreen } from "./ai/phases/choose-provider/choose-provider-screen";
 export { KEY_FORM_ID, KeyScreen } from "./ai/phases/key/key-screen";
 export { checkKeyFormat } from "./ai/provider-keys";
-export { PROVIDER_INFO } from "./ai/providers";
+export { PROVIDER_INFO, PROVIDER_ORDER } from "./ai/providers";
 export { type DraftPatch, applyDraftPatch } from "./questions/orchestrator/draft";
 export { OnboardingFlow } from "./questions/orchestrator/onboarding-flow";
 export { createStep, createSteps } from "./questions/orchestrator/step-factory";

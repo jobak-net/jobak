@@ -1,5 +1,11 @@
-import { InterviewPrepView } from "@/frontend/modules/ai-tools";
+import { AiToolGate, InterviewPrepView } from "@/frontend/modules/ai-tools";
+import { loadAiAccess } from "@/frontend/modules/ai-tools/server";
 
-export default function InterviewPrepPage() {
-  return <InterviewPrepView />;
+export default async function InterviewPrepPage() {
+  const { unlocked } = await loadAiAccess();
+  return (
+    <AiToolGate feature="interview prep" unlocked={unlocked}>
+      <InterviewPrepView />
+    </AiToolGate>
+  );
 }

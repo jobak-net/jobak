@@ -1,7 +1,10 @@
 /**
  * The AI tools, one slice each (`<tool>/components`, `<tool>/views`), with what
- * they share in `shared/`. Previews until the AI backend exists.
+ * they share in `shared/`. Previews until the AI backend exists. Each page is
+ * locked behind `AiToolGate` until the user saves an AI key (`loadAiAccess`
+ * in `./server`).
  */
+export { AiToolGate } from "./shared/components/ai-tool-gate";
 export { CoverLetterView } from "./cover-letter/views/cover-letter-view";
 export { CvMatchView } from "./cv-match/views/cv-match-view";
 export { CvReviewView } from "./cv-review/views/cv-review-view";

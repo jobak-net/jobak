@@ -321,7 +321,12 @@ function ProgressRing({ done, total, ready }: { done: number; total: number; rea
 
     return (
         <div aria-hidden="true" className="relative flex size-46 items-center justify-center">
-            {ready && <span className="ob-ripple absolute size-24 rounded-full bg-accent/15" />}
+            {ready && (
+                <span
+                    className="ob-ripple absolute size-24 rounded-full bg-accent/15"
+                    style={{ "--ob-ripple-count": 3 } as CSSProperties}
+                />
+            )}
 
             {/* -90°: segments start at twelve o'clock and run clockwise. */}
             <svg viewBox={`0 0 ${size} ${size}`} className="absolute inset-0 size-full -rotate-90 overflow-visible">

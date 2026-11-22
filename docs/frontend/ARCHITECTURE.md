@@ -111,7 +111,7 @@ stays in its feature, and moves out when the second user appears.
 shared/
 ├── api/         how the backend is reached (index.ts + server.ts)
 ├── ui/          visual building blocks: Button, Card, Field, Chip…
-├── components/  app-level pieces built from them: PageIntro / PageShell, LoadFailed, JsonLd
+├── components/  app-level pieces built from them: PageIntro / PageShell, LoadFailed, LockedFeature, JsonLd
 ├── hooks/       hooks that don't call the backend
 ├── lib/         generic helpers
 ├── config/      app-wide configuration
@@ -155,6 +155,63 @@ export default async function PublicJobsPage({ searchParams }: PageProps) {
 
 Files Next requires in `src/app` (layouts, `error.tsx`, `not-found.tsx`, OG
 images) stay there and import what they show from modules.
+
+## A page that needs something first
+
+Some pages only work once the user has added something: the AI tools need an
+AI key, and an Apify page will need an Apify token. They stay reachable but
+**locked**: the page shows blurred behind a card that reads "To unlock
+{feature}, add {requirement}", with a button to where it's added.
+
+Two pieces, split the usual way:
+
+- **`LockedFeature`** (`@/frontend/shared/components`) draws the lock and
+  nothing else: an optional `visual` (a picture of what's missing), the title,
+  a one-sentence `description`, optional numbered `steps` (only for a real
+  sequence), a full-width button (`action`) and a quiet `note`. While locked,
+  the page behind is `inert`: no clicks, no keyboard focus, hidden from
+  screen readers.
+- **The feature's own gate** knows what's missing, what to say and where to
+  send the user. For the AI tools that's `AiToolGate` plus `loadAiAccess()`
+  (ai-tools module), whose picture is `AiConnectionDiagram`: Jobak, an empty
+  "Not connected" socket, and the four provider marks. It's unlocked when `GET /api/v1/ai-settings` lists a
+  connected provider, and also when that can't be read: locking on a guess
+  would hide the tools from someone whose key is fine.
+
+The page decides on the server, so it never flashes unlocked first:
+
+```tsx
+// src/app/(protected)/dashboard/cv-review/page.tsx
+export default async function CvReviewPage() {
+  const { unlocked } = await loadAiAccess();
+  return (
+    <AiToolGate feature="CV review" unlocked={unlocked}>
+      <CvReviewView />
+    </AiToolGate>
+  );
+}
+```
+
+A new feature does the same: a loader that answers "is it unlocked?", and a
+gate in its module that wraps `LockedFeature` with its wording. For Apify, once
+the token is stored:
+
+```tsx
+<LockedFeature
+  locked={!hasApifyToken}
+  feature="job collection"
+  requirement="your Apify token"
+  description="Jobak collects listings with Apify actors that run on your own account."
+  action={{ label: "Add your Apify token", href: SETTINGS_HREF }}
+>
+  <ApifyView />
+</LockedFeature>
+```
+
+`feature` and `requirement` finish a sentence, so write them as they'd read
+mid-sentence ("cover letters", not "Cover letters"). The lock is a
+convenience, not a control: the API still refuses the action without the key
+(`ai-not-connected`).
 
 ## Modules
 
