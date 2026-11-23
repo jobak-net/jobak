@@ -35,8 +35,8 @@ export const COVER_LETTER_LIMITS = {
   /** Long enough for a full posting; short enough to keep the prompt cheap. */
   descriptionMin: 80,
   descriptionMax: 12_000,
-  /** A few lines up to a pasted CV. */
-  experienceMax: 8_000,
+  /** A few lines up to a whole CV (it can start from a saved one): the CV tools' limit. */
+  experienceMax: 10_000,
 } as const;
 
 export interface CoverLetterRequest {

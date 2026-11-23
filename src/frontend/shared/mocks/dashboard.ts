@@ -171,31 +171,6 @@ export const SAMPLE_APPLICATIONS: Application[] = [
     { id: "a8", title: "Frontend Lead", company: "Noon", stage: "interviewing", updated: "3d ago", note: "Culture interview booked" },
 ];
 
-/** The CV review report the AI will produce. */
-export const SAMPLE_CV_REPORT = {
-    overall: 76,
-    ats: 82,
-    sections: [
-        { name: "Summary", score: 68, note: "Too generic. Name the role and the impact you bring." },
-        { name: "Experience", score: 81, note: "Good structure. Add numbers to three of the bullets." },
-        { name: "Skills", score: 88, note: "Clear and scannable. Group by category." },
-        { name: "Education", score: 90, note: "Complete." },
-        { name: "Formatting", score: 63, note: "Two-column layout may confuse some ATS parsers." },
-    ],
-    strengths: [
-        "Recent, relevant React and TypeScript experience",
-        "Clear progression from junior to senior roles",
-        "Skills section matches 80% of common frontend postings",
-    ],
-    improvements: [
-        "Quantify results: \"cut load time by 40%\" beats \"improved performance\"",
-        "Replace the objective statement with a two-line professional summary",
-        "Move to a single-column layout for ATS parsing",
-        "Add links to two shipped projects",
-    ],
-    keywords: { found: ["React", "TypeScript", "REST", "Git", "Agile"], missing: ["Next.js", "Testing", "CI/CD", "Accessibility"] },
-};
-
 /** What "tailor my CV to this job" will return. */
 export const SAMPLE_TAILORED_CV = {
     matchBefore: 64,
@@ -211,7 +186,6 @@ export const SAMPLE_TAILORED_CV = {
     addedKeywords: ["Next.js", "Core Web Vitals", "Playwright", "design system", "mentoring"],
 };
 
-export const SAMPLE_CV_SKILLS = ["React", "TypeScript", "Next.js", "Node.js", "REST APIs", "Tailwind CSS", "Jest", "Git", "Figma"];
 
 export const SAMPLE_INTERVIEW_QUESTIONS: { category: string; question: string; tip: string }[] = [
     {

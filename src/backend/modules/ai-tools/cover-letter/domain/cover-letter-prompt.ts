@@ -2,7 +2,7 @@ import type { CoverLetterTone } from "@/shared/contracts/cover-letter";
 import type { PostingScan } from "@/shared/ai-tools";
 
 import { AI_TELL_WORDS, normalizeTypography } from "@/shared/ai-tools";
-import type { ApplicantProfile } from "./applicant-profile";
+import type { ApplicantProfile } from "../../shared/domain/applicant-profile";
 
 /** Everything the prompt is built from. */
 export interface CoverLetterBrief {

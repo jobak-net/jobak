@@ -227,7 +227,7 @@ convenience, not a control: the API still refuses the action without the key
 | `feedback` | the feedback form | `FeedbackView` |
 | `referrals` | the referral page, claiming a referral, ways to help | `ReferralsView`, `ReferralClaim`, `Contribute` |
 | `marketing` | the public site: home, about, FAQ, features, how it works, legal, support, nav, footer | one view per page, `Navigation`, `FooterSection`, `AudienceSwitch` |
-| `ai-tools` | cv-review, cv-match, cv-tailor, cover-letter, interview-prep — one slice each, plus `shared/` | one view per tool |
+| `ai-tools` | cv-review, cv-tailor, cover-letter, interview-prep — one slice each, plus `shared/` | one view per tool |
 | `applications` | the applications tracker (preview) | `ApplicationsView` |
 | `settings` | the settings page (preview) | `SettingsView` |
 

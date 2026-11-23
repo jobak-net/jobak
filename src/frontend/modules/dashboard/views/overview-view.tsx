@@ -31,12 +31,15 @@ export function OverviewView({
   jobs,
   sample,
   aiConnected,
+  cvSaved,
 }: {
   firstName: string | null;
   jobs: Job[];
   sample: boolean;
   /** At least one AI provider has a stored key: ticks the getting-started step. */
   aiConnected: boolean;
+  /** The user has a saved CV (from any AI tool): ticks the "Upload your CV" step. */
+  cvSaved: boolean;
 }) {
   const { avgScore, strong, saved, topMatches } = overviewStats(jobs);
 
@@ -69,7 +72,7 @@ export function OverviewView({
       </header>
 
       {/* Until the first real matches arrive: what to do while Jobak searches. */}
-      {sample && <GettingStarted aiConnected={aiConnected} />}
+      {sample && <GettingStarted aiConnected={aiConnected} cvSaved={cvSaved} />}
 
       <div className="space-y-3">
         <StatStrip

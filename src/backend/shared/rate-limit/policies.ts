@@ -40,6 +40,12 @@ export const RATE_LIMIT_POLICIES = {
     /** Writing a cover letter: each run is a full AI call on the user's key. A person doesn't need more. */
     "ai-tools.cover-letter": { limit: 6, windowSeconds: 60, by: "user" },
 
+    /** Reviewing a CV and writing its improved version: one budget for both endpoints, each a full AI call on the user's key. */
+    "ai-tools.cv-review": { limit: 6, windowSeconds: 60, by: "user" },
+
+    /** Saving the name or a CV, deleting a CV: a few per tool run. Bounds a loop, not a person. */
+    applicant: { limit: 30, windowSeconds: 60, by: "user" },
+
     /* ── Services we call ────────────────────────────────────── */
 
     // The AI providers, per user: each user brings their own key, so each

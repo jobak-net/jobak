@@ -9,8 +9,8 @@ import { findAiModel } from "@/shared/ai";
 import { findAiTells, structuralTells, unsupportedDurations } from "@/shared/ai-tools";
 import type { CoverLetterResponse } from "@/shared/contracts/cover-letter";
 
-import { useLetterExport } from "../hooks/use-letter-export";
-import type { LetterMeta } from "../lib/export-letter";
+import { useDocumentExport } from "../../shared/hooks/use-document-export";
+import { documentTitle } from "../../shared/lib/export-document";
 import { ResultSection, ResultSheet } from "../../shared/components/tool-parts";
 import { BeforeYouSend } from "./before-you-send";
 import { PostingCheck } from "./posting-check";
@@ -18,7 +18,7 @@ import { PostingCheck } from "./posting-check";
 /**
  * The draft, editable in place, with what it was built from: who wrote it,
  * the skills it was matched on, and anything the posting hid for AI tools.
- * Copy, or save as PDF or Word — made in the browser (`useLetterExport`).
+ * Copy, or save as PDF or Word — made in the browser (`useDocumentExport`).
  * Phrasing that reads as machine-written is re-checked as the user edits.
  */
 export function CoverLetterResult({
@@ -32,13 +32,13 @@ export function CoverLetterResult({
     letter: string;
     onLetterChange: (letter: string) => void;
     /** For the file names: the name and company from the form. */
-    meta: LetterMeta;
+    meta: { name: string; company: string };
     /** What the user wrote under "What you've done": a duration the letter claims beyond it is flagged. */
     facts: string;
 }) {
     const [copied, setCopied] = useState(false);
     const model = findAiModel(result.provider, result.model)?.label ?? result.model;
-    const files = useLetterExport(letter, meta);
+    const files = useDocumentExport(letter, { title: documentTitle("Cover letter", meta.company, meta.name), author: meta.name });
     // Live: rewording a flagged phrase, or varying the sentences, removes it from the list.
     const styleFlags = useMemo(
         () => [

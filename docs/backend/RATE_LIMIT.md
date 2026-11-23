@@ -56,6 +56,8 @@ From `policies.ts`:
 | `referrals.claim` | 10 / minute | user, else address | `POST /api/v1/referrals/claim` |
 | `ai-settings.key` | 10 / minute | user | `PUT /api/v1/ai-settings/key` (each try calls the provider) |
 | `ai-tools.cover-letter` | 6 / minute | user | `POST /api/v1/ai-tools/cover-letter` (each run is a full AI call) |
+| `applicant` | 30 / minute | user | `PUT /api/v1/applicant/name`, `POST /api/v1/applicant/cvs`, `DELETE /api/v1/applicant/cvs/[id]` |
+| `ai-tools.cv-review` | 6 / minute | user | `POST /api/v1/ai-tools/cv-review` and `/cv-review/improve`, one budget for both (each a full AI call) |
 | `groq`, `gemini`, `openai`, `anthropic` | 20, 8, 30, 30 / minute | the user (outbound, keyed by user id) | every AI call, from the AI client factory ([AI_PROVIDERS.md](AI_PROVIDERS.md)) |
 | `skills-github` | 60 / minute | everyone (outbound, key `global`) | every skill file read from GitHub on a cache miss ([COVER_LETTER.md](../ai-tools/COVER_LETTER.md#use-in-your-own-ai)) |
 

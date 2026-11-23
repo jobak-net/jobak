@@ -1,14 +1,13 @@
-import type { AiClient, AiCompletion, AiCompletionRequest, AiProviderId } from "@/backend/modules/integrations";
-import { AiProviderLimitedError, ServiceUnavailableError } from "@/backend/shared/exceptions";
+import type { AiClient } from "@/backend/modules/integrations";
+import { ServiceUnavailableError } from "@/backend/shared/exceptions";
 import { findAiTells, plantedWordsIn, scanJobPosting, structuralTells, unsupportedDurations } from "@/shared/ai-tools";
 import type { CoverLetterRequest, CoverLetterResponse } from "@/shared/contracts/cover-letter";
 
-import type { ApplicantProfileReader } from "../domain/applicant-profile";
+import { completeWithRetry, type AiClientForUser } from "../../shared/application/complete-with-retry";
+import { replyCeiling } from "../../shared/application/token-budget";
+import type { ApplicantProfileReader } from "../../shared/domain/applicant-profile";
 import { buildCoverLetterPrompt, matchSkills, readCoverLetterReply } from "../domain/cover-letter-prompt";
 import { applyRevisions, buildRevisionPrompt, reviewSentences } from "../domain/cover-letter-revision";
-
-/** Builds the AI client for this user and the provider they picked (`clientForUser`, integrations module). */
-export type AiClientForUser = (userId: string, provider: AiProviderId) => Promise<AiClient>;
 
 /**
  * The draft's ceiling. At medium reasoning GPT-OSS used 735-1,139 tokens on
@@ -34,8 +33,6 @@ const DRAFT_REASONING = "medium" as const;
  * whole-letter edit thought through its 1,600 tokens and returned nothing.
  */
 const REVISION_REASONING = "low" as const;
-/** When the provider throttles the revision, wait this long at most for one retry; longer and the draft is returned. */
-const MAX_RETRY_WAIT_SECONDS = 20;
 
 /**
  * `POST /api/v1/ai-tools/cover-letter`: a cover letter for one job, written by
@@ -100,16 +97,17 @@ export class WriteCoverLetterUseCase {
       system: prompt.system,
       // Plain text, not JSON mode: see `REPLY` in cover-letter-prompt.ts.
       messages: [{ role: "user" as const, content: prompt.user }],
-      maxTokens: DRAFT_MAX_TOKENS,
+      // Smaller when a whole CV makes the prompt long, so the request fits a free tier's minute (`replyCeiling`).
+      maxTokens: replyCeiling(prompt, { max: DRAFT_MAX_TOKENS, min: DRAFT_RETRY_MAX_TOKENS }),
       reasoning: DRAFT_REASONING,
       // A little more variety in wording than the default; ignored by models that fix their own.
       temperature: 0.8,
     };
-    let reply = await completeWithRetry(ai, draftRequest);
+    let reply = await completeWithRetry(ai, draftRequest, "cover-letter");
     if (reply.finishReason === "length") {
       // A reasoning model can think through the whole ceiling and write nothing. Once more, thinking less.
       console.warn(`[cover-letter] draft hit the token limit (${reply.usage?.outputTokens ?? "?"} tokens); retrying at low reasoning`);
-      reply = await completeWithRetry(ai, { ...draftRequest, maxTokens: DRAFT_RETRY_MAX_TOKENS, reasoning: "low" });
+      reply = await completeWithRetry(ai, { ...draftRequest, maxTokens: DRAFT_RETRY_MAX_TOKENS, reasoning: "low" }, "cover-letter");
     }
     if (reply.finishReason === "length") {
       throw new ServiceUnavailableError(`${reply.provider} cut the letter off at the token limit`);
@@ -173,7 +171,7 @@ export class WriteCoverLetterUseCase {
     };
 
     try {
-      const reply = await completeWithRetry(ai, request);
+      const reply = await completeWithRetry(ai, request, "cover-letter");
       if (reply.finishReason === "length") {
         console.warn("[cover-letter] revision cut off at the token limit; keeping the draft");
         return draft;
@@ -187,22 +185,5 @@ export class WriteCoverLetterUseCase {
       console.warn(`[cover-letter] revision skipped: ${(error as Error).message}`);
       return draft;
     }
-  }
-}
-
-/**
- * One call, retried once when the provider throttles the key and names a wait
- * of `MAX_RETRY_WAIT_SECONDS` or less (a free tier's per-minute tokens). A
- * longer wait, or a second refusal, is thrown (`ai-provider-limited`).
- */
-async function completeWithRetry(ai: AiClient, request: AiCompletionRequest): Promise<AiCompletion> {
-  try {
-    return await ai.complete(request);
-  } catch (error) {
-    const wait = error instanceof AiProviderLimitedError ? (error.retryAfterSeconds ?? 8) : Infinity;
-    if (wait > MAX_RETRY_WAIT_SECONDS) throw error;
-    console.warn(`[cover-letter] ${ai.provider} throttled the call; retrying in ${wait}s`);
-    await new Promise((resolve) => setTimeout(resolve, wait * 1000));
-    return ai.complete(request);
   }
 }

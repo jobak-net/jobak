@@ -3,7 +3,7 @@ import { ArrowRight, Check } from "lucide-react";
 
 import { cn } from "@/frontend/shared/lib";
 
-function stepsFor(aiConnected: boolean) {
+function stepsFor(aiConnected: boolean, cvSaved: boolean) {
     return [
         {
             title: "Preferences set",
@@ -17,7 +17,12 @@ function stepsFor(aiConnected: boolean) {
             href: "/dashboard/settings",
             done: aiConnected,
         },
-        { title: "Review your CV", body: "See what to fix before you apply.", href: "/dashboard/cv-review", done: false },
+        {
+            title: cvSaved ? "CV saved" : "Upload your CV",
+            body: cvSaved ? "Every AI tool starts from it. Review it any time." : "Add it once; every AI tool can use it.",
+            href: "/dashboard/cv-review",
+            done: cvSaved,
+        },
         { title: "Check your matches", body: "Scored 0 to 100, best fit first.", href: "/dashboard/matches", done: false },
     ];
 }
@@ -28,14 +33,15 @@ function stepsFor(aiConnected: boolean) {
  * Shown until the user has real matches. Nobody reaches the dashboard without
  * finishing onboarding, so the first step — the search preferences — is always
  * done here; it stays in the strip, ticked, as the place to change them. The
- * AI key is ticked once a provider is connected (`GET /api/v1/ai-settings`).
- * The last two link to their pages and are numbered as a suggested order, not
- * tracked: the CV page is a preview that can't be completed yet.
+ * AI key is ticked once a provider is connected (`GET /api/v1/ai-settings`),
+ * and the CV once one is saved (`GET /api/v1/applicant`): uploading or
+ * pasting it in any AI tool saves it. The last step links to the matches and
+ * is numbered as a suggested order, not tracked.
  */
-export function GettingStarted({ aiConnected }: { aiConnected: boolean }) {
+export function GettingStarted({ aiConnected, cvSaved }: { aiConnected: boolean; cvSaved: boolean }) {
     return (
         <ol className="grid overflow-hidden rounded-card border border-border-subtle sm:grid-cols-2 xl:grid-cols-4">
-            {stepsFor(aiConnected).map((step, i) => (
+            {stepsFor(aiConnected, cvSaved).map((step, i) => (
                 <li
                     key={step.href}
                     className="border-border-subtle not-last:border-b sm:odd:border-r sm:nth-[-n+2]:border-b xl:border-b-0! xl:not-last:border-r"
