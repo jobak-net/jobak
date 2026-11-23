@@ -1,11 +1,11 @@
 import { AiToolGate, CvReviewView } from "@/frontend/modules/ai-tools";
-import { loadAiAccess } from "@/frontend/modules/ai-tools/server";
+import { loadCvReviewPage } from "@/frontend/modules/ai-tools/server";
 
 export default async function CvReviewPage() {
-  const { unlocked } = await loadAiAccess();
+  const { unlocked, defaults, ai, skill, savedCvs } = await loadCvReviewPage();
   return (
     <AiToolGate feature="CV review" unlocked={unlocked}>
-      <CvReviewView />
+      <CvReviewView defaults={defaults} ai={ai} skill={skill} savedCvs={savedCvs} />
     </AiToolGate>
   );
 }

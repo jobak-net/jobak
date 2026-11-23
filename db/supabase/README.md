@@ -31,6 +31,7 @@ comment explains what it does and why; this table is just the map.
 | `022_job_title_catalogue.sql` | The catalogue grows past tech: 16 more fields, `source` / `onet_code` on `job_titles`, one spelling per title (unique on `lower(title)`), a trigram index for search, and a 200-title ceiling per `next_linkedin_posts` call. |
 | `023_seed_onet_job_titles.sql` | ~7,600 titles from O*NET 31.0 (CC BY 4.0). **Generated** by `scripts/job-titles/generate-onet-seed.ts`; regenerate as a new seed file for a new O*NET release instead of editing it. |
 | `024_ai_models.sql` | `user_preferences.ai_models`: the AI model each user picked, per provider (`{ provider: modelId }`, no entry = the default). Shape checked here; ids checked by the API. |
+| `025_applicant_cvs.sql` | `user_preferences.applicant_name` (the name on applications, kept apart from the Clerk-synced `users.full_name`) and `user_cvs`: the user's CVs as text, the 5 most recently used, one copy per text (hash). RLS on, browser roles revoked. |
 
 ## Requirements
 
@@ -40,7 +41,7 @@ API URL/anon key used by the app itself.
 
 ## Adding a migration
 
-New file: `db/supabase/024_your_change.sql`. Follow the existing header
+New file: `db/supabase/026_your_change.sql`. Follow the existing header
 comment style (what it does, and why — not just what SQL follows). Never
 edit a file that has already run anywhere; add a new numbered one instead.
 

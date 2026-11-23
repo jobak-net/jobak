@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import type { AiProvider } from "@/frontend/modules/onboarding";
 import { errorMessageOf } from "@/frontend/shared/api";
 import { scanJobPosting } from "@/shared/ai-tools";
+import type { SavedCv } from "@/shared/contracts/applicant";
 import {
   COVER_LETTER_LIMITS as L,
   type CoverLetterResponse,
@@ -12,6 +13,8 @@ import {
 } from "@/shared/contracts/cover-letter";
 
 import { useWriteCoverLetter } from "../api/cover-letter.mutations";
+import { useSaveApplicantName } from "../../api/applicant.mutations";
+import { useSavedCvs } from "../../shared/hooks/use-saved-cvs";
 
 export interface CoverLetterFields {
   name: string;
@@ -34,11 +37,18 @@ export interface CoverLetterFields {
  *    the server), so planted AI traps show before anything is sent.
  *  - **Write** opens the provider popup; confirming sends one request with the
  *    chosen saved key. The result's letter is editable in place.
+ *  - **Asked once**: the name starts from the one saved for applications and
+ *    is saved when changed; "What you've done" starts from the latest saved CV
+ *    (another can be picked, or none). Using a saved CV moves it to the top.
  */
-export function useCoverLetter(defaults: { name: string }) {
+export function useCoverLetter(defaults: { name: string }, savedInitial: SavedCv[]) {
+  const saved = useSavedCvs(savedInitial);
+  const [savedName, setSavedName] = useState(defaults.name.trim());
+  const [cvId, setCvId] = useState<string | null>(savedInitial[0]?.id ?? null);
+  const saveName = useSaveApplicantName();
   const [fields, setFields] = useState<CoverLetterFields>({
     name: defaults.name,
-    experience: "",
+    experience: savedInitial[0]?.text ?? "",
     company: "",
     title: "",
     description: "",
@@ -74,6 +84,27 @@ export function useCoverLetter(defaults: { name: string }) {
     if (canWrite) setPickerOpen(true);
   }
 
+  /** Fills "What you've done" with a saved CV, or empties it (`null`: write your own). */
+  function pickSavedCv(id: string | null) {
+    setCvId(id);
+    set("experience", saved.cvs.find((cv) => cv.id === id)?.text ?? "");
+  }
+
+  /** After a letter: keep a changed name for next time, and move the saved CV it used to the top. In the background. */
+  function rememberInputs() {
+    const name = fields.name.trim();
+    if (name && name !== savedName) {
+      saveName.mutate(name, {
+        onSuccess: () => setSavedName(name),
+        onError: (failure) => console.warn(`[cover-letter] couldn't save the name: ${errorMessageOf(failure)}`),
+      });
+    }
+    const cv = saved.cvs.find((c) => c.id === cvId);
+    if (cv && cv.text.trim() === fields.experience.trim()) {
+      saved.remember({ label: cv.label, cv: { text: cv.text, source: cv.source, ...(cv.pages && { pages: cv.pages }) } });
+    }
+  }
+
   function writeWith(provider: AiProvider) {
     setError(null);
     write.mutate(
@@ -88,6 +119,7 @@ export function useCoverLetter(defaults: { name: string }) {
           setResult(response);
           setLetter(response.letter);
           setPickerOpen(false);
+          rememberInputs();
         },
         onError: (failure) => {
           setError(errorMessageOf(failure));
@@ -106,6 +138,10 @@ export function useCoverLetter(defaults: { name: string }) {
     descriptionLength,
     experienceTooLong,
     experienceLength,
+    savedCvs: saved.cvs,
+    /** The saved CV "What you've done" was filled from, if any. */
+    cvId,
+    pickSavedCv,
     canWrite,
     pickerOpen,
     openPicker,

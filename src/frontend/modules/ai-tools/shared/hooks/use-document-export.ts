@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 
-import { downloadDocx, downloadPdf, needsBrowserPdf, printPdf, type LetterMeta } from "../lib/export-letter";
+import { downloadDocx, downloadPdf, needsBrowserPdf, printPdf, type DocumentMeta } from "../lib/export-document";
 
 /**
- * The result's PDF and Word buttons: which one is working, and a failure
- * message if a file couldn't be made. All in the browser (`export-letter.ts`).
+ * A result's PDF and Word buttons: which one is working, and a failure
+ * message if a file couldn't be made. All in the browser (`export-document.ts`).
  */
-export function useLetterExport(letter: string, meta: LetterMeta) {
+export function useDocumentExport(letter: string, meta: DocumentMeta) {
   const [working, setWorking] = useState<"pdf" | "docx" | null>(null);
   const [error, setError] = useState<string | null>(null);
-  /** A letter in a script jsPDF can't draw goes through the print dialog; the button says so. */
+  /** A document in a script jsPDF can't draw goes through the print dialog; the button says so. */
   const pdfViaPrint = needsBrowserPdf(letter);
 
   async function run(kind: "pdf" | "docx") {

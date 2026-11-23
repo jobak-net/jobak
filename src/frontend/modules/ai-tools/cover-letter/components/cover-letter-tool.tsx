@@ -1,6 +1,7 @@
 "use client";
 
 import type { AiSettingsResponse } from "@/shared/contracts/ai-settings";
+import type { SavedCv } from "@/shared/contracts/applicant";
 
 import { useCoverLetter } from "../hooks/use-cover-letter";
 import { ProviderPickerDialog } from "../../shared/components/provider-picker-dialog";
@@ -15,12 +16,15 @@ import { CoverLetterResult } from "./cover-letter-result";
 export function CoverLetterTool({
     defaults,
     ai,
+    savedCvs,
 }: {
     defaults: { name: string };
+    /** Their saved CVs, most recently used first. */
+    savedCvs: SavedCv[];
     /** The user's AI settings, for the popup. Null when they couldn't be read. */
     ai: AiSettingsResponse | null;
 }) {
-    const tool = useCoverLetter(defaults);
+    const tool = useCoverLetter(defaults, savedCvs);
     const status = tool.writing ? "running" : tool.result ? "done" : "idle";
 
     return (

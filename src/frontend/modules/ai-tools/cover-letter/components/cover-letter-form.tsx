@@ -3,7 +3,7 @@
 import { useId } from "react";
 import { PenLine } from "lucide-react";
 
-import { Button, Field, FilterChip, Input, Textarea } from "@/frontend/shared/ui";
+import { Button, Field, FilterChip, Input, Textarea, inputClass } from "@/frontend/shared/ui";
 import { COVER_LETTER_LIMITS as L, COVER_LETTER_TONES } from "@/shared/contracts/cover-letter";
 
 import type { useCoverLetter } from "../hooks/use-cover-letter";
@@ -18,7 +18,7 @@ export function CoverLetterForm({ tool }: { tool: ReturnType<typeof useCoverLett
 
     return (
         <ToolInput>
-            <Field label="Your name" hint="From your account" htmlFor={`${id}-name`}>
+            <Field label="Your name" hint="Kept for next time when you change it" htmlFor={`${id}-name`}>
                 <Input
                     id={`${id}-name`}
                     value={fields.name}
@@ -27,6 +27,24 @@ export function CoverLetterForm({ tool }: { tool: ReturnType<typeof useCoverLett
                     autoComplete="name"
                 />
             </Field>
+
+            {tool.savedCvs.length > 0 && (
+                <Field label="Start from" hint="One of your saved CVs fills the box below. Edit it freely." htmlFor={`${id}-saved-cv`}>
+                    <select
+                        id={`${id}-saved-cv`}
+                        value={tool.cvId ?? ""}
+                        onChange={(event) => tool.pickSavedCv(event.target.value || null)}
+                        className={inputClass}
+                    >
+                        {tool.savedCvs.map((cv) => (
+                            <option key={cv.id} value={cv.id}>
+                                {cv.label}
+                            </option>
+                        ))}
+                        <option value="">Nothing: I&apos;ll write my own</option>
+                    </select>
+                </Field>
+            )}
 
             <Field
                 label="What you've done (optional)"

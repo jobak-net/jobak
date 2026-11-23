@@ -9,7 +9,9 @@ sample data and will follow the same structure.
 
 1. Opens the page. If no AI key is saved, the page is locked behind
    `AiToolGate` (see [ARCHITECTURE.md](../frontend/ARCHITECTURE.md#a-page-that-needs-something-first)).
-2. Checks their **name**, filled in from the account. It can be changed for
+2. Checks their **name**: the one saved for applications, else the account's.
+   Changing it and writing a letter saves it for next time
+   ([CV_REVIEW.md](CV_REVIEW.md#saved-cvs-and-name)). It can be changed for
    this letter. Their role isn't asked for: the server presents them as the
    first job title in Preferences, or as the job's own title if they have none.
 3. Optionally writes **what they've done**: a few lines or their CV. The letter
@@ -132,12 +134,13 @@ src/shared/
 src/backend/modules/ai-tools/
 ├── index.ts                         getAiToolsModule
 ├── composition.ts                   wires the use case to preferences + integrations
+├── shared/                          used by every tool
+│   ├── domain/applicant-profile.ts  ApplicantProfile + its reader port
+│   └── infrastructure/preferences-profile.reader.ts
 └── cover-letter/
     ├── application/write-cover-letter.use-case.ts
-    ├── domain/applicant-profile.ts  ApplicantProfile + its reader port
     ├── domain/cover-letter-prompt.ts  buildCoverLetterPrompt, readCoverLetterReply, matchSkills
     ├── domain/cover-letter-revision.ts  reviewSentences, buildRevisionPrompt, applyRevisions: the reword pass
-    ├── infrastructure/preferences-profile.reader.ts
     └── validation/cover-letter-schema.ts
 
 src/app/api/v1/(ai-tools)/ai-tools/cover-letter/route.ts
@@ -150,8 +153,7 @@ src/frontend/modules/ai-tools/
 └── cover-letter/
     ├── api/cover-letter.{api,mutations,loader}.ts
     ├── hooks/use-cover-letter.ts    form state, live scan, popup, request
-    ├── hooks/use-letter-export.ts   the PDF and Word buttons
-    ├── lib/tones.ts, lib/export-letter.ts (PDF / Word, in the browser)
+    ├── lib/tones.ts
     ├── components/                  cover-letter-tool, -form, -result, posting-check
     └── views/cover-letter-view.tsx
 
@@ -169,7 +171,7 @@ src/app/(protected)/dashboard/cover-letter/page.tsx   loader → gate → view
   provider: "groq",                                   // one of the user's saved keys
   applicant: {
     name: "Hamdy Emad",
-    experience: "I built the checkout for…",          // optional, up to 8,000 characters
+    experience: "I built the checkout for…",          // optional, up to 10,000 characters (a whole CV)
   },
   job: { company: "Talabat", title: "Senior Frontend Engineer", description: "…" },
   tone: "professional" | "warm" | "confident" | "concise",
@@ -188,7 +190,7 @@ src/app/(protected)/dashboard/cover-letter/page.tsx   loader → gate → view
 
 | Status | Code | When |
 |---|---|---|
-| 400 | `validation` | a field is missing or out of bounds (posting 80–12,000 characters, experience up to 8,000), or the provider isn't valid |
+| 400 | `validation` | a field is missing or out of bounds (posting 80–12,000 characters, experience up to 10,000), or the provider isn't valid |
 | 409 | `ai-not-connected` | no saved key for that provider, or it can't be decrypted |
 | 422 | `ai-key-rejected` | the provider refused the saved key |
 | 422 | `ai-model-unavailable` | the provider no longer offers the model (retired); pick another in Settings |
@@ -252,7 +254,8 @@ closing restated the letter. Statistical detectors measure exactly that
 evenness. Four layers address it, built on Wikipedia's "Signs of AI writing"
 (the basis of the popular "humanizer" skills):
 
-1. **The applicant's own words** (optional "What you've done" field). This
+1. **The applicant's own words** (optional "What you've done" field, which
+   starts from their latest saved CV, with a **Start from** picker). This
    matters most. A model with only a skills list writes general statements
    about the skills. With a few real lines it writes about real work, and
    borrowed phrasing from a person reads as a person's.
@@ -364,7 +367,7 @@ general terms, and the form says so.
 ## Saving as PDF or Word
 
 The result has **PDF** and **Word** buttons beside Copy. Both files are built in
-the browser (`lib/export-letter.ts`, `hooks/use-letter-export.ts`), so the
+the browser (`ai-tools/shared/lib/export-document.ts`, `shared/hooks/use-document-export.ts`, shared with CV review), so the
 server does nothing. Each library is loaded with `import()` only when its
 button is pressed.
 

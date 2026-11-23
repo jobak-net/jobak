@@ -7,6 +7,7 @@ export {
   unsupportedDurations,
   type StyleMetrics,
 } from "./ai-tells";
+export { findQuote, restoreContactDetails, unsupportedNumbers, type RestoredContact } from "./cv-text";
 export {
   plantedWordsIn,
   scanJobPosting,

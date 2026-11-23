@@ -40,11 +40,45 @@
   [aria-disabled="true"] {
     cursor: not-allowed;
   }
+
+  /*
+   * A native <select>'s options, for browsers that don't take the list's
+   * colours from `color-scheme` (Firefox, some Windows builds): the page's
+   * raised surface instead of white.
+   */
+  option,
+  optgroup {
+    background-color: var(--bg-elevated);
+    color: var(--fg-primary);
+  }
+
+  /*
+   * Chrome paints autofilled fields its own pale colour, which no background
+   * utility can override; an inset shadow covering the field can. The long
+   * transition keeps Chrome's colour from flashing in first.
+   */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-text-fill-color: var(--fg-primary);
+    caret-color: var(--fg-primary);
+    box-shadow: 0 0 0 1000px var(--bg-surface) inset;
+    transition: background-color 9999s ease-out 0s;
+  }
 }
 
 :root {
+  /*
+   * The app is dark only. Saying so makes the browser draw its own parts dark
+   * too: a <select>'s open list, autofill suggestions, date pickers,
+   * scrollbars. Without it they open white on the dark page.
+   */
+  color-scheme: dark;
+
   /* Jobak Design System — Linear-inspired */
-  
+
   /* Backgrounds */
   --bg-canvas: #08090a;
   --bg-panel: #0f1011;
