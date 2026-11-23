@@ -7,5 +7,6 @@ export { TooManyRequestsError } from "./too-many-requests-error";
 export { ServiceUnavailableError } from "./service-unavailable-error";
 export { InternalServerError } from "./internal-server-error";
 export { AiKeyRejectedError } from "./ai-key-rejected-error";
+export { AiModelUnavailableError } from "./ai-model-unavailable-error";
 export { AiNotConnectedError } from "./ai-not-connected-error";
 export { AiProviderLimitedError } from "./ai-provider-limited-error";

@@ -142,7 +142,7 @@ export function SettingsPanels({
                     id="settings-panel"
                     role="tabpanel"
                     aria-labelledby={stepTabId("settings", active)}
-                    className="relative overflow-hidden rounded-[24px] border border-border-subtle bg-[radial-gradient(90%_60%_at_0%_0%,oklch(0.82_0.2_145/0.06),transparent_60%)] p-6 sm:p-9"
+                    className="relative overflow-clip rounded-[24px] border border-border-subtle bg-[radial-gradient(90%_60%_at_0%_0%,oklch(0.82_0.2_145/0.06),transparent_60%)] p-6 sm:p-9"
                 >
                     <div key={active} className="ob-step" data-dir={direction}>
                         <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-accent-text">
@@ -196,6 +196,7 @@ export function SettingsPanels({
                                                 defaultModel={ai.defaultModel}
                                                 value={ai.model ?? ai.defaultModel}
                                                 onChange={ai.pickModel}
+                                                unsaved={ai.modelChanged}
                                                 disabled={ai.saving}
                                             />
                                         </div>
@@ -229,13 +230,30 @@ export function SettingsPanels({
                                         </div>
                                     </div>
 
-                                    {/* The tab's one Save: the model and the key together, in one request. */}
-                                    <div className="flex flex-wrap items-center gap-3 border-t border-border-subtle pt-6">
+                                    {/*
+                                      The tab's one Save: the model and the key together, in one
+                                      request. While something is unsaved it sticks to the bottom
+                                      of the screen, so a pick made at the top of the tab can't be
+                                      left behind by not scrolling down to the button.
+                                    */}
+                                    <div
+                                        className={cn(
+                                            "flex flex-wrap items-center gap-3 transition-[background-color,border-color,box-shadow] duration-300",
+                                            ai.dirty
+                                                ? "sticky bottom-4 z-20 rounded-card border border-accent/35 bg-bg-panel p-4 shadow-[0_18px_50px_-18px_rgb(0_0_0/0.9)]"
+                                                : "border-t border-border-subtle pt-6",
+                                        )}
+                                    >
                                         <Button variant="primary" type="button" onClick={ai.save} disabled={!ai.canSave}>
                                             {ai.saving ? <Loader2 className="animate-spin" /> : <Check />}
                                             {ai.saveLabel}
                                         </Button>
-                                        <p aria-live="polite" className="text-[13px]">
+                                        {ai.dirty && !ai.saving && (
+                                            <Button variant="quiet" type="button" onClick={ai.discard}>
+                                                Discard
+                                            </Button>
+                                        )}
+                                        <p aria-live="polite" className="min-w-0 flex-1 text-[13px]">
                                             {ai.saveError ? (
                                                 <span role="alert" className="inline-flex items-center gap-1.5 text-status-amber">
                                                     <CircleAlert className="size-3.5" /> {ai.saveError}
@@ -244,8 +262,11 @@ export function SettingsPanels({
                                                 <span className="ob-pop inline-flex items-center gap-1.5 text-accent-text">
                                                     <Check className="size-3.5" /> Saved. Your AI tools use it from the next run.
                                                 </span>
-                                            ) : ai.modelChanged && !ai.saving ? (
-                                                <span className="text-fg-tertiary">Unsaved change</span>
+                                            ) : ai.unsavedSummary && !ai.saving ? (
+                                                <span className="text-fg-secondary">
+                                                    Unsaved: {ai.unsavedSummary}
+                                                    {!ai.canSave && ai.saveHint ? <span className="text-fg-tertiary">. {ai.saveHint}</span> : null}
+                                                </span>
                                             ) : ai.saveHint ? (
                                                 <span className="text-fg-tertiary">{ai.saveHint}</span>
                                             ) : null}

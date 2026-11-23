@@ -18,6 +18,7 @@ export function ModelPicker({
     defaultModel,
     value,
     onChange,
+    unsaved,
     disabled,
 }: {
     provider: AiProviderId;
@@ -27,6 +28,8 @@ export function ModelPicker({
     /** The model shown as selected: the unsaved pick, else the saved one, else the default. */
     value: string;
     onChange: (choice: ModelChoice) => void;
+    /** The selected model is a pick that isn't saved yet: it's marked so. */
+    unsaved?: boolean;
     disabled?: boolean;
 }) {
     const choices = modelChoices(provider, defaultModel);
@@ -64,6 +67,11 @@ export function ModelPicker({
                                 {choice.isDefault && (
                                     <span className="rounded-full bg-accent/14 px-2 py-0.5 text-[11px] font-medium text-accent-text">
                                         Default
+                                    </span>
+                                )}
+                                {isOn && unsaved && (
+                                    <span className="rounded-full border border-status-amber/40 px-2 py-0.5 text-[11px] font-medium text-status-amber">
+                                        Unsaved
                                     </span>
                                 )}
                             </span>

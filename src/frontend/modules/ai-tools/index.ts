@@ -1,8 +1,11 @@
 /**
- * The AI tools, one slice each (`<tool>/components`, `<tool>/views`), with what
- * they share in `shared/`. Previews until the AI backend exists. Each page is
- * locked behind `AiToolGate` until the user saves an AI key (`loadAiAccess`
- * in `./server`).
+ * The AI tools, one slice each (`<tool>/api`, `components`, `hooks`, `lib`,
+ * `views`), with what they share in `shared/` (the lock, the provider popup,
+ * the tool layout). Each page is locked behind `AiToolGate` until the user
+ * saves an AI key (`loadAiAccess` / `loadCoverLetterPage` in `./server`).
+ *
+ * Live: cover letter (docs/ai-tools/COVER_LETTER.md). Still previews on sample
+ * data: CV review, CV match, CV tailoring, interview prep.
  */
 export { AiToolGate } from "./shared/components/ai-tool-gate";
 export { CoverLetterView } from "./cover-letter/views/cover-letter-view";

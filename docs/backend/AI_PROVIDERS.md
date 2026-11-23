@@ -145,6 +145,7 @@ interface AiCompletionRequest {
   responseFormat?: "text" | "json";    // json: one JSON object back
   maxTokens?: number;                  // default 4096
   temperature?: number;                // provider default when unset
+  reasoning?: "low" | "medium" | "high"; // reasoning models only (`reasoningEffort` in AI_MODELS: GPT-OSS)
   signal?: AbortSignal;                // cancel; a timeout applies regardless
 }
 
@@ -166,6 +167,18 @@ included, it also adds an instruction to the system prompt. No provider
 guarantees the *shape* of the JSON, so the use case still parses the reply
 with a Zod schema and treats a mismatch as a failure.
 
+**Reasoning effort.** `reasoning` is sent as `reasoning_effort` only to
+models marked `reasoningEffort` in `AI_MODELS` (Groq documents it for GPT-OSS
+20B and 120B: `low`, `medium`, `high`); every other model never gets it, since
+providers refuse parameters a model doesn't take. On a free tier it decides how
+far the per-minute token limit goes.
+
+Use JSON mode for data, not prose. Groq checks the reply against JSON itself
+and refuses it with a 400 `json_validate_failed` when the model's JSON is
+broken. With a long letter in a string (line breaks, quotes) that happened on
+gpt-oss, with an empty `failed_generation`. The cover letter asks for plain
+text for this reason ([COVER_LETTER.md](../ai-tools/COVER_LETTER.md#what-the-ai-knows)).
+
 ## Errors
 
 `complete()` throws only exceptions from `@/backend/shared/exceptions`. The
@@ -177,6 +190,7 @@ route's error handler answers with them, and the messages users read are in
 | Over **our** limit for this provider | `TooManyRequestsError` | 429 · `rate-limited` | wait |
 | The provider is **throttling the key** | `AiProviderLimitedError` (+ `Retry-After` if given) | 429 · `ai-provider-limited` | wait |
 | The provider **refused the key** (401/403; Gemini's 400 `API_KEY_INVALID`) | `AiKeyRejectedError` | 422 · `ai-key-rejected` | the user: replace the key in Settings |
+| The provider **doesn't offer the model** (404 / 400 "model not found", "decommissioned") | `AiModelUnavailableError`, logged | 422 · `ai-model-unavailable` | the user: pick another model in Settings; us: update `AI_MODELS` |
 | **No usable key** for the user (`clientForUser`, `PUT /preferred`) | `AiNotConnectedError` | 409 · `ai-not-connected` | the user: add a key in Settings |
 | Provider 5xx, timeout, unreachable, non-JSON answer | `ServiceUnavailableError` | 503 · `service-unavailable` | retry |
 | Provider refused the **request** (another 4xx: unknown model, bad parameter) | `InternalServerError`, logged with the provider's answer | 500 · `internal` | us |
@@ -215,12 +229,32 @@ accepts nothing else. It's curated rather than fetched from each provider,
 because their own lists change without notice and include models the tools
 can't use.
 
-| Provider | Default (`AI_DEFAULT_MODELS`) | Also on the list |
+| Provider | Default (`AI_DEFAULT_MODELS`) | Also on the list | No `temperature` sent |
+|---|---|---|---|
+| Groq | `openai/gpt-oss-120b` | `openai/gpt-oss-20b`, `qwen/qwen3.8-27b` (preview on Groq) | |
+| Gemini | `gemini-3.8-flash` | `gemini-3.6-flash`, `gemini-3.5-flash-lite` | |
+| OpenAI | `gpt-6-luna` | `gpt-6.1-terra`, `gpt-6.2-sol` | all |
+| Claude | `claude-sonnet-5-5` | `claude-opus-5-5`, `claude-haiku-5-5` | all |
+
+Last checked against each provider's models and deprecations pages on
+**2026-11-22**. Retired since the first list:
+
+| Model | What the provider says | Replaced by |
 |---|---|---|
-| Groq | `llama-3.3-70b-versatile` | `openai/gpt-oss-120b`, `llama-3.1-8b-instant` |
-| Gemini | `gemini-2.5-flash` | `gemini-2.5-pro`, `gemini-2.5-flash-lite` |
-| OpenAI | `gpt-4.1-mini` | `gpt-4.1`, `gpt-5-mini` (fixed temperature) |
-| Claude | `claude-sonnet-5-5` | `claude-opus-5-5`, `claude-haiku-5-5` |
+| Groq `llama-3.3-70b-versatile`, `llama-3.1-8b-instant` | shut down 2026-08-16 (free and developer tiers) | `openai/gpt-oss-120b`, `openai/gpt-oss-20b` |
+| Gemini `gemini-2.5-flash`, `gemini-2.5-pro` | shut down 2026-12-01; 2.5 is closed to new users | `gemini-3.8-flash`, `gemini-3.6-flash` |
+| OpenAI `gpt-4.1`, `gpt-4.1-mini` | shut down 2027-01-14 | `gpt-6-luna` |
+| OpenAI `gpt-5-mini` | shut down 2026-12-11 | `gpt-6.1-terra` |
+
+`fixedTemperature` means the client never sends `temperature`. Claude 4.7 and
+later refuse it with a 400 on every API version. OpenAI's docs don't say
+whether the GPT-6 models accept it, and leaving it out is always accepted.
+
+**Which Groq models, and why only three.** A Groq account lists more models
+than these, but only the chat models can write: `openai/gpt-oss-120b`,
+`openai/gpt-oss-20b` and `qwen/qwen3.8-27b`. The others aren't chat models:
+`whisper-*` is speech to text, `canopylabs/orpheus-*` is text to speech, and
+the `*-guard-*` / `*-safeguard-*` models are safety classifiers.
 
 **Which model runs** (`resolveModel` in `ai/config.ts`), the first of:
 
@@ -260,9 +294,28 @@ provider until saved, and Save sends everything in one request:
 So a key never saves without its model, or a model without its key. The
 page awaits `loadAiSettings()` on the server and passes the result down.
 
+The model list sits above the whole key section, so the Save button can be
+a screen away from a model pick. While anything is unsaved:
+- the save bar sticks to the bottom of the screen, reading "Unsaved: GPT-OSS
+  20B", with **Discard**;
+- the picked model is marked **Unsaved**;
+- leaving the page asks first (`beforeunload`).
+
+The panel clips its corners with `overflow: clip`, not `hidden`: `hidden` would
+make the panel the sticky bar's scroll container, so the bar would never stick.
+
 **Retiring a model:** take it off `AI_MODELS`. Users who had picked it move to
 the default on their next call, and Settings shows the default as selected.
 To move everyone off a model before a deploy, set `AI_MODEL_<PROVIDER>`.
+
+**Check the lists regularly.** Providers retire models every few months, and a
+retired default breaks every user of that provider who never picked a model.
+When that happens the provider answers with a "model not found" or
+"decommissioned" error. `http.ts` turns that into `AiModelUnavailableError`
+(422, `ai-model-unavailable`), logged as `[ai] <provider> no longer offers the
+requested model`, and the user is told to pick another model in Settings. That
+log line means it's time to update `AI_MODELS`, and set `AI_MODEL_<PROVIDER>`
+in the meantime.
 
 `AI_TIMEOUT_MS` sets the timeout (default 90 000 ms).
 
@@ -391,11 +444,12 @@ value), since it's ours to notice.
 
 ## Not built yet
 
-- **The tools' endpoints.** One per tool, for example `POST /api/v1/ai-tools/cv-review`.
-  Each takes the tool's input and returns the tool's result, with contracts in
-  `src/shared/contracts/` and no provider field. The use case calls
-  `clientForUser`, builds the prompt, calls `complete`, and validates the
-  reply with Zod. The frontend tool pages are still previews on sample data.
+- **The other tools' endpoints.** The cover letter is live
+  (`POST /api/v1/ai-tools/cover-letter`, guide:
+  [COVER_LETTER.md](../ai-tools/COVER_LETTER.md)) and is the pattern for the
+  rest. The user picks a provider from their saved keys, and the use case calls
+  `clientForUser(user, { provider })`. CV review, CV match, CV tailoring and
+  interview prep are still previews on sample data.
 - **Match scoring.** That runs outside this repo, in the n8n workflows, and
   how it gets a key isn't defined here: the internal routes it used were
   removed. When it's wired back to the app, it should go through

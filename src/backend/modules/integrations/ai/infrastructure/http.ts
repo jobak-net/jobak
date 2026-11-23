@@ -2,6 +2,7 @@ import "server-only";
 
 import {
   AiKeyRejectedError,
+  AiModelUnavailableError,
   AiProviderLimitedError,
   InternalServerError,
   ServiceUnavailableError,
@@ -75,12 +76,28 @@ export async function callProvider<T>(request: ProviderRequest): Promise<T> {
   if (response.status >= 500) {
     throw new ServiceUnavailableError(`${provider} answered ${response.status}`);
   }
+  if (isModelGone(response.status, text)) {
+    // Ours to notice (update AI_MODELS), the user's to work around (pick another model).
+    console.error(`[ai] ${provider} no longer offers the requested model (${response.status})`, text.slice(0, 500));
+    throw new AiModelUnavailableError(`${provider} doesn't offer the model (${response.status})`);
+  }
 
   // Any other 4xx means the provider refused the request itself — a model
   // that doesn't exist, a parameter it doesn't take. That's ours to fix, so
   // it's logged with what the provider said.
   console.error(`[ai] ${provider} refused the request (${response.status})`, text.slice(0, 2000));
   throw new InternalServerError(`${provider} refused the request (${response.status})`);
+}
+
+/**
+ * The provider saying the model doesn't exist or was retired: Groq/OpenAI 404
+ * `model_not_found` or 400 `model_decommissioned`, Anthropic 404
+ * `not_found_error` on `model`, Gemini 404 "models/… is not found".
+ */
+function isModelGone(status: number, body: string): boolean {
+  if (/model_not_found|model_decommissioned/i.test(body)) return true;
+  if (status !== 404 && status !== 400) return false;
+  return /\bmodels?\b/i.test(body) && /not[ _]found|does not exist|decommissioned|deprecated|no longer (?:available|supported)/i.test(body);
 }
 
 /** `Retry-After` in seconds, when it's given as seconds. */

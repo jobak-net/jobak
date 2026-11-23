@@ -31,6 +31,13 @@ export interface AiCompletionRequest {
   maxTokens?: number;
   /** 0–1. Left to the provider's default when unset. */
   temperature?: number;
+  /**
+   * How long a reasoning model thinks before it answers. `low` for writing
+   * that needs no working out (a letter): fewer tokens, so a free tier's
+   * per-minute token limit lasts longer. Sent only to models that take it
+   * (`reasoningEffort` in `AI_MODELS`); ignored for the rest.
+   */
+  reasoning?: "low" | "medium" | "high";
   /** Cancels the call, e.g. when the browser goes away. A timeout applies regardless. */
   signal?: AbortSignal;
 }
@@ -60,6 +67,7 @@ export interface AiClient {
    *  - `TooManyRequestsError` (429) — over our own limit for this provider;
    *  - `AiProviderLimitedError` (429) — the provider is throttling the key;
    *  - `AiKeyRejectedError` (422) — the provider refused the key;
+   *  - `AiModelUnavailableError` (422) — the provider doesn't offer the model (retired);
    *  - `ServiceUnavailableError` (503) — the provider failed, timed out or is unreachable;
    *  - `InternalServerError` (500) — the provider refused the request itself (our bug).
    */

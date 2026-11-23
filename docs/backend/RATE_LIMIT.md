@@ -55,7 +55,9 @@ From `policies.ts`:
 | `job-titles` | 120 / minute | user | `GET /api/v1/job-titles` (search as you type) |
 | `referrals.claim` | 10 / minute | user, else address | `POST /api/v1/referrals/claim` |
 | `ai-settings.key` | 10 / minute | user | `PUT /api/v1/ai-settings/key` (each try calls the provider) |
+| `ai-tools.cover-letter` | 6 / minute | user | `POST /api/v1/ai-tools/cover-letter` (each run is a full AI call) |
 | `groq`, `gemini`, `openai`, `anthropic` | 20, 8, 30, 30 / minute | the user (outbound, keyed by user id) | every AI call, from the AI client factory ([AI_PROVIDERS.md](AI_PROVIDERS.md)) |
+| `skills-github` | 60 / minute | everyone (outbound, key `global`) | every skill file read from GitHub on a cache miss ([COVER_LETTER.md](../ai-tools/COVER_LETTER.md#use-in-your-own-ai)) |
 
 Not limited on purpose: the Clerk webhook (Clerk retries, and a refused event
 would leave a user unsynced) and the signed-in reads and writes. Opt a route

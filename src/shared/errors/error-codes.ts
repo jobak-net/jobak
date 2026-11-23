@@ -26,6 +26,8 @@ export type ErrorCode =
   | "rate-limited"
   /** 422 — the user's AI provider refused their key (revoked, wrong, out of credit). */
   | "ai-key-rejected"
+  /** 422 — the user's AI provider no longer offers the model (retired, or not on their account). */
+  | "ai-model-unavailable"
   /** 409 — the AI needs a saved key the user doesn't have (none connected, or not that provider). */
   | "ai-not-connected"
   /** 429 — the user's AI provider is throttling their key; our own limits are `rate-limited`. */
@@ -45,6 +47,7 @@ export const ERROR_MESSAGES: Readonly<Record<ErrorCode, string>> = {
   "unsupported-media-type": "That request couldn't be read.",
   "rate-limited": "That's a lot at once. Give it a moment and try again.",
   "ai-key-rejected": "Your AI provider didn't accept that key. Check it, or create a new key and add it again.",
+  "ai-model-unavailable": "Your AI provider no longer offers that model. Pick another one in Settings, under AI provider.",
   "ai-not-connected": "Your AI isn't connected. Add your key in Settings, under AI provider.",
   "ai-provider-limited": "Your AI provider is limiting requests on your key. Give it a minute and try again.",
   "service-unavailable": "Couldn't do that right now. Try again in a moment.",
