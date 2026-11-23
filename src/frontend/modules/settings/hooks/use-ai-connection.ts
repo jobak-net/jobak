@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useConnectAiKey, checkKeyFormat, type AiProvider, type ConnectionStatus } from "@/frontend/modules/onboarding";
 import { errorMessageOf } from "@/frontend/shared/api";
+import { findAiModel } from "@/shared/ai";
 import type { AiSettingsResponse } from "@/shared/contracts/ai-settings";
 
 import { useRemoveAiKey, useSetAiModel, useSetPreferredAiProvider } from "../api/ai-settings.mutations";
@@ -84,6 +85,27 @@ export function useAiConnection(initial: AiSettingsResponse | null) {
 
     const savedKeysBusy = removeKey.isPending || setPreferredProvider.isPending;
 
+    // ── Unsaved changes ──
+    /** Something on the open provider is waiting for Save. */
+    const dirty = hasKey || modelChanged;
+    /** What Save would save, for the save bar: "GPT-OSS 20B", "a new key and GPT-OSS 20B". */
+    const draftModelLabel = modelChanged && model ? (findAiModel(provider, model)?.label ?? model) : null;
+    const unsavedSummary = !dirty
+        ? null
+        : [hasKey && "a new key", draftModelLabel && `${draftModelLabel}${draft === null ? " (default)" : ""}`]
+              .filter(Boolean)
+              .join(" and ");
+    /** Anything unsaved on any provider: a typed key or a model pick. Guards leaving the page. */
+    const dirtyAnywhere = Object.keys(modelDrafts).length > 0 || Object.values(keys).some((value) => value?.trim());
+
+    useEffect(() => {
+        if (!dirtyAnywhere) return;
+        // The browser's own "Leave site? Changes you made may not be saved." prompt.
+        const warn = (event: BeforeUnloadEvent) => event.preventDefault();
+        window.addEventListener("beforeunload", warn);
+        return () => window.removeEventListener("beforeunload", warn);
+    }, [dirtyAnywhere]);
+
     const status: ConnectionStatus = checking ? "checking" : isConnected ? "connected" : keyError ? "failed" : "chosen";
 
     function clearMessages() {
@@ -124,6 +146,17 @@ export function useAiConnection(initial: AiSettingsResponse | null) {
             return copy;
         });
         setSavedFor(sentFor);
+    }
+
+    /** Drops what's unsaved on the open provider: the typed key and the model pick. */
+    function discard() {
+        setKeys((all) => ({ ...all, [provider]: "" }));
+        setModelDrafts((all) => {
+            const copy = { ...all };
+            delete copy[provider];
+            return copy;
+        });
+        clearMessages();
     }
 
     /** The tab's one Save: the key and the model together (see the top of this file). */
@@ -193,6 +226,9 @@ export function useAiConnection(initial: AiSettingsResponse | null) {
         pickModel,
 
         save,
+        discard,
+        dirty,
+        unsavedSummary,
         canSave,
         saving,
         checking,

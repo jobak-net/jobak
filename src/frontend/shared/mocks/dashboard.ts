@@ -211,17 +211,6 @@ export const SAMPLE_TAILORED_CV = {
     addedKeywords: ["Next.js", "Core Web Vitals", "Playwright", "design system", "mentoring"],
 };
 
-export const SAMPLE_COVER_LETTER = `Dear Hiring Team,
-
-I'm writing to apply for the Senior Frontend Engineer role at Talabat. For the past six years I've built consumer web products in React and TypeScript, most recently leading a Next.js migration that improved load times for two million monthly users.
-
-What draws me to Talabat is the scale of the problem: fast, reliable ordering across very different networks and devices. That is exactly where I've spent my time: performance budgets, accessible components, and a design system that let four teams ship consistently.
-
-I'd welcome the chance to talk about how I could help your web team move faster without trading off quality.
-
-Kind regards,
-[Your name]`;
-
 export const SAMPLE_CV_SKILLS = ["React", "TypeScript", "Next.js", "Node.js", "REST APIs", "Tailwind CSS", "Jest", "Git", "Figma"];
 
 export const SAMPLE_INTERVIEW_QUESTIONS: { category: string; question: string; tip: string }[] = [

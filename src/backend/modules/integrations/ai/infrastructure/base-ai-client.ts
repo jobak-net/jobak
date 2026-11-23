@@ -30,7 +30,8 @@ export interface PreparedRequest extends Omit<AiCompletionRequest, "maxTokens"> 
  *   1. check the request (at least one message);
  *   2. count the call against our rate limit for this provider and user;
  *   3. fill in the defaults and the JSON instruction; drop `temperature` for
- *      a model that only takes its own (`fixedTemperature` in `AI_MODELS`);
+ *      a model that only takes its own (`fixedTemperature` in `AI_MODELS`),
+ *      and `reasoning` for a model that doesn't take it (`reasoningEffort`);
  *   4. `send` — the subclass translates to its API and back.
  *
  * Built only by the factory (`../ai-client.factory.ts`); nothing else constructs one.
@@ -50,11 +51,13 @@ export abstract class BaseAiClient implements AiClient {
     await enforceRateLimit(this.provider, this.config.rateLimitKey);
 
     const json = request.responseFormat === "json";
+    const model = findAiModel(this.provider, this.model);
     return this.send({
       ...request,
       system: json ? [request.system, JSON_INSTRUCTION].filter(Boolean).join("\n\n") : request.system,
       maxTokens: request.maxTokens ?? AI_DEFAULTS.maxTokens,
-      temperature: findAiModel(this.provider, this.model)?.fixedTemperature ? undefined : request.temperature,
+      temperature: model?.fixedTemperature ? undefined : request.temperature,
+      reasoning: model?.reasoningEffort ? request.reasoning : undefined,
     });
   }
 

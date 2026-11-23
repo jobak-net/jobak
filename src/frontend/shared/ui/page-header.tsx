@@ -53,7 +53,7 @@ export function PageHeader({
                 <div className="min-w-0">
                     <h1 className="text-[26px] font-semibold leading-tight tracking-[-0.03em] text-fg-primary">{title}</h1>
                     {description && (
-                        <p className="mt-1.5 max-w-[60ch] text-sm leading-relaxed text-fg-tertiary">{description}</p>
+                        <p className="mt-1.5 text-sm leading-relaxed text-fg-tertiary">{description}</p>
                     )}
                 </div>
 

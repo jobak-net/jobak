@@ -37,6 +37,9 @@ export const RATE_LIMIT_POLICIES = {
     /** Connecting an AI key: each try calls the provider. Plenty for typos, too few to test stolen keys through us. */
     "ai-settings.key": { limit: 10, windowSeconds: 60, by: "user" },
 
+    /** Writing a cover letter: each run is a full AI call on the user's key. A person doesn't need more. */
+    "ai-tools.cover-letter": { limit: 6, windowSeconds: 60, by: "user" },
+
     /* ── Services we call ────────────────────────────────────── */
 
     // The AI providers, per user: each user brings their own key, so each
@@ -55,6 +58,13 @@ export const RATE_LIMIT_POLICIES = {
     openai: { limit: 30, windowSeconds: 60 },
     /** Paid only; the lowest tier allows 50 a minute. */
     anthropic: { limit: 30, windowSeconds: 60 },
+
+    /**
+     * Reading skills from GitHub (raw.githubusercontent.com), for everyone
+     * at once (`"global"`). Results are cached, so this only counts cache
+     * misses: a few a minute at most. Bounds a bug that bypasses the cache.
+     */
+    "skills-github": { limit: 60, windowSeconds: 60 },
 } as const satisfies Record<string, RateLimitPolicy>;
 
 export type RateLimitPolicyName = keyof typeof RATE_LIMIT_POLICIES;

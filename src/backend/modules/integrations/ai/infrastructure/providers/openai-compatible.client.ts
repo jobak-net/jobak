@@ -47,6 +47,7 @@ export abstract class OpenAiCompatibleClient extends BaseAiClient {
         max_completion_tokens: request.maxTokens,
         ...(request.temperature !== undefined && { temperature: request.temperature }),
         ...(request.responseFormat === "json" && { response_format: { type: "json_object" } }),
+        ...(request.reasoning && { reasoning_effort: request.reasoning }),
       },
       timeoutMs: this.config.timeoutMs,
       signal: request.signal,
