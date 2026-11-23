@@ -77,8 +77,8 @@ The tools:
 - **CV review:** offers a **Saved** option, the default when there's one.
 - **Cover letter:** "What you've done" starts from the latest saved CV, with
   a **Start from** picker for another, or none.
-- **CV tailoring:** a preview on sample data; it uses the same pieces when
-  it's built.
+- **CV tailoring:** the same CV input as CV review, saved when the analysis
+  runs ([CV_TAILOR.md](CV_TAILOR.md)).
 
 **Dashboard step 3** is "Upload your CV". It's ticked once the user has a
 saved CV, from whichever tool.
@@ -158,13 +158,16 @@ src/app/api/v1/(ai-tools)/ai-tools/cv-review/route.ts          POST review
 src/app/api/v1/(ai-tools)/ai-tools/cv-review/improve/route.ts  POST improve
 
 src/frontend/modules/ai-tools/
-├── shared/lib/export-document.ts, shared/hooks/use-document-export.ts   PDF / Word (shared with the cover letter)
+├── shared/                          used by CV review and CV tailoring
+│   ├── lib/read-cv-file.ts          PDF / Word → text, in the browser
+│   ├── hooks/use-cv-input.ts, components/cv-input.tsx, cv-file-input.tsx   the CV: saved / upload / paste
+│   ├── components/cv-editor.tsx, score-comparison.tsx   the rewritten CV and its scores
+│   └── lib/export-document.ts, hooks/use-document-export.ts   PDF / Word (also the cover letter)
 └── cv-review/
     ├── api/            cv-review.api, cv-review.mutations, cv-review.loader
-    ├── hooks/use-cv-review.ts       the tool's state
-    ├── lib/read-cv-file.ts          PDF / Word → text, in the browser
+    ├── hooks/use-cv-review.ts       the tool's state (the CV from useCvInput)
     ├── lib/highlights.ts            segmentsFor: the marked-up CV
-    ├── components/     cv-review-tool, cv-review-form, cv-file-input, review-overview,
+    ├── components/     cv-review-tool, cv-review-form, review-overview,
     │                   review-findings, review-ats, improved-cv
     └── views/cv-review-view.tsx
 ```
@@ -198,7 +201,7 @@ user and share one rate limit (`ai-tools.cv-review`, 6 a minute per user).
 
 ## Reading files in the browser
 
-`lib/read-cv-file.ts`. Nothing is uploaded: the server only ever receives text.
+`ai-tools/shared/lib/read-cv-file.ts` (shared with CV tailoring). Nothing is uploaded: the server only ever receives text.
 
 | File | How | Refused when |
 |---|---|---|
@@ -305,6 +308,9 @@ The scores aren't clamped to hide it.
 Review suggestions also never carry made-up figures. A live run suggested
 "Resolved 30+ UI bugs, reducing support tickets by 15%"; now they say what to
 add ("how many pages you built, if you know").
+
+The improved CV is saved in the same ATS-friendly design as the tailored CV,
+with the same Edit / Preview switch ([CV_TAILOR.md](CV_TAILOR.md#the-cv-as-a-file)).
 
 ## Free-tier limits
 

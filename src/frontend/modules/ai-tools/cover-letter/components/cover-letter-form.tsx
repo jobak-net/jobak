@@ -9,7 +9,7 @@ import { COVER_LETTER_LIMITS as L, COVER_LETTER_TONES } from "@/shared/contracts
 import type { useCoverLetter } from "../hooks/use-cover-letter";
 import { TONE_LABEL } from "../lib/tones";
 import { ToolInput } from "../../shared/components/tool-parts";
-import { PostingCheck } from "./posting-check";
+import { PostingCheck } from "../../shared/components/posting-check";
 
 /** The input column: who's applying, what they've done, for what job, and in which tone. */
 export function CoverLetterForm({ tool }: { tool: ReturnType<typeof useCoverLetter> }) {

@@ -171,22 +171,6 @@ export const SAMPLE_APPLICATIONS: Application[] = [
     { id: "a8", title: "Frontend Lead", company: "Noon", stage: "interviewing", updated: "3d ago", note: "Culture interview booked" },
 ];
 
-/** What "tailor my CV to this job" will return. */
-export const SAMPLE_TAILORED_CV = {
-    matchBefore: 64,
-    matchAfter: 89,
-    summary:
-        "Senior frontend engineer with six years building fast, accessible React and Next.js products for high-traffic consumer apps in the MENA region. Led a design-system rollout used by four product teams and cut median page load by 40%.",
-    bullets: [
-        "Led migration of the customer web app to Next.js, improving Core Web Vitals scores by 35% across 2M monthly users",
-        "Built and documented a component library adopted by four squads, reducing UI delivery time by roughly a quarter",
-        "Introduced end-to-end testing with Playwright and raised release confidence, cutting production regressions by half",
-        "Mentored three engineers and ran weekly frontend architecture reviews",
-    ],
-    addedKeywords: ["Next.js", "Core Web Vitals", "Playwright", "design system", "mentoring"],
-};
-
-
 export const SAMPLE_INTERVIEW_QUESTIONS: { category: string; question: string; tip: string }[] = [
     {
         category: "Behavioural",

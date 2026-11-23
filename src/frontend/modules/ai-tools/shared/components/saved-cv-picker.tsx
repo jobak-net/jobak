@@ -8,7 +8,10 @@ import type { SavedCv } from "@/shared/contracts/applicant";
 
 /** "PDF, 2 pages", "Word document", "Pasted text". */
 function describe(cv: SavedCv): string {
-  if (cv.source === "pdf") return `PDF, ${cv.pages ?? 1} page${cv.pages === 1 ? "" : "s"}`;
+  if (cv.source === "pdf") {
+    const pages = cv.pages ?? 1;
+    return `PDF, ${pages} page${pages === 1 ? "" : "s"}`;
+  }
   return cv.source === "docx" ? "Word document" : "Pasted text";
 }
 

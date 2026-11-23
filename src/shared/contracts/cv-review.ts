@@ -13,7 +13,7 @@
  *   503   { error, code }   the provider failed, timed out, or sent no usable answer
  *
  * The CV arrives as text. A PDF or Word file is read in the browser
- * (`cv-review/lib/read-cv-file.ts`): the server never receives a file. The
+ * (`ai-tools/shared/lib/read-cv-file.ts`): the server never receives a file. The
  * review and the improved version are separate requests, as the CV review
  * skill has it (review first, improve when asked), which also keeps each
  * request inside a free tier's per-minute token limit.

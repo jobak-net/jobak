@@ -6,7 +6,7 @@ import { CircleAlert, FileText, Loader2, Upload, X } from "lucide-react";
 import { cn } from "@/frontend/shared/lib";
 import { CV_REVIEW_LIMITS as L } from "@/shared/contracts/cv-review";
 
-import type { CvFileInfo } from "../hooks/use-cv-review";
+import type { CvFileInfo } from "../hooks/use-cv-input";
 
 /**
  * Choose a CV file: click or drop. It's read into text right here in the

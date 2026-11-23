@@ -1,10 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { FileText, Loader2, Upload, X } from "lucide-react";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 import { Button } from "@/frontend/shared/ui";
-import { cn } from "@/frontend/shared/lib";
 
 /**
  * What the AI tools have in common while they are previews: an input, a run
@@ -42,72 +41,6 @@ export function RunButton({
             {status === "running" ? <Loader2 className="animate-spin" /> : null}
             {status === "running" ? "Working…" : children}
         </Button>
-    );
-}
-
-/**
- * Choose a CV: click or drop. Nothing is uploaded — the file stays in the page
- * and only its name is shown, since there is no backend to send it to yet.
- */
-export function CvDropzone({ file, onFile }: { file: File | null; onFile: (file: File | null) => void }) {
-    const input = useRef<HTMLInputElement>(null);
-    const [dragging, setDragging] = useState(false);
-
-    if (file) {
-        return (
-            <div className="flex items-center gap-3 rounded-card border border-border-standard bg-white/2.5 p-4">
-                <div className="flex size-10 items-center justify-center rounded-control bg-accent/12">
-                    <FileText className="size-5 text-accent" />
-                </div>
-                <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-fg-primary">{file.name}</p>
-                    <p className="text-xs text-fg-tertiary">{(file.size / 1024).toFixed(0)} KB</p>
-                </div>
-                <button
-                    type="button"
-                    onClick={() => onFile(null)}
-                    aria-label="Remove file"
-                    className="rounded-control p-1.5 text-fg-tertiary hover:bg-white/5 hover:text-fg-primary"
-                >
-                    <X className="size-4" />
-                </button>
-            </div>
-        );
-    }
-
-    return (
-        <button
-            type="button"
-            onClick={() => input.current?.click()}
-            onDragOver={(event) => {
-                event.preventDefault();
-                setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={(event) => {
-                event.preventDefault();
-                setDragging(false);
-                const dropped = event.dataTransfer.files[0];
-                if (dropped) onFile(dropped);
-            }}
-            className={cn(
-                "flex w-full flex-col items-center justify-center rounded-card border border-dashed px-6 py-10 text-center transition-colors",
-                dragging ? "border-accent bg-accent/5" : "border-border-strong bg-white/1.5 hover:border-accent/50 hover:bg-white/3",
-            )}
-        >
-            <div className="flex size-11 items-center justify-center rounded-full bg-white/5">
-                <Upload className="size-5 text-fg-tertiary" />
-            </div>
-            <p className="mt-3 text-sm font-medium text-fg-primary">Drop your CV here, or click to choose</p>
-            <p className="mt-1 text-xs text-fg-tertiary">PDF or Word, up to 5 MB</p>
-            <input
-                ref={input}
-                type="file"
-                accept=".pdf,.doc,.docx"
-                className="hidden"
-                onChange={(event) => onFile(event.target.files?.[0] ?? null)}
-            />
-        </button>
     );
 }
 
