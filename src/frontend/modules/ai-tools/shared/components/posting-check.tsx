@@ -14,14 +14,14 @@ const KIND: Record<PostingFindingKind, { icon: typeof EyeOff; title: (f: Posting
         title: () => "An instruction aimed at AI tools",
         handling: (f) =>
             f.words.length
-                ? `Your AI is told to ignore it, and ${quoteList(f.words)} ${f.words.length === 1 ? "is" : "are"} kept out of the letter.`
+                ? `Your AI is told to ignore it, and ${quoteList(f.words)} ${f.words.length === 1 ? "is" : "are"} kept out of what it writes.`
                 : "Your AI is told to ignore it.",
     },
     "word-request": {
         icon: TextQuote,
         title: (f) => `Asks applicants to include ${quoteList(f.words)}`,
         handling: () =>
-            "Often a trap to spot AI-written letters, sometimes a real check that you read the posting. Jobak keeps it out; add it yourself if you're sure it's genuine.",
+            "Often a trap to spot AI-written applications, sometimes a real check that you read the posting. Jobak keeps it out; add it yourself if you're sure it's genuine.",
     },
 };
 

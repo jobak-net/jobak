@@ -13,7 +13,7 @@ import { useDocumentExport } from "../../shared/hooks/use-document-export";
 import { documentTitle } from "../../shared/lib/export-document";
 import { ResultSection, ResultSheet } from "../../shared/components/tool-parts";
 import { BeforeYouSend } from "./before-you-send";
-import { PostingCheck } from "./posting-check";
+import { PostingCheck } from "../../shared/components/posting-check";
 
 /**
  * The draft, editable in place, with what it was built from: who wrote it,

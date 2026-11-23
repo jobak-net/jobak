@@ -1,7 +1,9 @@
 /**
- * Saves a document the AI tools wrote (a cover letter, an improved CV) as a
- * PDF or Word file, entirely in the browser — the server isn't involved. Each library is loaded only when its button is
- * pressed (`import()`), so the page doesn't carry them.
+ * Saves a document the AI tools wrote as a PDF or Word file, entirely in the
+ * browser — the server isn't involved. This file lays out a letter (plain
+ * paragraphs); a CV has its own design (`export-cv.ts`). Each library is
+ * loaded only when its button is pressed (`import()`), so the page doesn't
+ * carry them.
  *
  *  - Word: `docx` builds a real .docx. Right-to-left scripts (Arabic, Hebrew)
  *    get right-to-left paragraphs, and Word shapes the letters itself.
@@ -55,7 +57,8 @@ function paragraphs(letter: string): string[][] {
     .filter((lines) => lines.length > 0);
 }
 
-function save(blob: Blob, fileName: string) {
+/** Hands the browser a file to download. */
+export function saveBlob(blob: Blob, fileName: string) {
   const url = URL.createObjectURL(blob);
   const link = Object.assign(document.createElement("a"), { href: url, download: fileName });
   document.body.append(link);
@@ -93,7 +96,7 @@ export async function downloadPdf(letter: string, meta: DocumentMeta): Promise<v
     y += lineHeight * 0.7; // space between paragraphs
   }
 
-  save(doc.output("blob"), documentFileName(meta, "pdf"));
+  saveBlob(doc.output("blob"), documentFileName(meta, "pdf"));
 }
 
 /**
@@ -152,5 +155,5 @@ export async function downloadDocx(letter: string, meta: DocumentMeta): Promise<
     title: documentFileName(meta, "docx").replace(/\.docx$/, ""),
     sections: [{ properties: {}, children }],
   });
-  save(await Packer.toBlob(doc), documentFileName(meta, "docx"));
+  saveBlob(await Packer.toBlob(doc), documentFileName(meta, "docx"));
 }

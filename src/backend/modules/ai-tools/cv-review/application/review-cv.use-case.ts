@@ -21,7 +21,7 @@ const RETRY_MAX_TOKENS = 2500;
  * their own AI, following the CV review skill's scorecard.
  *
  *   1. the CV arrives as text: a file was read in the browser
- *      (`cv-review/lib/read-cv-file.ts`), the server never gets one;
+ *      (`ai-tools/shared/lib/read-cv-file.ts`), the server never gets one;
  *   2. the target role is the one in the form, else the first job title in
  *      Preferences, else none (judged on its own direction);
  *   3. one call at medium reasoning; a reply that hits the ceiling with no
