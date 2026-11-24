@@ -7,6 +7,7 @@ const BLURBS: Record<string, string> = {
     "/dashboard/cv-review": "Score it and see what to fix",
     "/dashboard/cv-tailor": "Rewrite it for one job",
     "/dashboard/cover-letter": "A first draft for the role",
+    "/dashboard/hr-email": "Applications, follow-ups and replies",
     "/dashboard/interview-prep": "Questions you're likely to get",
 };
 

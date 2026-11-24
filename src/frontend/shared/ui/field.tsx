@@ -30,6 +30,10 @@ export function Textarea({ className, ...props }: React.ComponentProps<"textarea
  *
  * The label is sans sentence case, not mono caps: it is language a person
  * reads, and mono caps on every input across a settings page is shouting.
+ *
+ * `controlAtBottom` is for fields side by side in a grid row: the control
+ * sits at the bottom of the row, so the inputs stay level when one hint
+ * wraps to two lines and its neighbour's doesn't.
  */
 export function Field({
     label,
@@ -37,15 +41,17 @@ export function Field({
     htmlFor,
     children,
     className,
+    controlAtBottom = false,
 }: {
     label: string;
     hint?: string;
     htmlFor?: string;
     children: React.ReactNode;
     className?: string;
+    controlAtBottom?: boolean;
 }) {
     return (
-        <div className={className}>
+        <div className={cn(controlAtBottom && "flex flex-col", className)}>
             <label
                 htmlFor={htmlFor}
                 className="block text-[13px] font-medium text-fg-primary"
@@ -53,7 +59,7 @@ export function Field({
                 {label}
             </label>
             {hint && <p className="mt-1 text-xs text-fg-quaternary">{hint}</p>}
-            <div className="mt-2">{children}</div>
+            <div className={controlAtBottom ? "mt-auto pt-2" : "mt-2"}>{children}</div>
         </div>
     );
 }

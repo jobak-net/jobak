@@ -86,7 +86,8 @@ src/backend/modules/ai-tools/
 └── cv-tailor/
     ├── application/analyze-cv-fit.use-case.ts
     ├── application/tailor-cv.use-case.ts
-    ├── domain/cv-tailor-prompt.ts      both prompts, readFitReply, readTailorReply, keywordsNotIn
+    ├── domain/cv-tailor-prompt.ts      both prompts, readFitReply, readTailorReply
+    │   (keywordsNotIn is in shared/domain/claims.ts, shared with the HR email)
     └── validation/                     tailor-job-schema, cv-fit-schema, cv-tailor-schema
 
 src/app/api/v1/(ai-tools)/ai-tools/cv-tailor/analyze/route.ts   POST analyze
