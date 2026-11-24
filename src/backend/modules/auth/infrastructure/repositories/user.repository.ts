@@ -1,87 +1,56 @@
 import "server-only";
 
+import { query, queryOne } from "@/backend/shared/database";
+
+import type { ExternalIdentity } from "../../domain/entities/identity.entity";
 import type { User } from "../../domain/entities/user.entity";
-import { EmailTakenException } from "../../domain/exceptions";
-import type {
-  CreateUserInput,
-  UserRepository,
-} from "../../domain/ports/user.repository";
-import { USER_COLUMNS, toUser, type UserRow } from "../mappers";
-import { query, queryOne } from "../database";
-
-/** Postgres raises this on a unique index violation. */
-const UNIQUE_VIOLATION = "23505";
-
-const isUniqueViolation = (error: unknown): boolean =>
-  typeof error === "object" &&
-  error !== null &&
-  (error as { code?: string }).code === UNIQUE_VIOLATION;
+import type { UserRepository } from "../../domain/ports/user.repository";
+import { USER_COLUMNS, toUser, type UserRow } from "../mappers/user.mapper";
 
 export class PgUserRepository implements UserRepository {
-  async findById(id: string): Promise<User | null> {
+  async findByExternalId(externalId: string): Promise<User | null> {
     const row = await queryOne<UserRow>(
-      `SELECT ${USER_COLUMNS} FROM users WHERE id = $1`,
-      [id],
+      `SELECT ${USER_COLUMNS} FROM users WHERE external_id = $1`,
+      [externalId],
     );
     return row ? toUser(row) : null;
   }
 
   /**
-   * No `LOWER()` and no normalisation: `users.email` is CITEXT, so `=` is
-   * already case-insensitive and can still use the unique index. Lowercasing
-   * the parameter here would be harmless but misleading — and lowercasing on
-   * *insert* would be a real bug, since it would change what the user sees.
+   * `ON CONFLICT (external_id)` makes first-sight provisioning and webhook
+   * updates the same statement, and makes concurrent first requests safe: the
+   * loser of the race updates the row the winner just inserted.
+   *
+   * The `WHERE` on the update skips a write when nothing changed, so the hot
+   * path of a retried webhook does not churn `updated_at`.
    */
-  async findByEmail(email: string): Promise<User | null> {
-    const row = await queryOne<UserRow>(
-      `SELECT ${USER_COLUMNS} FROM users WHERE email = $1`,
-      [email],
+  async upsert(identity: ExternalIdentity): Promise<User> {
+    const rows = await query<UserRow>(
+      `INSERT INTO users (external_id, email, full_name)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (external_id) DO UPDATE
+          SET email     = EXCLUDED.email,
+              full_name = EXCLUDED.full_name
+        WHERE users.email     IS DISTINCT FROM EXCLUDED.email
+           OR users.full_name IS DISTINCT FROM EXCLUDED.full_name
+       RETURNING ${USER_COLUMNS}`,
+      [identity.externalId, identity.email, identity.fullName],
     );
-    return row ? toUser(row) : null;
-  }
 
-  async create(input: CreateUserInput): Promise<User> {
-    try {
-      const rows = await query<UserRow>(
-        `INSERT INTO users (email, password_hash, full_name)
-         VALUES ($1, $2, $3)
-         RETURNING ${USER_COLUMNS}`,
-        [input.email, input.passwordHash, input.fullName],
-      );
-      return toUser(rows[0]);
-    } catch (error) {
-      /*
-       * Let the unique index decide, rather than SELECT-then-INSERT. Two
-       * simultaneous registrations for the same address would both pass a
-       * prior existence check and one would then fail anyway — this way the
-       * race simply cannot produce two accounts.
-       *
-       * Translated here so callers deal in domain exceptions and never need to
-       * know Postgres error codes.
-       */
-      if (isUniqueViolation(error)) throw new EmailTakenException();
-      throw error;
+    /*
+     * An unchanged conflict returns no row — `RETURNING` only reports rows the
+     * statement actually wrote. Read it back rather than treat that as missing.
+     */
+    if (rows[0]) return toUser(rows[0]);
+
+    const existing = await this.findByExternalId(identity.externalId);
+    if (!existing) {
+      throw new Error(`user ${identity.externalId} vanished during upsert`);
     }
+    return existing;
   }
 
-  /**
-   * Idempotent by design: the WHERE clause skips rows already verified, so a
-   * link clicked twice does not move the timestamp and rewrite history.
-   */
-  async markEmailVerified(userId: string, at: Date): Promise<void> {
-    await query(
-      `UPDATE users
-          SET email_verified_at = $2
-        WHERE id = $1
-          AND email_verified_at IS NULL`,
-      [userId, at],
-    );
-  }
-
-  async updatePasswordHash(userId: string, passwordHash: string): Promise<void> {
-    await query(`UPDATE users SET password_hash = $2 WHERE id = $1`, [
-      userId,
-      passwordHash,
-    ]);
+  async deleteByExternalId(externalId: string): Promise<void> {
+    await query(`DELETE FROM users WHERE external_id = $1`, [externalId]);
   }
 }

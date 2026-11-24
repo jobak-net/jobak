@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { Button } from "@/frontend/components/ui/button";
-import { Navigation, FooterSection } from "@/frontend/components/public";
-import { PageIntro, PageShell } from "@/frontend/components/public/shared/page-intro";
+
+import { Button } from "@/frontend/shared/ui";
+import { Navigation, FooterSection } from "@/frontend/modules/marketing";
+import { PageIntro, PageShell } from "@/frontend/shared/components";
 
 export const metadata: Metadata = {
   title: "Page not found — Jobak",

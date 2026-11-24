@@ -1,24 +1,5 @@
-import {
-  HeroSection,
-  HowItWorksSection,
-  FeaturesSection,
-  DashboardPreviewSection,
-  FreeSection,
-  CtaSection,
-  WaitlistSection
-} from "@/frontend/components/public";
+import { HomeView } from "@/frontend/modules/marketing";
 
-export default async function Home() {
-
-  return (
-    <main className="relative min-h-screen overflow-x-hidden noise-overlay">
-      <HeroSection />
-      <WaitlistSection />
-      <HowItWorksSection />
-      <FeaturesSection />
-      <DashboardPreviewSection />
-      <FreeSection />
-      <CtaSection />
-    </main>
-  );
+export default function Home() {
+  return <HomeView />;
 }

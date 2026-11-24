@@ -16,7 +16,7 @@ import type { MetadataRoute } from "next";
  * manifest could not reference them and listed `icon.svg` alone. Anything the
  * manifest names has to be a static file.
  *
- * All three are generated from `brand/logo/tile.svg` by
+ * All three are generated from `brand/logo/app-icon.svg` by
  * `scripts/icons/generate-icons.ts`. Re-run it when the mark changes; nothing
  * else regenerates them and a stale icon is invisible until someone installs
  * the app.

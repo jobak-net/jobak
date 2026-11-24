@@ -1,0 +1,103 @@
+import { countryLabel } from "../country-codes";
+import { defineActor, placeText } from "./define";
+
+/** Remote work and startups. Remote boards list jobs by role, so they cover every country. */
+export const REMOTE_ACTORS = [
+    defineActor({
+        id: "wellfound",
+        site: "Wellfound",
+        actorId: "blackfalcondata/wellfound-scraper",
+        category: "remote",
+        description: "Startup jobs (formerly AngelList Talent), many of them remote.",
+        covers: "any",
+        fallbackPrice: { perJobUsd: 0.003, startUsd: 0.005 },
+        buildInput: (search) => ({
+            query: search.title,
+            ...(search.city.trim() ? { location: [placeText(search)] } : { remote: true }),
+            maxResults: search.jobsPerSite,
+            enrichDetail: false,
+            enrichCompany: false,
+            enrichEmails: false,
+            compact: false,
+            incrementalMode: false,
+            includeRunMetadata: false,
+        }),
+    }),
+    defineActor({
+        id: "welcome-to-the-jungle",
+        site: "Welcome to the Jungle",
+        actorId: "clearpath/welcome-to-the-jungle-jobs-api",
+        category: "remote",
+        description: "Startup and scale-up jobs in France, Spain, the UK, the US and nearby.",
+        // Its own markets: a search elsewhere returns nothing (checked live for Egypt).
+        covers: ["FR", "ES", "GB", "US", "BE", "DE", "NL", "CH", "LU", "CZ", "SK"],
+        fallbackPrice: { perJobUsd: 0.0001, startUsd: 0.00005 },
+        buildInput: (search) => ({
+            query: search.title,
+            location: search.city.trim() || countryLabel(search.country),
+            countryCode: search.country,
+            websiteCountry: "en",
+            maxItems: search.jobsPerSite,
+            includeDetails: false,
+        }),
+        paths: { company: ["organizationName"], location: ["offices.0.city"] },
+    }),
+    defineActor({
+        id: "himalayas",
+        site: "Himalayas",
+        actorId: "inlifeprojects/himalayas-jobs-scraper",
+        category: "remote",
+        description: "Remote jobs you can do from your country, or from anywhere.",
+        covers: "any",
+        fallbackPrice: { perJobUsd: 0.001, startUsd: 0.00005 },
+        buildInput: (search) => ({
+            keywords: [search.title],
+            worldwide: true,
+            country: countryLabel(search.country),
+            employmentType: "",
+            maxResultsPerKeyword: search.jobsPerSite,
+        }),
+    }),
+    defineActor({
+        id: "yc-startups",
+        site: "Y Combinator startups",
+        actorId: "nomad-agent/ycombinator-was-scraper",
+        category: "remote",
+        description: "Work at a Startup: jobs at Y Combinator companies.",
+        covers: "any",
+        fallbackPrice: { perJobUsd: 0.0001, startUsd: 0 },
+        buildInput: (search) => ({
+            queries: [search.title],
+            locations: search.city.trim() ? [search.city.trim()] : [],
+            maxItems: search.jobsPerSite,
+            schemaVersion: "nomad-agent-simple-inventory-search-v2",
+        }),
+    }),
+    defineActor({
+        id: "remote-ok",
+        site: "Remote OK",
+        actorId: "inlifeprojects/remoteok-jobs-scraper",
+        category: "remote",
+        description: "One of the oldest remote job boards, mostly tech.",
+        covers: "any",
+        fallbackPrice: { perJobUsd: 0.001, startUsd: 0.00005 },
+        buildInput: (search) => ({
+            keywordFilter: search.title,
+            tags: [],
+            maxResults: search.jobsPerSite,
+        }),
+    }),
+    defineActor({
+        id: "we-work-remotely",
+        site: "We Work Remotely",
+        actorId: "inlifeprojects/weworkremotely-jobs-scraper",
+        category: "remote",
+        description: "A large remote board: programming, design, product, support and more.",
+        covers: "any",
+        fallbackPrice: { perJobUsd: 0.001, startUsd: 0.00005 },
+        buildInput: (search) => ({
+            keywordFilter: search.title,
+            maxResults: search.jobsPerSite,
+        }),
+    }),
+];

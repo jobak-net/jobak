@@ -1,0 +1,74 @@
+{
+  "id": "96045899",
+  "jobLink": "https://au.seek.com/job/96045899",
+  "applyLink": "https://au.seek.com/job/96045899/apply",
+  "isExternalApply": false,
+  "roleId": "full-stack-software-engineer",
+  "title": "Full Stack Software Engineer",
+  "salary": "$160,000 – $170,000 per year",
+  "content": {
+    "bulletPoints": null,
+    "jobHook": "Build and improve our in-house ERP platform using Python, React and TypeScript. Join Aunty Grace and create technology that makes a difference.",
+    "unEditedContent": "<p><strong>About Aunty Grace</strong></p><p>Aunty Grace is an Australian aged care provider dedicated to helping older Australians live independently, confidently and comfortably in their own homes.</p><p>We believe great care starts with great people, supported by systems and technology that make t…",
+    "sections": [
+      "About Aunty Grace",
+      "Aunty Grace is an Australian aged care provider dedicated to helping older Australians live independently, confidently and comfortably in their own homes.",
+      "We believe great care starts with great people, supported by systems and technology that make their jobs easier and our clients' experiences better."
+    ]
+  },
+  "numApplicants": 156,
+  "resumePercentage": 100,
+  "coverLetterPercentage": 63,
+  "workArrangements": "Hybrid",
+  "workTypes": "Full time",
+  "classificationInfo": {
+    "classification": "Information & Communication Technology",
+    "classificationId": "6281",
+    "subClassification": "Engineering - Software",
+    "subClassificationId": "6290"
+  },
+  "joblocationInfo": {
+    "area": "CBD & Inner Suburbs",
+    "displayLocation": "Melbourne VIC",
+    "location": "Melbourne",
+    "locationIds": [
+      "18578"
+    ],
+    "country": "Australia",
+    "countryCode": "AU",
+    "suburb": "Melbourne"
+  },
+  "advertiser": {
+    "logo": null,
+    "id": "48247975",
+    "name": "Aunty Grace",
+    "isVerified": true,
+    "isPrivate": false,
+    "registrationDate": "2021-06-23T22:55:20.000Z"
+  },
+  "companyProfile": {
+    "id": null,
+    "name": null,
+    "companyNameSlug": null,
+    "overview": null,
+    "industry": null,
+    "size": null,
+    "profile": null,
+    "website": null,
+    "numberOfReviews": null,
+    "rating": null,
+    "perksAndBenefits": null
+  },
+  "companyOpenJobs": "https://au.seek.com/Aunty-Grace-jobs/at-this-company",
+  "companyTags": [],
+  "employerQuestions": [
+    "Which of the following statements best describes your right to work in Australia?",
+    "How many years' experience do you have as a Full Stack Software Engineer?",
+    "How much notice are you required to give your current employer?"
+  ],
+  "employerVideo": "https://www.youtube.com/embed/jS8DGVLvHpI?source_ve_path=OTY3MTQ&embeds_referring_euri=https%3A%2F%2Fau.seek.com%2Fjob%2F96045785%3Fref%3Dhirer-jobs-list",
+  "listedAt": "2026-11-23T01:10:18.363Z",
+  "expiresAtUtc": "2026-12-23T12:59:59.999Z",
+  "isVerified": true,
+  "hasRoleRequirements": true
+}

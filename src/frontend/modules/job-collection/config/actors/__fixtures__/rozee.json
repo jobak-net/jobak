@@ -1,0 +1,53 @@
+{
+  "jid": "1969263",
+  "url": "https://www.rozee.pk/j1969263",
+  "title": "AI Software Engineer",
+  "company": {
+    "name": "Spring Digital",
+    "id": null,
+    "address": null,
+    "logo": null,
+    "confidential": false
+  },
+  "city": null,
+  "cityId": null,
+  "country": "Pakistan",
+  "coordinates": null,
+  "salary": {
+    "from": null,
+    "to": null,
+    "currency": "PKR",
+    "period": null,
+    "formatted": null,
+    "hidden": false
+  },
+  "experience": {
+    "formatted": null,
+    "minId": null,
+    "maxId": null
+  },
+  "education": {
+    "degreeTitle": null,
+    "level": null,
+    "formatted": null
+  },
+  "careerLevel": null,
+  "gender": null,
+  "jobType": null,
+  "totalPositions": null,
+  "category": null,
+  "industry": null,
+  "department": null,
+  "skills": [],
+  "description": null,
+  "descriptionHtml": null,
+  "datePosted": "Nov 20, 2026",
+  "applyBy": "Dec 24, 2026",
+  "isProject": false,
+  "isActive": true,
+  "jobStatus": null,
+  "applyType": "internal",
+  "applyUrl": "https://www.rozee.pk/j1969263",
+  "searchQuery": "Software Engineer",
+  "scrapedAt": "2026-11-24T00:53:59.628Z"
+}

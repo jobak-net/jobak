@@ -1,0 +1,80 @@
+{
+  "id": 14786177,
+  "harmonisedId": "a0640ce2-d040-424c-94f8-29a31ea3e18a",
+  "title": "Software Engineer (m/w/d)",
+  "url": "https://www.stepstone.de/stellenangebote--Software-Engineer-m-w-d-Neuss-Bank11-fuer-Privatkunden-und-Handel-GmbH--14786177-inline.html",
+  "datePosted": "2026-11-23T10:40:47+01:00",
+  "workFromHome": "2",
+  "location": {
+    "location": "Neuss",
+    "postCode": null,
+    "addressHead": null,
+    "addressText": null,
+    "latitude": null,
+    "longitude": null
+  },
+  "company": {
+    "id": 76561,
+    "name": "Bank11 für Privatkunden und Handel GmbH",
+    "url": "https://www.stepstone.de/cmp/de/bank11-f%c3%bcr-privatkunden-und-handel-gmbh-76561/jobs",
+    "logoUrl": "https://www.stepstone.de/upload_DE/logo/B/logoBank11-fur-Privatkunden-und-Handel-GmbH-76561DE-2202010919.gif",
+    "backgroundImageUrl": "",
+    "jobsCount": 7,
+    "sectors": [
+      {
+        "sectorId": 19001,
+        "name": "Banken und Finanzdienstleister"
+      }
+    ],
+    "industries": [
+      "Banking and Financial Services"
+    ],
+    "employees": "251-1000",
+    "isParentCompany": false,
+    "address": "Hammer Landstraße 91, Neuss",
+    "website": null,
+    "customSections": [
+      {
+        "title": "About Us",
+        "content": "Bank11 ist ein auf die Absatzfinanzierung spezialisiertes Kreditinstitut. Wir unterstützen den mittelständischen Kfz-Handel durch wettbewerbsfähige Mobilitäts- und Versicherungsangebote. Das bedeutet für den Kfz-Händler, dass er seinen Kunden einfache und günstig kalkulierte Finanzierungsprodukte an…"
+      }
+    ],
+    "benefits": [
+      "Home Office"
+    ],
+    "videos": [],
+    "images": [],
+    "heroImages": [
+      {
+        "desktop": "/upload_de/offers/htmlfiles/x1/76561/images/14cf3847-46a6-4a1b-9c60-b3f316ee71f6.jpeg"
+      }
+    ]
+  },
+  "textSnippet": "Du willst digitale Kreditprozesse im Mobilitätsumfeld nicht nur begleiten, sondern technisch aktiv mitgestalten? Du entwickelst gerne stabile, performante und nutzerfreundliche Lösungen, die für Autohändler und Endkunden echten Mehrwert schaffen? Dann komm zur Bank11, einer der besten Autobanken Deu",
+  "offerLanguage": "de",
+  "salary": {
+    "isPredicted": true,
+    "min": 53000,
+    "max": 74000,
+    "period": "year",
+    "currency": "€",
+    "currencyIso": "EUR"
+  },
+  "textSections": [
+    {
+      "name": "introduction",
+      "title": "Für alle. Für Euch. Schnell. Schlau. Digital.",
+      "content": "<p>Du willst digitale Kreditprozesse im Mobilitätsumfeld nicht nur begleiten, sondern technisch aktiv mitgestalten? Du entwickelst gerne stabile, performante und nutzerfreundliche Lösungen, die für Autohändler und Endkunden echten Mehrwert schaffen? Dann komm zur Bank11, einer der besten Autobanken …"
+    },
+    {
+      "name": "description",
+      "title": "Deine spannenden Aufgaben:",
+      "content": "<p></p>\n\n<ul>\n\t<li>Du <strong>entwickelst, dokumentierst und wartest</strong> technische Komponenten, APIs, Schnittstellen und Anwendungen für unsere digitalen Produkte.</li>\n\t<li>Du setzt <strong>User Stories, Tasks und technische Anforderungen</strong> aus dem Backlog um und bringst dich in die te…"
+    },
+    {
+      "name": "profile",
+      "title": "Dein Profil:",
+      "content": "<ul>\n\t<li><strong>mehrjährige Berufserfahrung</strong> in der F<strong>rontend- und Fullstack-Entwicklung </strong>mit klarem Schwerpunkt auf<strong> Angular</strong></li>\n\t<li>Gute Kenntnisse in modernen&nbsp;<strong>Java-Technologien&nbsp;</strong>und Frameworks, insbesondere JEE und Spring Boot</…"
+    }
+  ]
+}

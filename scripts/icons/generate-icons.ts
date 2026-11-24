@@ -1,25 +1,23 @@
 /**
- * Rasterises the app icons from `brand/logo/tile.svg`.
+ * Rasterises the app icons from the brand's SVG sources.
  *
  * The icons are the one part of the brand that cannot stay SVG: `favicon.ico`
  * is a raster container by definition, and a PWA manifest needs PNGs at fixed
  * sizes. So they get committed, which means they can go stale against the mark
- * — and they did. Every checked-in PNG carried the *previous* sun-and-horizon
- * badge for weeks after the mark was replaced, because nothing regenerated
- * them and nothing could tell by looking.
- *
- * This script is the answer to that: one command, sourced from the same
- * `tile.svg` the rest of the brand uses, so re-running it after a mark change
- * is the whole job.
+ * — and they did, twice: once carrying the old sun-and-horizon badge, then a
+ * thicker J in a green tile that the homepage logo never used. Re-running this
+ * after any mark change is the whole job.
  *
  *   pnpm scripts        → Icons → 1
  *   tsx scripts/icons/generate-icons.ts
  *
- * `tile.svg` is the right source rather than `mark.svg` because an app icon is
- * always composited onto someone else's wallpaper or browser chrome and has to
- * supply its own ground — see the brand README. The tile is green with the J
- * knocked out as *negative space*, so every render here flattens it onto the
- * canvas colour; left transparent, the J would fill with whatever sits behind.
+ * Two sources, because the two kinds of icon sit on different grounds:
+ *
+ *  - `brand/logo/mark.svg` → `favicon.ico`. The bare J on transparency, as the
+ *    tab shows it; the browser chrome is its ground.
+ *  - `brand/logo/app-icon.svg` → the manifest PNGs. The J on the canvas colour,
+ *    full bleed, because an installed app icon sits on someone else's wallpaper
+ *    and the launcher cuts its own shape.
  */
 import { createRequire } from "node:module";
 import { mkdir, writeFile } from "node:fs/promises";
@@ -78,50 +76,38 @@ function loadSharp(): Sharp {
 
 const CANVAS = "#08090a"; // --bg-canvas, the sRGB fallback. See brand/README.md.
 const ROOT = process.cwd();
-const TILE = readFileSync(join(ROOT, "brand/logo/tile.svg"));
+const MARK = readFileSync(join(ROOT, "brand/logo/mark.svg"));
+const APP_ICON = readFileSync(join(ROOT, "brand/logo/app-icon.svg"));
 const sharp = loadSharp();
 
-/** High density so the rounded corners and the J's bowl stay clean at 512. */
+/** High density so the J's bowl stays clean at 512. */
 const DENSITY = 600;
 
 /**
- * The tile, flattened onto the canvas so the knocked-out J reads as dark.
+ * The app icon at a given size: the J on the canvas colour, edge to edge.
  *
  * `ensureAlpha` is load-bearing rather than tidy-minded. `flatten` composites
  * away the alpha channel and leaves a 3-channel RGB PNG, and Next's `.ico`
  * decoder rejects those outright — `Format error decoding Ico: The PNG is not
- * in RGBA format!`, which fails the production build, not just the icon. So the
- * channel is added back, fully opaque, after the flatten that removed it.
+ * in RGBA format!`, which fails the production build, not just the icon.
  */
-function render(size: number) {
-    return sharp(TILE, { density: DENSITY })
-        .resize(size, size, { fit: "contain", background: CANVAS })
+function renderAppIcon(size: number) {
+    return sharp(APP_ICON, { density: DENSITY })
+        .resize(size, size)
         .flatten({ background: CANVAS })
         .ensureAlpha()
         .png({ compressionLevel: 9 });
 }
 
 /**
- * The maskable variant, which is a different picture rather than a resize.
- *
- * Android crops a maskable icon to whatever shape the launcher uses — circle,
- * squircle, teardrop — guaranteeing only the inner 80%. Feeding it the plain
- * tile would round off corners that are already rounded and clip the J. So the
- * artwork is inset to the safe zone on a full-bleed canvas ground: a circular
- * crop then eats only margin, and the tile arrives intact.
+ * The favicon at a given size: the bare J with its transparency kept, so the
+ * browser's tab colour shows around it exactly as with `icon.svg`.
  */
-async function renderMaskable(size: number): Promise<Buffer> {
-    const inner = Math.round(size * 0.8);
-    const art = await sharp(TILE, { density: DENSITY }).resize(inner, inner).png().toBuffer();
-
-    return sharp({
-        create: { width: size, height: size, channels: 4, background: CANVAS },
-    })
-        .composite([{ input: art, gravity: "centre" }])
-        .flatten({ background: CANVAS })
+function renderFavicon(size: number) {
+    return sharp(MARK, { density: DENSITY })
+        .resize(size, size, { fit: "contain", background: "#00000000" })
         .ensureAlpha()
-        .png({ compressionLevel: 9 })
-        .toBuffer();
+        .png({ compressionLevel: 9 });
 }
 
 /**
@@ -172,7 +158,7 @@ async function main() {
      */
     const ico = buildIco(
         await Promise.all(
-            [16, 32, 48].map(async (size) => ({ size, data: await render(size).toBuffer() }))
+            [16, 32, 48].map(async (size) => ({ size, data: await renderFavicon(size).toBuffer() }))
         )
     );
     await writeFile(join(ROOT, "src/app/favicon.ico"), ico);
@@ -181,13 +167,17 @@ async function main() {
     // 192 and 512 are the two the install prompt and the splash screen use.
     for (const size of [192, 512]) {
         const file = join(iconsDir, `icon-${size}.png`);
-        await render(size).toFile(file);
+        await renderAppIcon(size).toFile(file);
         console.log(`public/icons/icon-${size}.png`.padEnd(31) + `${size}×${size}`);
     }
 
-    const maskable = await renderMaskable(512);
-    await writeFile(join(iconsDir, "icon-maskable-512.png"), maskable);
-    console.log(`public/icons/icon-maskable-512.png  512×512 (80% safe zone)`);
+    /*
+     * Maskable: Android crops it to the launcher's shape, guaranteeing only the
+     * inner 80%. The app icon already keeps the J inside that (it is drawn at
+     * 68%), so the same picture serves — a crop eats only canvas.
+     */
+    await renderAppIcon(512).toFile(join(iconsDir, "icon-maskable-512.png"));
+    console.log(`public/icons/icon-maskable-512.png  512×512 (J inside the safe zone)`);
 
     console.log("\nRegistered in src/app/manifest.ts — update it if you add a size.");
 }

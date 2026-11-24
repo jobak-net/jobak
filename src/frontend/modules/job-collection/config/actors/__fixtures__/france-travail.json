@@ -1,0 +1,104 @@
+{
+  "type": "job",
+  "id": "216GXVC",
+  "title": "Senior Software Engineer (H/F)",
+  "company": "BRADY GROUPE",
+  "company_description": "Brady Groupe SAS est la filiale du groupe américain Brady Corporation. SETON représente la division de vente à distance du groupe Brady. Spécialisée dans la fabrication et la distribution de produits de sécurité, de signalisation et d'identification, SETON est le leader B to B en matière de sécurité…",
+  "company_url": null,
+  "location": "59 - RONCQ",
+  "postal_code": "59223",
+  "department": "59",
+  "commune_insee": "59508",
+  "geo": {
+    "lat": 50.753654,
+    "lon": 3.123333,
+    "label": "59 - RONCQ"
+  },
+  "contract_type": "CDI",
+  "contract_type_label": "CDI",
+  "contract_nature": "Contrat travail",
+  "alternance": false,
+  "rome_code": "M1805",
+  "rome_label": "Développeur / Développeuse informatique",
+  "appellation": "Développeur / Développeuse informatique",
+  "sector": "Commerce de gros (commerce interentreprises) non spécialisé",
+  "naf_code": "46.90Z",
+  "qualification_code": "9",
+  "qualification_label": "Cadre",
+  "salary": "Salaire fixe + avantages (tickets restaurant, mutuelle, prévoyance, prime de participation, offres du CSE)",
+  "salary_parsed": {
+    "raw": "Salaire fixe + avantages (tickets restaurant, mutuelle, prévoyance, prime de participation, offres du CSE)",
+    "min": null,
+    "max": null,
+    "currency": "EUR",
+    "period": null,
+    "is_range": false,
+    "annualized_min": null,
+    "annualized_max": null
+  },
+  "work_hours": "35H/semaine\nTravail en journée",
+  "work_hours_converted": "Temps plein",
+  "experience_required": "48 Mois",
+  "experience_exigence": "E",
+  "experience_years": 5,
+  "education_level": "ingénieur",
+  "competences": [
+    {
+      "code": "300688",
+      "libelle": "Application web",
+      "exigence": "E"
+    },
+    {
+      "code": "110150",
+      "libelle": "Anglais technique",
+      "exigence": "E"
+    },
+    {
+      "code": "109846",
+      "libelle": "Concevoir une application web",
+      "exigence": "E"
+    }
+  ],
+  "skills_detected": [
+    "Application web",
+    "Anglais technique",
+    "Concevoir une application web"
+  ],
+  "qualites_professionnelles": [
+    {
+      "libelle": "Faire preuve d'autonomie",
+      "description": "Capacité à prendre en charge son activité sans devoir être encadré de façon continue (le cas échéant, à solliciter les autres acteurs de l'entreprise)."
+    },
+    {
+      "libelle": "Faire preuve de rigueur et de précision",
+      "description": "Capacité à réaliser des tâches en suivant avec exactitude les règles, les procédures, les instructions qui ont été fournies, sans réaliser d'erreur et à transmettre clairement des informations. Se montrer ponctuel et respectueux des règles de savoir-vivre usuelles."
+    },
+    {
+      "libelle": "Avoir l'esprit d'équipe",
+      "description": "Capacité à travailler et à se coordonner avec les autres au sein de l'entreprise pour réaliser les objectifs fixés."
+    }
+  ],
+  "formations": null,
+  "langues": [
+    {
+      "libelle": "Anglais",
+      "exigence": "E"
+    },
+    {
+      "libelle": "Français",
+      "exigence": "E"
+    }
+  ],
+  "permis": null,
+  "nombre_postes": 1,
+  "accessible_th": null,
+  "partner_source": null,
+  "apply_url": "https://candidat.francetravail.fr/offres/recherche/detail/216GXVC",
+  "posted_date": "2026-11-10",
+  "updated_date": "2026-11-10",
+  "description": "Résumé du poste\nBrady recherche un ingénieur logiciel senior (numérique) pour rejoindre l'une de ses équipes de développement logiciel, en utilisant des pratiques de développement modernes et les dernières technologies. Mettez à profit vos compétences en ingénierie et votre passion pour aider Brady …",
+  "url": "https://candidat.francetravail.fr/offres/recherche/detail/216GXVC",
+  "source": "api",
+  "scraped_at": "2026-11-24T00:56:48Z",
+  "_bookmark_actor_url": "https://apify.com/dltik/francetravail-scraper"
+}

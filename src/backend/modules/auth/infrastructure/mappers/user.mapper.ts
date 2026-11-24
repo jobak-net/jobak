@@ -12,8 +12,8 @@ import type { User } from "../../domain/entities/user.entity";
 
 export interface UserRow {
   id: string;
-  email: string;
-  password_hash: string | null;
+  external_id: string;
+  email: string | null;
   full_name: string | null;
   /*
    * `pg` parses TIMESTAMPTZ into a JavaScript Date already, so these arrive as
@@ -21,21 +21,19 @@ export interface UserRow {
    * most drivers do, and code that defensively re-parses them ends up with
    * `Invalid Date`.
    */
-  email_verified_at: Date | null;
   created_at: Date;
   updated_at: Date;
 }
 
 /** Keeps a SELECT and its row type from drifting apart. */
 export const USER_COLUMNS =
-  "id, email, password_hash, full_name, email_verified_at, created_at, updated_at";
+  "id, external_id, email, full_name, created_at, updated_at";
 
 export const toUser = (row: UserRow): User => ({
   id: row.id,
+  externalId: row.external_id,
   email: row.email,
-  passwordHash: row.password_hash,
   fullName: row.full_name,
-  emailVerifiedAt: row.email_verified_at,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 });

@@ -1,0 +1,173 @@
+import type { Job } from "@/shared/contracts/jobs";
+
+/**
+ * Sample data for the dashboard while its features are being built.
+ *
+ * Everything here is invented. It exists so each page can show what it will
+ * look like before the backend behind it exists, and every page that renders
+ * from it says so on screen. When a feature goes live, delete its export here
+ * and the compiler will point at every place that still reads it.
+ */
+
+/** Shown on Overview and Matches until a user's own preferences produce jobs. */
+export const SAMPLE_JOBS: Job[] = [
+    {
+        id: "sample-1",
+        title: "Senior Frontend Engineer",
+        company: "Talabat",
+        location: "Dubai, UAE",
+        type: "full-time",
+        workplace: "hybrid",
+        salary: "AED 28k–35k / mo",
+        score: 94,
+        source: "LinkedIn",
+        link: "#",
+        postedAt: "2h ago",
+        bookmarked: true,
+        tags: ["React", "TypeScript", "Next.js"],
+        matchReasons: ["5 of 6 required skills match your profile", "Seniority matches your experience"],
+    },
+    {
+        id: "sample-2",
+        title: "React Developer",
+        company: "Instabug",
+        location: "Cairo, Egypt",
+        type: "full-time",
+        workplace: "onsite",
+        salary: "EGP 60k–85k / mo",
+        score: 91,
+        source: "Wuzzuf",
+        link: "#",
+        postedAt: "5h ago",
+        bookmarked: false,
+        tags: ["React", "Redux", "Jest"],
+        matchReasons: ["Strong overlap with your React experience"],
+    },
+    {
+        id: "sample-3",
+        title: "Full-Stack Engineer",
+        company: "Tabby",
+        location: "Remote · MENA",
+        type: "full-time",
+        workplace: "remote",
+        salary: "$4k–6k / mo",
+        score: 87,
+        source: "Bayt",
+        link: "#",
+        postedAt: "1d ago",
+        bookmarked: true,
+        tags: ["Node.js", "React", "PostgreSQL"],
+        matchReasons: ["Remote, as you prefer", "Backend skills are a partial match"],
+    },
+    {
+        id: "sample-4",
+        title: "UI Engineer",
+        company: "Careem",
+        location: "Riyadh, KSA",
+        type: "contract",
+        workplace: "hybrid",
+        salary: "SAR 22k–28k / mo",
+        score: 78,
+        source: "Talent.com",
+        link: "#",
+        postedAt: "1d ago",
+        bookmarked: false,
+        tags: ["Design systems", "CSS", "Accessibility"],
+        matchReasons: ["Design-system work fits your portfolio"],
+    },
+    {
+        id: "sample-5",
+        title: "Frontend Developer",
+        company: "Vezeeta",
+        location: "Cairo, Egypt",
+        type: "full-time",
+        workplace: "hybrid",
+        salary: "EGP 45k–60k / mo",
+        score: 72,
+        source: "Wuzzuf",
+        link: "#",
+        postedAt: "2d ago",
+        bookmarked: false,
+        tags: ["Vue", "JavaScript"],
+        matchReasons: ["Framework differs from your main stack"],
+    },
+    {
+        id: "sample-6",
+        title: "Web Engineer",
+        company: "Anghami",
+        location: "Abu Dhabi, UAE",
+        type: "full-time",
+        workplace: "onsite",
+        salary: "Not listed",
+        score: 64,
+        source: "Company site",
+        link: "#",
+        postedAt: "3d ago",
+        bookmarked: false,
+        tags: ["JavaScript", "Performance"],
+    },
+    {
+        id: "sample-7",
+        title: "Junior Frontend Developer",
+        company: "Swvl",
+        location: "Remote",
+        type: "part-time",
+        workplace: "remote",
+        salary: "$1.5k–2k / mo",
+        score: null,
+        source: "Remote OK",
+        link: "#",
+        postedAt: "4d ago",
+        bookmarked: false,
+        tags: ["HTML", "CSS", "React"],
+    },
+];
+
+/** New matches per day, last 14 days. */
+export const MATCH_ACTIVITY: { day: string; matches: number; strong: number }[] = [
+    { day: "Mon", matches: 12, strong: 3 },
+    { day: "Tue", matches: 18, strong: 5 },
+    { day: "Wed", matches: 9, strong: 2 },
+    { day: "Thu", matches: 22, strong: 7 },
+    { day: "Fri", matches: 15, strong: 4 },
+    { day: "Sat", matches: 6, strong: 1 },
+    { day: "Sun", matches: 8, strong: 2 },
+    { day: "Mon", matches: 24, strong: 8 },
+    { day: "Tue", matches: 19, strong: 6 },
+    { day: "Wed", matches: 27, strong: 9 },
+    { day: "Thu", matches: 21, strong: 5 },
+    { day: "Fri", matches: 30, strong: 11 },
+    { day: "Sat", matches: 11, strong: 3 },
+    { day: "Sun", matches: 14, strong: 4 },
+];
+
+export type ApplicationStage = "saved" | "applied" | "interviewing" | "offer" | "rejected";
+
+export const APPLICATION_STAGES: { id: ApplicationStage; label: string; color: string }[] = [
+    { id: "saved", label: "Saved", color: "var(--fg-tertiary)" },
+    { id: "applied", label: "Applied", color: "var(--hue-1)" },
+    { id: "interviewing", label: "Interviewing", color: "var(--status-amber)" },
+    { id: "offer", label: "Offer", color: "var(--score-high)" },
+    { id: "rejected", label: "Closed", color: "var(--status-rose)" },
+];
+
+export interface Application {
+    id: string;
+    title: string;
+    company: string;
+    stage: ApplicationStage;
+    updated: string;
+    note?: string;
+}
+
+export const SAMPLE_APPLICATIONS: Application[] = [
+    { id: "a1", title: "Senior Frontend Engineer", company: "Talabat", stage: "interviewing", updated: "Today", note: "Technical round Thursday" },
+    { id: "a2", title: "Full-Stack Engineer", company: "Tabby", stage: "applied", updated: "Yesterday" },
+    { id: "a3", title: "React Developer", company: "Instabug", stage: "applied", updated: "2d ago" },
+    { id: "a4", title: "UI Engineer", company: "Careem", stage: "saved", updated: "2d ago" },
+    { id: "a5", title: "Frontend Developer", company: "Vezeeta", stage: "saved", updated: "3d ago" },
+    { id: "a6", title: "Product Engineer", company: "Paymob", stage: "offer", updated: "4d ago", note: "Reply by Sunday" },
+    { id: "a7", title: "Web Engineer", company: "Anghami", stage: "rejected", updated: "1w ago" },
+    { id: "a8", title: "Frontend Lead", company: "Noon", stage: "interviewing", updated: "3d ago", note: "Culture interview booked" },
+];
+

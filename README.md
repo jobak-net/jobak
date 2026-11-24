@@ -151,11 +151,47 @@ POST /webhook/job-search
 
 ---
 
+## 🏃 Running without auth
+
+To work on the features without setting up Clerk, turn sign-in off in `.env.local`:
+
+```bash
+AUTH_ENABLED=false
+```
+
+Then `pnpm install` and `pnpm dev` as usual.
+
+- No Clerk keys are needed. Clerk is never called.
+- There is no sign-in or sign-up. Every visitor is the single **local owner**,
+  who goes straight to onboarding and then the dashboard. `/login` and
+  `/register` redirect to `/dashboard`, and referral links do nothing.
+- The rest of `.env.local` (database, encryption secret) is still required,
+  because the features need them.
+- Accepted values are `false`, `0`, `no` and `off`. Leaving it unset means auth
+  is **on**, and any other value stops the app with an error rather than
+  guessing.
+- If you build (`pnpm build`), build with the same value you run with:
+  prerendered pages decide at build time whether Clerk wraps them.
+
+> ⚠️ With auth off, anyone who can reach the server acts as the owner, with the
+> owner's data and saved API keys. Only run it on localhost or behind your own
+> access control (VPN, reverse-proxy auth).
+
+What every part of the app does in each mode: [`docs/backend/AUTH.md`](docs/backend/AUTH.md#5-running-without-auth). The request pipeline: [`docs/backend/PROXY.md`](docs/backend/PROXY.md).
+
+---
+
 ## 📚 Documentation
 
 - [`docs/general/PROJECT_OVERVIEW.md`](docs/general/PROJECT_OVERVIEW.md) — architecture, tech stack, and feature-by-feature implementation notes.
 - [`docs/general/PRE_PRODUCTION.md`](docs/general/PRE_PRODUCTION.md) — the pre-launch checklist: what's done, what needs config, and what's still a product decision.
 - [`docs/frontend/DESIGN_SYSTEM.md`](docs/frontend/DESIGN_SYSTEM.md) — the visual language and design tokens.
+- [`docs/frontend/ONBOARDING.md`](docs/frontend/ONBOARDING.md) — how the onboarding steps work (Strategy + Factory), with diagrams, and how to add a step.
+- [`docs/frontend/DATA_FETCHING.md`](docs/frontend/DATA_FETCHING.md) — how the frontend gets data: `serverFetch` on the server, `use()` for server data in client components, TanStack Query in the browser.
+- [`docs/backend/AUTH.md`](docs/backend/AUTH.md) — the full auth cycle (Clerk, the `users` row, the gates), referrals on top of it, and running without auth. Start here if you're new.
+- [`docs/backend/API.md`](docs/backend/API.md) — how API routes are written: `withMiddlewares`, Zod schemas, thrown errors.
+- [`docs/backend/RATE_LIMIT.md`](docs/backend/RATE_LIMIT.md) — rate limits: one policy per integration (our routes and the services we call), counted in Postgres, overridable per environment.
+- [`docs/backend/PROXY.md`](docs/backend/PROXY.md) — the request pipeline (`src/proxy.ts`): auth session, steps, and how to add one.
 - [`db/README.md`](db/README.md) — database migrations, one subfolder per database.
 - [`docs/general/scripts/README.md`](docs/general/scripts/README.md) — the project scripts CLI (`pnpm scripts`).
 
