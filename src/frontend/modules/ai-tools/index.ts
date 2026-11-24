@@ -15,3 +15,5 @@ export { CvReviewView } from "./cv-review/views/cv-review-view";
 export { CvTailorView } from "./cv-tailor/views/cv-tailor-view";
 export { HrEmailView } from "./hr-email/views/hr-email-view";
 export { InterviewPrepView } from "./interview-prep/views/interview-prep-view";
+export { LiveKitSettingsPanel } from "./interview-prep/components/livekit-settings-panel";
+export { useLiveKitSettings } from "./interview-prep/hooks/use-livekit-settings";

@@ -171,30 +171,3 @@ export const SAMPLE_APPLICATIONS: Application[] = [
     { id: "a8", title: "Frontend Lead", company: "Noon", stage: "interviewing", updated: "3d ago", note: "Culture interview booked" },
 ];
 
-export const SAMPLE_INTERVIEW_QUESTIONS: { category: string; question: string; tip: string }[] = [
-    {
-        category: "Behavioural",
-        question: "Tell me about a time you disagreed with a technical decision.",
-        tip: "Use STAR. Show that you raised it with evidence, listened, and committed once a decision was made.",
-    },
-    {
-        category: "Technical",
-        question: "How would you find and fix a slow-rendering React page?",
-        tip: "Walk through measuring first (Profiler, Web Vitals), then the likely causes: re-renders, large bundles, unoptimised images.",
-    },
-    {
-        category: "Technical",
-        question: "Explain the difference between server and client components in Next.js.",
-        tip: "Cover where each runs, what each can access, and how data and interactivity are split between them.",
-    },
-    {
-        category: "Role fit",
-        question: "Why do you want to work here, specifically?",
-        tip: "Connect something concrete about the company's product to work you have already done.",
-    },
-    {
-        category: "Behavioural",
-        question: "Describe a project you're proud of and your exact part in it.",
-        tip: "Be specific about your contribution and quantify the result.",
-    },
-];

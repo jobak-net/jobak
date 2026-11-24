@@ -1,0 +1,54 @@
+WEBVTT
+
+1
+00:00:00.500 --> 00:00:09.600
+Here's how to connect your own LiveKit to Jobak, so you can practise interviews out loud. Start by opening your project in LiveKit Cloud.
+
+2
+00:00:10.150 --> 00:00:12.250
+Open Settings, then General.
+
+3
+00:00:12.817 --> 00:00:17.417
+Under Options, find Development token server. It starts switched off.
+
+4
+00:00:17.983 --> 00:00:26.423
+Turn it on, then copy the Token server ID that appears. Keep it private: anyone who has it can start calls on your account.
+
+5
+00:00:26.983 --> 00:00:34.383
+Next, create the interviewer. In Agents, choose Create agent, then Create in browser using Agent Builder.
+
+6
+00:00:34.950 --> 00:00:38.290
+Pick the one-to-one training template, and press Create.
+
+7
+00:00:38.850 --> 00:00:55.330
+On the Conversation tab, replace the instructions and the welcome message with ours. Jobak has a copy button for each. A red warning about unrecognized variables is expected: it goes away once you add the variables on the Advanced tab.
+
+8
+00:00:55.883 --> 00:01:06.283
+Then, on the Actions tab, add a client tool named submit evaluation, and paste our description. This is how the interviewer sends you feedback at the end.
+
+9
+00:01:06.850 --> 00:01:17.390
+Add the four parameters with Jobak's copy buttons: score as an integer, and summary, strengths and mistakes as strings. Turn Silent on, and press Add tool.
+
+10
+00:01:17.950 --> 00:01:29.910
+On the Advanced tab, give the agent a name, like jobak interviewer. Then, under Custom metadata, add four text variables: role, company, job description, and candidate name.
+
+11
+00:01:30.460 --> 00:01:36.460
+On Models and Voice, you can keep the default realtime model, or choose a different voice.
+
+12
+00:01:37.027 --> 00:01:41.327
+Press Deploy agent, and wait until the deployment has completed.
+
+13
+00:01:41.893 --> 00:01:59.133
+Back in Jobak, paste the token server ID and the agent name, and press Connect. Then start your practice interview. When you're done, press Finish and get feedback, to see your score and every mistake, with a better answer for each, and a PDF to download. Good luck!
+

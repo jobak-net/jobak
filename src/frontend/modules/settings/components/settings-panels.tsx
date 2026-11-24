@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 
 import { StepTabs, stepTabId, useSlideDirection, JobakMark, Button } from "@/frontend/shared/ui";
+import { LiveKitSettingsPanel, useLiveKitSettings } from "@/frontend/modules/ai-tools";
 import { ApifyTokenPanel, useApifyToken } from "@/frontend/modules/job-collection";
 import { ConnectionPanel, ChooseScreen, KeyScreen, PROVIDER_INFO } from "@/frontend/modules/onboarding";
 import { cn } from "@/frontend/shared/lib";
@@ -36,6 +37,7 @@ const TABS = SETTINGS_TABS;
 const TAB_LABEL: Record<TabId, string> = {
     ai: "AI provider",
     "job-collection": "Job collection",
+    "interview-practice": "Interview practice",
     notifications: "Notifications",
     account: "Account",
 };
@@ -97,6 +99,7 @@ export function SettingsPanels({
     const authEnabled = useAuthEnabled();
     const [active, setActive] = useState<TabId>(initialTab);
     const apify = useApifyToken(accountId);
+    const livekit = useLiveKitSettings(accountId);
     const index = TABS.indexOf(active);
     const direction = useSlideDirection(active, index);
 
@@ -118,6 +121,10 @@ export function SettingsPanels({
         "job-collection": {
             title: "Find jobs on other sites",
             description: "Optional. Add your Apify token to unlock Find jobs elsewhere: 39 job sites, searched from your browser.",
+        },
+        "interview-practice": {
+            title: "Practise interviews out loud",
+            description: "Optional. Connect your own LiveKit to unlock interview practice: an AI interviewer that calls you in the browser.",
         },
         notifications: {
             title: "What should Jobak tell you about?",
@@ -161,6 +168,18 @@ export function SettingsPanels({
                                 : apify.status === "blocked"
                                   ? "Browser blocks storage"
                                   : apify.status === "loading"
+                                    ? "…"
+                                    : "Optional",
+                    },
+                    {
+                        id: "interview-practice",
+                        label: TAB_LABEL["interview-practice"],
+                        summary:
+                            livekit.status === "saved"
+                                ? "LiveKit · Connected"
+                                : livekit.status === "blocked"
+                                  ? "Browser blocks storage"
+                                  : livekit.status === "loading"
                                     ? "…"
                                     : "Optional",
                     },
@@ -309,6 +328,8 @@ export function SettingsPanels({
 
                             {active === "job-collection" && <ApifyTokenPanel accountId={accountId} />}
 
+                            {active === "interview-practice" && <LiveKitSettingsPanel accountId={accountId} />}
+
                             {active === "notifications" && (
                                 <ul className="space-y-3">
                                     {NOTIFICATIONS.map((item, i) => {
@@ -408,6 +429,7 @@ export function SettingsPanels({
                     <div className="sticky top-6 h-[min(720px,calc(100dvh-3rem))]">
                         {active === "ai" && <ConnectionPanel provider={provider} status={ai.status} />}
                         {active === "job-collection" && <JobCollectionPanel connected={apify.status === "saved"} />}
+                        {active === "interview-practice" && <InterviewPracticePanel connected={livekit.status === "saved"} />}
                         {active === "notifications" && <NotificationsPreview notify={notify} />}
                         {active === "account" && <AccountPanel name={name} fullName={fullName} email={email} authEnabled={authEnabled} />}
                     </div>
@@ -517,6 +539,40 @@ function JobCollectionPanel({ connected }: { connected: boolean }) {
             icon={<Globe className="size-3" strokeWidth={2.5} />}
             title={connected ? "Ready to search." : "Runs in your browser."}
             body="Searches run on your own Apify account, straight from this browser."
+        >
+            <ul className="w-full max-w-sm space-y-3">
+                {rows.map((row, i) => (
+                    <li
+                        key={row.title}
+                        className="ob-rise flex items-start gap-3 rounded-[16px] border border-white/10 bg-[#121415]/95 p-4"
+                        style={{ "--i": i } as CSSProperties}
+                    >
+                        <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-white/8 bg-[#16191a] text-fg-tertiary">
+                            {row.icon}
+                        </span>
+                        <span className="min-w-0">
+                            <span className="block text-[13px] font-medium text-fg-primary">{row.title}</span>
+                            <span className="mt-0.5 block text-[12px] text-fg-tertiary">{row.body}</span>
+                        </span>
+                    </li>
+                ))}
+            </ul>
+        </Frame>
+    );
+}
+
+/** Where an interview happens: between the browser and the user's LiveKit, never through Jobak. */
+function InterviewPracticePanel({ connected }: { connected: boolean }) {
+    const rows = [
+        { icon: <Globe className="size-4" />, title: "Your browser and your LiveKit", body: "Your voice, the interviewer and the transcript." },
+        { icon: <Server className="size-4" />, title: "Jobak's server", body: "Nothing. It never joins the call or hears it." },
+    ];
+    return (
+        <Frame
+            pill="Interview practice"
+            icon={<Globe className="size-3" strokeWidth={2.5} />}
+            title={connected ? "Ready to practise." : "Runs on your LiveKit."}
+            body="An AI interviewer you deploy once in LiveKit calls you right in this browser."
         >
             <ul className="w-full max-w-sm space-y-3">
                 {rows.map((row, i) => (

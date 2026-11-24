@@ -168,7 +168,8 @@ Two pieces, split the usual way:
 - **`LockedFeature`** (`@/frontend/shared/components`) draws the lock and
   nothing else: an optional `visual` (a picture of what's missing), the title,
   a one-sentence `description`, optional numbered `steps` (only for a real
-  sequence), a full-width button (`action`) and a quiet `note`. While locked,
+  sequence), a full-width button (`action`), a quiet `note`, and an optional
+  `guide` shown under the description (below). While locked,
   the page behind is `inert`: no clicks, no keyboard focus, hidden from
   screen readers.
 - **The feature's own gate** knows what's missing, what to say and where to
@@ -210,6 +211,42 @@ link, and saving unlocks the page in place:
   {(token) => <Collector accountId={accountId} token={token} initialCountry={country} />}
 </ApifyGate>
 ```
+
+When the setup takes a few minutes in another product, pass a `guide`. The
+card stays one column but widens a little. The guide goes under the
+description, before the steps or form, so the user watches first and then
+does. The lock grows to fit when the card is taller than the page behind
+it. `GuideVideo` (`@/frontend/shared/components`) is the usual guide:
+
+- a short narrated video with a poster;
+- `collapsed`: it starts as one row ("Watch the setup 1:59") that opens the
+  player, so the card stays short, and nothing downloads until it's opened;
+- `chapters`: buttons under the player that jump to each part (one per step
+  of the form);
+- WebVTT captions, off by default, turned on from the player;
+- a `fallback`, shown while there's no video yet or when it fails to load.
+
+A long setup goes in steps inside the card rather than one tall form: see
+`LiveKitSetupForm`, a three-step wizard with a progress bar (any step can be
+opened), Back and Next, and focus moved to each new step's heading.
+
+`LiveKitGate` (interview practice) is the example:
+
+```tsx
+<LockedFeature
+  locked
+  feature="interview practice"
+  requirement="your LiveKit details"
+  action={{ content: <LiveKitSetupForm accountId={accountId} variant="compact" /> }}
+  guide={<GuideVideo title="Watch the setup" src="/guides/livekit-setup.mp4" poster="/guides/livekit-setup.jpg"
+                     captionsSrc="/guides/livekit-setup.vtt" duration="1:59" collapsed
+                     chapters={[{ label: "Token server", start: 0 }, { label: "Interviewer", start: 26.7 }, { label: "Connect and feedback", start: 101.6 }]} />}
+>
+  {preview}
+</LockedFeature>
+```
+
+Guide videos live in `public/guides/`.
 
 `feature` and `requirement` finish a sentence, so write them as they'd read
 mid-sentence ("cover letters", not "Cover letters"). The lock is a

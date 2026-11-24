@@ -1,11 +1,7 @@
-import { AiToolGate, InterviewPrepView } from "@/frontend/modules/ai-tools";
-import { loadAiAccess } from "@/frontend/modules/ai-tools/server";
+import { InterviewPrepView } from "@/frontend/modules/ai-tools";
+import { loadInterviewPrepPage } from "@/frontend/modules/ai-tools/server";
 
 export default async function InterviewPrepPage() {
-  const { unlocked } = await loadAiAccess();
-  return (
-    <AiToolGate feature="interview prep" unlocked={unlocked}>
-      <InterviewPrepView />
-    </AiToolGate>
-  );
+  const { accountId, candidateName } = await loadInterviewPrepPage();
+  return <InterviewPrepView accountId={accountId} candidateName={candidateName} />;
 }
