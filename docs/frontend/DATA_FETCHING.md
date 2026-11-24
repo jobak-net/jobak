@@ -43,6 +43,26 @@ Not allowed:
   where the backend is and how auth reaches it.
 - **Importing from `src/backend`** in frontend code.
 
+### The one exception: a third-party API with the user's own key
+
+Some features run entirely in the user's browser against a third-party
+API, with a key the user keeps on their device. Jobak's server never sees
+that key or the results. Today that's Apify, for job collection
+([`docs/features/JOB_COLLECTION.md`](../features/JOB_COLLECTION.md)).
+
+`clientFetch` can't serve these: it knows Jobak's base URL, cookies and
+error codes. So such an API gets **one client file in its module** that
+may call `fetch`, to that API's origin only:
+`src/frontend/modules/job-collection/lib/apify-client.ts` calls
+`https://api.apify.com/v2/` and nothing else.
+
+The rest of the rules still apply:
+- its calls run through TanStack Query (`useGenericQuery` /
+  `useGenericMutation`), never `fetch` in `useEffect`;
+- the key travels in a header, never a URL, and is never logged;
+- screens word errors themselves from the client's error kinds. These
+  aren't Jobak API errors, so `error-codes.ts` doesn't cover them.
+
 ## 1. On the server: `serverFetch`
 
 `src/frontend/shared/api/server-fetch.ts`, imported from its server-only

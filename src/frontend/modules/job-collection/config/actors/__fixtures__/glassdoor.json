@@ -1,0 +1,29 @@
+{
+  "id": 1010326798873,
+  "title": "Senior software engineer",
+  "url": "https://www.glassdoor.com/job-listing/j?jl=1010326798873",
+  "seoUrl": "https://www.glassdoor.com/job-listing/senior-software-engineer-soar-JV_IC3438985_KO0,24_KE25,29.htm?jl=1010326798873",
+  "ageInDays": 8,
+  "rating": 5,
+  "easyApply": true,
+  "employer": {
+    "id": 1037539,
+    "name": "Peters Development Services",
+    "url": "https://www.glassdoor.com/Overview/W-EI_IE1037539.htm",
+    "logoUrl": null
+  },
+  "location": {
+    "countryId": 69,
+    "id": 3438985,
+    "name": "Cairo",
+    "type": "C"
+  },
+  "pay": {
+    "source": "EMPLOYER_PROVIDED",
+    "currency": "EGP",
+    "period": "MONTHLY",
+    "min": 60000,
+    "max": 80000
+  },
+  "description": "<p>About Us</p><p>Soar is building the visual intelligence layer for Egypt's construction industry. Our platform lets teams capture 360&deg; imagery of job sites, automatically map it to plans, and track progress, quality, and safety remotely. With Egypt's rapid growth in giga-projects, new cities, …"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "https://himalayas.app/companies/alien-intellect/jobs/senior-software-engineer-8699633569",
+  "source": "himalayas",
+  "source_url": "https://himalayas.app/companies/alien-intellect/jobs/senior-software-engineer-8699633569",
+  "apply_url": "https://himalayas.app/companies/alien-intellect/jobs/senior-software-engineer-8699633569?utm_source=api",
+  "title": "Senior Software Engineer",
+  "description": "<p>We are an <span><strong>AI-first</strong></span> company building innovative agentic frameworks, the systems that let LLM-driven agents research, plan, and act reliably in production. That means orchestrating multi-step workflows with retries, skips, and parallel execution; keeping long-running w…",
+  "type": "full-time",
+  "work_mode": "remote",
+  "location": "Worldwide",
+  "experience_level": "",
+  "salary_min": 2000,
+  "salary_max": 3000,
+  "currency": "USD",
+  "salary_period": "year",
+  "company_name": "Alien Intellect",
+  "company_slug": "alien-intellect",
+  "company_url": "https://himalayas.app/companies/alien-intellect",
+  "company_logo_url": "https://cdn-images.himalayas.app/mbvefydaivkhdqjf6l6s6hgqm8rt",
+  "tags": [
+    "Developer"
+  ],
+  "markets": [],
+  "posted_at": "2026-10-26T11:17:10.000Z",
+  "expires_at": "2026-11-25T11:17:10.000Z",
+  "scraped_at": "2026-11-24T00:50:20.116Z",
+  "data_source": "Himalayas",
+  "data_source_url": "https://himalayas.app"
+}

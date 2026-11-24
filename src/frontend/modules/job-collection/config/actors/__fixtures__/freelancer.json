@@ -1,0 +1,54 @@
+{
+  "project_id": 40828241,
+  "project_name": "YouTube SEO Strategy Expansion",
+  "project_desc": "I've built a solid audience around K-pop but now I want to re-<b>engineer</b> my channel's SEO so it also ranks for gaming, pop culture, and anime keywords-without confusing the algorithm or my current subscribers. The end goal is three-fold: show up higher in search, appear more often in \"Up Next\" …",
+  "project_desc_text": "I've built a solid audience around K-pop but now I want to re- engineer my channel's SEO so it also ranks for gaming, pop culture, and anime keywords-without confusing the algorithm or my current subscribers. The end goal is three-fold: show up higher in search, appear more often in \"Up Next\" and re…",
+  "bid_avg": "$122",
+  "bid_count": 70,
+  "is_contest": false,
+  "time_left": "6 days left",
+  "highlight": false,
+  "featured": false,
+  "urgent": false,
+  "sealed": false,
+  "guaranteed": false,
+  "fulltime": false,
+  "top": false,
+  "payment_verified": true,
+  "nda": false,
+  "local": false,
+  "has_upgrades": false,
+  "budget_min": "$30",
+  "budget_max": "$250",
+  "budget_range": "$30 - $250",
+  "skill_ids": [
+    1069,
+    1023,
+    25
+  ],
+  "skills": [
+    "Content Strategy",
+    "Digital Marketing",
+    "Internet Marketing"
+  ],
+  "skills_info": [
+    {
+      "id": 1069,
+      "name": "Content Strategy",
+      "seo_url": "content-strategy"
+    },
+    {
+      "id": 1023,
+      "name": "Digital Marketing",
+      "seo_url": "digital-marketing"
+    },
+    {
+      "id": 25,
+      "name": "Internet Marketing",
+      "seo_url": "internet-marketing"
+    }
+  ],
+  "seo_url": "/projects/youtube/youtube-seo-expansion-strategy",
+  "url": "https://www.freelancer.com/projects/youtube/youtube-seo-expansion-strategy",
+  "source": "freelancer.com"
+}

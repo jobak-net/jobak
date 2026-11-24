@@ -1,0 +1,72 @@
+{
+  "key": "fb27bd30a9797bca",
+  "url": "https://eg.indeed.com/viewjob?jk=fb27bd30a9797bca",
+  "title": "Software Development Engineer",
+  "jobUrl": "https://sahl.recruitee.com/o/software-development-engineer?source=Indeed",
+  "refNum": "offer-1bg4m",
+  "datePublished": "2020-03-01T06:00:00.000Z",
+  "dateOnIndeed": "2026-02-27T06:38:13.077Z",
+  "expired": false,
+  "expirationDate": null,
+  "isRepost": null,
+  "isLatestPost": null,
+  "isPlacement": null,
+  "isUrgentHire": false,
+  "isHighVolumeHiring": false,
+  "language": "en",
+  "location": {
+    "countryName": "مصر",
+    "countryCode": "EG",
+    "admin1Code": "GZ",
+    "admin2Code": "",
+    "admin3Code": "",
+    "admin4Code": "",
+    "city": "السادس من أكتوبر",
+    "postalCode": "",
+    "streetAddress": "",
+    "latitude": 29.928543,
+    "longitude": 30.918783
+  },
+  "employer": {
+    "name": "Sahl",
+    "companyPageUrl": "https://eg.indeed.com/cmp/Sahl",
+    "briefDescription": "",
+    "address": "",
+    "industry": "",
+    "employeesCount": "",
+    "revenue": "",
+    "ceoName": "",
+    "ceoPhotoUrl": "",
+    "corporateWebsite": "",
+    "logoUrl": "",
+    "headerImageUrl": "",
+    "ratingsCount": 0,
+    "ratingsValue": 0
+  },
+  "parentEmployer": {
+    "name": "",
+    "companyPageUrl": ""
+  },
+  "attributes": {
+    "CF3CP": "دوام كامل"
+  },
+  "employerAttributes": {
+    "CF3CP": "دوام كامل"
+  },
+  "jobTypes": {
+    "CF3CP": "دوام كامل"
+  },
+  "benefits": {},
+  "socialInsurance": {},
+  "occupations": {},
+  "baseSalary": {
+    "min": null,
+    "max": null,
+    "unitOfWork": null,
+    "currencyCode": null
+  },
+  "description": {
+    "text": "About Sahl\n\nSahl is transforming digital payments by providing seamless solutions for end consumers. Our technology enables users to recharge prepaid electricity meters and access a variety of payment services—all from their mobile phones, anytime and anywhere. With a diverse range of payment option…",
+    "html": "<div><p>About Sahl</p><p>\nSahl is transforming digital payments by providing seamless solutions for end consumers. Our technology enables users to recharge prepaid electricity meters and access a variety of payment services&mdash;all from their mobile phones, anytime and anywhere. With a diverse ran…"
+  }
+}

@@ -9,10 +9,13 @@ import {
     type LucideIcon,
     MessagesSquare,
     PenLine,
+    Radar,
     Settings,
     SlidersHorizontal,
     Sparkles,
 } from "lucide-react";
+
+import { JOB_COLLECTION_HREF } from "@/shared/routes";
 
 /**
  * Every page in the dashboard, grouped as the sidebar shows them.
@@ -41,6 +44,7 @@ export const DASHBOARD_NAV: DashboardNavGroup[] = [
             { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
             { href: "/dashboard/matches", label: "Job matches", icon: BriefcaseBusiness },
             { href: "/dashboard/saved", label: "Saved jobs", icon: Bookmark },
+            { href: JOB_COLLECTION_HREF, label: "Find jobs elsewhere", icon: Radar },
             { href: "/dashboard/applications", label: "Applications", icon: KanbanSquare, preview: true },
         ],
     },

@@ -13,7 +13,10 @@ import type { AccountSources } from "../domain/ports";
  *  - a thrown error: couldn't tell. Never folded into `null`, which would read
  *    as "signed out" and send a signed-in user to sign in.
  *
- * Returns only what pages show or decide on — not the user's id.
+ * Returns only what pages show or decide on. The id is included because
+ * browser-only features key what they keep on the device by account (the
+ * Apify token, docs/features/JOB_COLLECTION.md); it is the viewer's own id,
+ * never someone else's.
  */
 export class GetAccountStatusUseCase {
   constructor(private readonly sources: AccountSources) {}
@@ -23,6 +26,6 @@ export class GetAccountStatusUseCase {
     if (!user) return null;
 
     const onboarded = await this.sources.hasCompletedOnboarding(user.id);
-    return { user: { fullName: user.fullName, email: user.email }, onboarded };
+    return { user: { id: user.id, fullName: user.fullName, email: user.email }, onboarded };
   }
 }
