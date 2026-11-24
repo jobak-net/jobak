@@ -46,6 +46,9 @@ export const RATE_LIMIT_POLICIES = {
     /** Analysing a CV against a job and writing the tailored CV: one budget for both endpoints, each a full AI call. */
     "ai-tools.cv-tailor": { limit: 6, windowSeconds: 60, by: "user" },
 
+    /** Writing an email to HR: a short AI call on the user's key. A few drafts a minute is plenty. */
+    "ai-tools.hr-email": { limit: 10, windowSeconds: 60, by: "user" },
+
     /** Saving the name or a CV, deleting a CV: a few per tool run. Bounds a loop, not a person. */
     applicant: { limit: 30, windowSeconds: 60, by: "user" },
 

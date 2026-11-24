@@ -57,6 +57,7 @@ From `policies.ts`:
 | `ai-settings.key` | 10 / minute | user | `PUT /api/v1/ai-settings/key` (each try calls the provider) |
 | `ai-tools.cover-letter` | 6 / minute | user | `POST /api/v1/ai-tools/cover-letter` (each run is a full AI call) |
 | `applicant` | 30 / minute | user | `PUT /api/v1/applicant/name`, `POST /api/v1/applicant/cvs`, `DELETE /api/v1/applicant/cvs/[id]` |
+| `ai-tools.hr-email` | 10 / minute | user | `POST /api/v1/ai-tools/hr-email` (a short AI call) |
 | `ai-tools.cv-tailor` | 6 / minute | user | `POST /api/v1/ai-tools/cv-tailor/analyze` and `/cv-tailor`, one budget for both (each a full AI call) |
 | `ai-tools.cv-review` | 6 / minute | user | `POST /api/v1/ai-tools/cv-review` and `/cv-review/improve`, one budget for both (each a full AI call) |
 | `groq`, `gemini`, `openai`, `anthropic` | 20, 8, 30, 30 / minute | the user (outbound, keyed by user id) | every AI call, from the AI client factory ([AI_PROVIDERS.md](AI_PROVIDERS.md)) |

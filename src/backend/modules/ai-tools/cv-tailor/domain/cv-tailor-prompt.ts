@@ -235,30 +235,3 @@ export function readTailorReply(reply: string): {
     categories: readFitCategories(scoreLines(found.get(SECTION.scores))),
   };
 }
-
-/** A word without its common endings, so "collaboration" and "collaborated" meet at "collabor". */
-function stem(word: string): string {
-  const w = word.toLowerCase();
-  const cut = w.replace(/(?:ations?|itions?|ions?|ances?|ences?|ments?|ities|ity|ing|ers?|ed|es|s|al|ly)$/, "");
-  return cut.length >= 4 ? cut : w;
-}
-
-/**
- * Keywords the tailored CV claims that the original never mentions: a skill
- * possibly claimed for the job's sake. Ignoring case and word endings
- * ("Collaboration" is in a CV that says "collaborated"); a keyword of several
- * words needs each of them. Names with symbols ("CI/CD", "Node.js") are
- * matched as written.
- */
-export function keywordsNotIn(keywords: string[], original: string): string[] {
-  const text = original.toLowerCase();
-  const has = (word: string) => {
-    const symbolic = /[^\p{L}\p{N}]/u.test(word);
-    const needle = (symbolic ? word.toLowerCase() : stem(word)).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    return new RegExp(`(?<![\\p{L}\\p{N}])${needle}`, "u").test(text);
-  };
-  return keywords.filter((keyword) => {
-    const words = keyword.trim().split(/\s+/).filter(Boolean);
-    return words.length > 0 && !words.every(has);
-  });
-}

@@ -7,13 +7,14 @@ import { ImproveCvUseCase } from "./cv-review/application/improve-cv.use-case";
 import { ReviewCvUseCase } from "./cv-review/application/review-cv.use-case";
 import { AnalyzeCvFitUseCase } from "./cv-tailor/application/analyze-cv-fit.use-case";
 import { TailorCvUseCase } from "./cv-tailor/application/tailor-cv.use-case";
+import { WriteHrEmailUseCase } from "./hr-email/application/write-hr-email.use-case";
 import { PreferencesProfileReader } from "./shared/infrastructure/preferences-profile.reader";
 import { GetSkillVersionUseCase, ListSkillVersionsUseCase } from "./skills/application/skill.use-cases";
 import { GitHubSkillRepository } from "./skills/infrastructure/github-skill.repository";
 
 /**
  * The AI tools module's composition root: one use case per tool, each in its
- * own folder (`cover-letter/`, `cv-review/`, `cv-tailor/`). Every tool
+ * own folder (`cover-letter/`, `cv-review/`, `cv-tailor/`, `hr-email/`). Every tool
  * gets its AI the same way — `clientForUser` from the integrations module —
  * so none of them knows which provider it runs on.
  */
@@ -32,6 +33,8 @@ export interface AiToolsModule {
     /** `POST /api/v1/ai-tools/cv-tailor`. */
     tailor: TailorCvUseCase;
   };
+  /** `POST /api/v1/ai-tools/hr-email`. */
+  hrEmail: WriteHrEmailUseCase;
   /** "Use in your own AI": the versioned skills, read from their GitHub repository (jobak-net/career-agent-skills). */
   skills: {
     /** `GET /api/v1/ai-tools/skills/[skill]`. */
@@ -41,7 +44,7 @@ export interface AiToolsModule {
   };
 }
 
-const VERSION = 6;
+const VERSION = 7;
 
 const globalForAiTools = globalThis as unknown as {
   aiToolsModule?: AiToolsModule;
@@ -58,6 +61,7 @@ export function getAiToolsModule(): AiToolsModule {
       coverLetter: new WriteCoverLetterUseCase(profiles, aiFor),
       cvReview: { review: new ReviewCvUseCase(profiles, aiFor), improve: new ImproveCvUseCase(profiles, aiFor) },
       cvTailor: { analyze: new AnalyzeCvFitUseCase(aiFor), tailor: new TailorCvUseCase(aiFor) },
+      hrEmail: new WriteHrEmailUseCase(profiles, aiFor),
       skills: { list: new ListSkillVersionsUseCase(skills), get: new GetSkillVersionUseCase(skills) },
     };
     globalForAiTools.aiToolsModuleVersion = VERSION;

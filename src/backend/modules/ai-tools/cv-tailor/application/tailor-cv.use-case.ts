@@ -4,7 +4,8 @@ import type { CvTailorRequest, CvTailorResponse } from "@/shared/contracts/cv-ta
 
 import { completeWithRetry, type AiClientForUser } from "../../shared/application/complete-with-retry";
 import { replyCeiling } from "../../shared/application/token-budget";
-import { buildTailorPrompt, keywordsNotIn, readTailorReply } from "../domain/cv-tailor-prompt";
+import { keywordsNotIn } from "../../shared/domain/claims";
+import { buildTailorPrompt, readTailorReply } from "../domain/cv-tailor-prompt";
 
 /** The tailored CV's ceiling: a two-page CV plus changes, gaps, scores and thinking. */
 const MAX_TOKENS = 4000;

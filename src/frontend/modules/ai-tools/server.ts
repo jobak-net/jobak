@@ -5,3 +5,4 @@ export { loadApplicant } from "./api/applicant.loader";
 export { loadCoverLetterPage, type CoverLetterPage } from "./cover-letter/api/cover-letter.loader";
 export { loadCvReviewPage, type CvReviewPage } from "./cv-review/api/cv-review.loader";
 export { loadCvTailorPage, type CvTailorPage } from "./cv-tailor/api/cv-tailor.loader";
+export { loadHrEmailPage, type HrEmailPage } from "./hr-email/api/hr-email.loader";
