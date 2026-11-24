@@ -8,7 +8,7 @@ const BLURBS: Record<string, string> = {
     "/dashboard/cv-tailor": "Rewrite it for one job",
     "/dashboard/cover-letter": "A first draft for the role",
     "/dashboard/hr-email": "Applications, follow-ups and replies",
-    "/dashboard/interview-prep": "Questions you're likely to get",
+    "/dashboard/interview-prep": "Practise out loud with an AI interviewer",
 };
 
 /** The AI tools as a plain list. Driven by the nav config so the two never drift. */

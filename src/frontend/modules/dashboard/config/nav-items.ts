@@ -55,7 +55,7 @@ export const DASHBOARD_NAV: DashboardNavGroup[] = [
             { href: "/dashboard/cv-tailor", label: "Tailor CV to a job", icon: Sparkles, preview: true },
             { href: "/dashboard/cover-letter", label: "Cover letter", icon: PenLine, preview: true },
             { href: "/dashboard/hr-email", label: "Email to HR", icon: Mail, preview: true },
-            { href: "/dashboard/interview-prep", label: "Interview prep", icon: MessagesSquare, preview: true },
+            { href: "/dashboard/interview-prep", label: "Interview practice", icon: MessagesSquare },
         ],
     },
     {

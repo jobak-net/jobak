@@ -48,7 +48,10 @@ Not allowed:
 Some features run entirely in the user's browser against a third-party
 API, with a key the user keeps on their device. Jobak's server never sees
 that key or the results. Today that's Apify, for job collection
-([`docs/features/JOB_COLLECTION.md`](../features/JOB_COLLECTION.md)).
+([`docs/features/JOB_COLLECTION.md`](../features/JOB_COLLECTION.md)), and LiveKit, for
+interview practice ([`docs/ai-tools/INTERVIEW_PRACTICE.md`](../ai-tools/INTERVIEW_PRACTICE.md)).
+LiveKit is reached only through its SDK (`livekit-client`), so there is no
+client file of ours that calls `fetch` for it.
 
 `clientFetch` can't serve these: it knows Jobak's base URL, cookies and
 error codes. So such an API gets **one client file in its module** that

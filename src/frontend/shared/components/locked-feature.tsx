@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { cn } from "@/frontend/shared/lib";
 import { Button } from "@/frontend/shared/ui";
 
 /**
@@ -34,6 +35,11 @@ import { Button } from "@/frontend/shared/ui";
  * screen readers — so the card is the only thing to act on, and nothing
  * behind it can be started by accident. Decide `locked` on the server where
  * possible, so the page never flashes unlocked first.
+ *
+ * With a `guide` (e.g. a `GuideVideo` showing how to get what's missing),
+ * the card widens and shows it under the description, before the steps:
+ * watch first, then do. The card can then be taller than the page behind
+ * it, so the lock grows to fit whichever is taller.
  */
 export function LockedFeature({
     locked,
@@ -44,6 +50,7 @@ export function LockedFeature({
     visual,
     steps,
     note,
+    guide,
     children,
 }: {
     locked: boolean;
@@ -61,61 +68,71 @@ export function LockedFeature({
     steps?: { title: string; hint?: string }[];
     /** One quiet line under the button: where it goes, how long it takes. */
     note?: ReactNode;
+    /** How to get what's missing (a video, screenshots), shown under the description; widens the card. */
+    guide?: ReactNode;
     children: ReactNode;
 }) {
     if (!locked) return <>{children}</>;
 
     return (
-        <div className="relative isolate min-h-[620px]">
+        // One grid cell holds both layers, so the lock is as tall as the taller
+        // of the page behind and the card (a card with a guide can be the taller).
+        <div className="relative isolate grid min-h-[620px]">
             {/* The page behind, as a preview of what's waiting. */}
-            <div inert aria-hidden="true" className="pointer-events-none select-none opacity-45 blur-[5px] saturate-50">
+            <div inert aria-hidden="true" className="pointer-events-none select-none opacity-45 blur-[5px] saturate-50 [grid-area:1/1]">
                 {children}
             </div>
 
-            <div className="absolute inset-0 z-10 flex justify-center bg-[radial-gradient(70%_55%_at_50%_30%,var(--bg-canvas)_15%,transparent_85%)] px-4">
+            <div className="z-10 flex justify-center bg-[radial-gradient(70%_55%_at_50%_30%,var(--bg-canvas)_15%,transparent_85%)] px-4 pb-16 [grid-area:1/1]">
                 <section
                     aria-labelledby="locked-feature-title"
-                    className="ob-rise sticky top-24 mt-16 h-fit w-full max-w-[460px] rounded-[24px] border border-border-standard bg-bg-panel p-7 shadow-[0_30px_80px_-30px_rgb(0_0_0/0.8)] sm:p-9"
+                    className={cn(
+                        "ob-rise sticky top-24 mt-16 h-fit w-full rounded-[24px] border border-border-standard bg-bg-panel p-7 shadow-[0_30px_80px_-30px_rgb(0_0_0/0.8)] sm:p-9",
+                        guide ? "max-w-170" : "max-w-115",
+                    )}
                 >
-                    {visual && <div className="mb-8">{visual}</div>}
+                    <div>
+                        {visual && <div className="mb-8">{visual}</div>}
 
-                    <h2
-                        id="locked-feature-title"
-                        className="text-[22px] font-semibold leading-tight tracking-[-0.03em] text-fg-primary"
-                    >
-                        To unlock {feature}, add {requirement}
-                    </h2>
-                    <div className="mt-3 text-sm leading-relaxed text-fg-tertiary">{description}</div>
+                        <h2
+                            id="locked-feature-title"
+                            className="text-[22px] font-semibold leading-tight tracking-[-0.03em] text-fg-primary"
+                        >
+                            To unlock {feature}, add {requirement}
+                        </h2>
+                        <div className="mt-3 text-sm leading-relaxed text-fg-tertiary">{description}</div>
+                        {guide && <div className="mt-6">{guide}</div>}
 
-                    {steps && steps.length > 0 && (
-                        <ol className="mt-8 space-y-6">
-                            {steps.map((step, i) => (
-                                <li key={step.title} className="flex gap-4">
-                                    <span
-                                        aria-hidden="true"
-                                        className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-border-standard text-[12px] font-medium tabular-nums text-fg-secondary"
-                                    >
-                                        {i + 1}
-                                    </span>
-                                    <span>
-                                        <span className="block text-sm font-medium text-fg-primary">{step.title}</span>
-                                        {step.hint && (
-                                            <span className="mt-1 block text-[13px] leading-relaxed text-fg-tertiary">{step.hint}</span>
-                                        )}
-                                    </span>
-                                </li>
-                            ))}
-                        </ol>
-                    )}
+                        {steps && steps.length > 0 && (
+                            <ol className="mt-8 space-y-6">
+                                {steps.map((step, i) => (
+                                    <li key={step.title} className="flex gap-4">
+                                        <span
+                                            aria-hidden="true"
+                                            className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-border-standard text-[12px] font-medium tabular-nums text-fg-secondary"
+                                        >
+                                            {i + 1}
+                                        </span>
+                                        <span>
+                                            <span className="block text-sm font-medium text-fg-primary">{step.title}</span>
+                                            {step.hint && (
+                                                <span className="mt-1 block text-[13px] leading-relaxed text-fg-tertiary">{step.hint}</span>
+                                            )}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ol>
+                        )}
 
-                    {"content" in action ? (
-                        <div className="mt-8">{action.content}</div>
-                    ) : (
-                        <Button variant="primary" asChild className="mt-8 w-full">
-                            <Link href={action.href}>{action.label}</Link>
-                        </Button>
-                    )}
-                    {note && <p className="mt-4 text-center text-[12px] leading-relaxed text-fg-quaternary">{note}</p>}
+                        {"content" in action ? (
+                            <div className="mt-8">{action.content}</div>
+                        ) : (
+                            <Button variant="primary" asChild className="mt-8 w-full">
+                                <Link href={action.href}>{action.label}</Link>
+                            </Button>
+                        )}
+                        {note && <p className="mt-4 text-center text-[12px] leading-relaxed text-fg-quaternary">{note}</p>}
+                    </div>
                 </section>
             </div>
         </div>
