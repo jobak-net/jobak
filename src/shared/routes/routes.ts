@@ -26,5 +26,11 @@ export const AI_SETUP_HREF = "/onboarding/ai";
 /** The referral page — what a signed-in visitor is offered instead of sign-up. */
 export const REFERRALS_HREF = "/dashboard/referrals";
 
-/** Settings — where AI keys (and later the Apify token) are added. Opens on the AI tab. */
+/** Settings — where AI keys are added. Opens on the AI tab. */
 export const SETTINGS_HREF = "/dashboard/settings";
+
+/** Settings, opened on the tab where the Apify token is added (kept in the browser only). */
+export const APIFY_SETTINGS_HREF = "/dashboard/settings?tab=job-collection";
+
+/** Find jobs elsewhere: Apify actors run from the browser on the user's own Apify account. */
+export const JOB_COLLECTION_HREF = "/dashboard/job-collection";

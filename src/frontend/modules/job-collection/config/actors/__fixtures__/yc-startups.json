@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "nomad-agent-job-row-v6",
+  "source": "ycombinator_was",
+  "id": "124308",
+  "url": "https://www.workatastartup.com/jobs/124308",
+  "title": "Software Engineer Intern (6 months, PPO opportunity)",
+  "company": "Elip AI",
+  "locations": [
+    "Gurugram, HR, IN"
+  ],
+  "countryCodes": [
+    "IN"
+  ],
+  "applicantLocations": [
+    "IN"
+  ],
+  "postedAt": "2026-11-21T16:00:00Z",
+  "deadline": null,
+  "description": "How to apply: https://elip.cc/PsnWr Applications for this role are reviewed only through the Elip link above. Please apply there; an application made only through this page is not complete. About Elip Good matches have reasons. A title leaves things out: \"more responsibility\" can mean leading a team…",
+  "descriptionHtml": "<p><strong>How to apply: <a href=\"https://elip.cc/PsnWr\">https://elip.cc/PsnWr</a></strong></p>\n<p>Applications for this role are reviewed only through the Elip link above. Please apply there; an application made only through this page is not complete.</p>\n<p><strong>About Elip</strong></p>\n<p>Good …",
+  "workType": "remote",
+  "salary": "₹75K INR / monthly",
+  "employmentTypes": [
+    "Internship"
+  ],
+  "sourceFactsSchema": "nomad-source-facts-ycombinator-was-v1",
+  "sourceFacts": {
+    "companyBatch": "W25",
+    "companySlug": "elip-ai",
+    "companyTagline": "Good matches have reasons.",
+    "companyTeamSize": 4,
+    "companyLocation": "San Francisco",
+    "equity": null,
+    "visaPolicy": "US citizenship/visa not required",
+    "skills": [
+      "PostgreSQL",
+      "Python",
+      "SQL"
+    ]
+  }
+}

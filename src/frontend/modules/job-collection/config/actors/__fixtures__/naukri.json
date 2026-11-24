@@ -1,0 +1,138 @@
+{
+  "id": "231126917728",
+  "title": "CPU Software Engineer",
+  "url": "https://www.naukri.com/job-listings-cpu-software-engineer-qualcomm-india-pvt-ltd-bengaluru-0-to-5-years-231126917728",
+  "company": {
+    "id": 93105,
+    "name": "Qualcomm",
+    "logoUrl": "https://img.naukimg.com/logo_images/groups/v1/356782.gif",
+    "jobsUrl": "https://www.naukri.com/qualcomm-jobs-careers-31927",
+    "overviewUrl": "https://www.naukri.com/qualcomm-overview-356782",
+    "websiteUrl": "",
+    "description": "Qualcomm india pvt ltd.",
+    "address": "01 to 17th Floors, KRC Tower, Commerzone SEZ, IT-ITES SEZ,, Qualcomm India Pvt Ltd, Sustain Properties Pvt Ltd, 16/A/1/P, and 16/A/2/P, Sy No 83/1, Knowledge City, Raidurg Village, Serilingamp, Hyderabad, Telangana, India",
+    "hiringFor": ""
+  },
+  "salary": {
+    "currency": "INR",
+    "minimum": 0,
+    "maximum": 0,
+    "variablePercentage": 0,
+    "label": "Not Disclosed",
+    "minPerMonth": 0,
+    "maxPerMonth": 0
+  },
+  "experience": {
+    "text": "0-5 Yrs",
+    "minimum": "0",
+    "maximum": "5"
+  },
+  "description": {
+    "full": "Minimum Qualifications . Bachelors degree in Engineering,Information Systems,Computer Science,or related field<br><br>Preferred Qualifications . 1+ year of experience with Programming Language such as C,C++,Java,Python,etc<br><br> some planning,problem-solving,and prioritization must occur to comple…",
+    "short": "Bachelor's degree in Engineering or related field with 1+ year experience in C/C++, Java, Python, API, database management, and source code management systems|Design, develop, modify, and validate embedded and cloud edge software; perform coding, unit testing, debugging, code reviews, and collaborat…"
+  },
+  "createdDate": 1795430418341,
+  "groupId": 356782,
+  "mode": "jp",
+  "companyApplyJob": true,
+  "education": {
+    "ug": [
+      "Any Graduate"
+    ],
+    "pg": [
+      "Any Postgraduate"
+    ],
+    "ppg": []
+  },
+  "createdDateText": "2026-11-23 16:10:18",
+  "viewCount": 125,
+  "applyCount": 27,
+  "vacancy": 0,
+  "role": "Back End Developer",
+  "industry": "Electronic Components / Semiconductors",
+  "department": "Engineering - Software & QA",
+  "jobType": "fulltime",
+  "employmentType": "Full Time, Permanent",
+  "roleCategory": "Software Development",
+  "wfhType": "0",
+  "consultant": false,
+  "skills": {
+    "preferred": [
+      "architecture"
+    ],
+    "other": [
+      "cloud",
+      "communication skills",
+      "database management"
+    ]
+  },
+  "locations": [
+    {
+      "gId": "97",
+      "localities": [],
+      "label": "Bengaluru",
+      "url": "https://www.naukri.com/jobs-in-bangalore"
+    }
+  ],
+  "ambitionBox": {
+    "companyInfo": {
+      "Url": "https://www.ambitionbox.com/reviews/qualcomm-reviews?jobId=naukri_231126917728&utm_source=naukri&utm_campaign=jd_ratings",
+      "Title": "Qualcomm Reviews by Employees",
+      "AggregateRating": "3.5",
+      "ReviewsCount": "1393"
+    },
+    "reviews": [
+      {
+        "DisLikesText": "24x7 mentally involvement into project work. \nLots of process work.\nIncompetent higher management. \nPerception driven evaluation.\nSlavers get more benefits.",
+        "Title": "Senior Lead Engineer in Hyderabad",
+        "LikesText": "Work with multiple teams specially during bring up and debug which give chance to explore other tech also",
+        "ReviewLink": "https://www.ambitionbox.com/reviews/qualcomm-reviews?rid=82912118&utm_source=naukri&utm_campaign=jd_reviews",
+        "PublishedOn": "29 Oct 2026",
+        "OverallCompanyRating": "3",
+        "Name": "Anonymous"
+      },
+      {
+        "DisLikesText": "Job security and stability is missing , executives have more power and control over technical guys , no scope for work life balance , very high expectations and unrealistic timelines.",
+        "Title": "Senior Lead Engineer in Bengaluru",
+        "LikesText": "Growth , Learning ,best colleagues and fast paced work culture with new platform development every few months .",
+        "ReviewLink": "https://www.ambitionbox.com/reviews/qualcomm-reviews?rid=82608125&utm_source=naukri&utm_campaign=jd_reviews",
+        "PublishedOn": "23 Oct 2026",
+        "OverallCompanyRating": "5",
+        "Name": "Anonymous"
+      },
+      {
+        "DisLikesText": "A lot of uncertainty in the work and roadmap. Compensation is low in the stocks component",
+        "Title": "Staff Engineer in Bengaluru",
+        "LikesText": "A lot of new technologies and new things to learn .",
+        "ReviewLink": "https://www.ambitionbox.com/reviews/qualcomm-reviews?rid=82603949&utm_source=naukri&utm_campaign=jd_reviews",
+        "PublishedOn": "23 Oct 2026",
+        "OverallCompanyRating": "3",
+        "Name": "Anonymous"
+      }
+    ],
+    "benefits": {
+      "Users": 151,
+      "BenefitsUrl": "https://www.ambitionbox.com/benefits/qualcomm-benefits?jobId=naukri_231126917728&utm_source=naukri&utm_campaign=jd_benefits",
+      "List": [
+        {
+          "newIconUrl": "[…]",
+          "BenefitImage": "[…]",
+          "BenefitName": "[…]",
+          "Status": "[…]"
+        },
+        {
+          "newIconUrl": "[…]",
+          "BenefitImage": "[…]",
+          "BenefitName": "[…]",
+          "Status": "[…]"
+        },
+        {
+          "newIconUrl": "[…]",
+          "BenefitImage": "[…]",
+          "BenefitName": "[…]",
+          "Status": "[…]"
+        }
+      ]
+    }
+  }
+}

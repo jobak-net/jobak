@@ -23,6 +23,8 @@ Never:
 - calling `fetch` directly instead of `serverFetch` or `clientFetch`;
 - importing from `src/backend` in frontend code.
 
+One exception: a third-party API called from the browser with the user's own key (today: Apify) has one client file in its module (`modules/job-collection/lib/apify-client.ts`) that may call `fetch`, to that API's origin only. Its calls still run through TanStack Query, and the key never reaches Jobak's server.
+
 TanStack Query is set up (`QueryProvider` in `src/frontend/shared/providers/`, defaults in `src/frontend/shared/api/query-config.ts`). `clientFetch`, `unwrap`, `useGenericQuery` / `useGenericMutation` and `ApiError` come from `@/frontend/shared/api`; `serverFetch` from `@/frontend/shared/api/server` (server-only, so it has its own entry).
 
 A module's endpoints live in its `api/` folder (e.g. `modules/feedback/api/`):

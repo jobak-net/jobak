@@ -159,7 +159,7 @@ images) stay there and import what they show from modules.
 ## A page that needs something first
 
 Some pages only work once the user has added something: the AI tools need an
-AI key, and an Apify page will need an Apify token. They stay reachable but
+AI key, and Find jobs elsewhere needs an Apify token. They stay reachable but
 **locked**: the page shows blurred behind a card that reads "To unlock
 {feature}, add {requirement}", with a button to where it's added.
 
@@ -192,20 +192,23 @@ export default async function CvReviewPage() {
 }
 ```
 
-A new feature does the same: a loader that answers "is it unlocked?", and a
-gate in its module that wraps `LockedFeature` with its wording. For Apify, once
-the token is stored:
+A new feature does the same: something that answers "is it unlocked?", and a
+gate in its module that wraps `LockedFeature` with its wording.
+
+When what unlocks it lives in the browser, the gate decides on the client.
+The Apify token is kept in `localStorage` and never reaches the server
+([JOB_COLLECTION.md](../features/JOB_COLLECTION.md)). So `ApifyGate`
+(job-collection module) reads it with `useApifyToken`, shows a neutral
+skeleton until the browser has been read (so a user with a token never sees
+the lock flash), then either the lock or the page, handing the page the
+token. The token can be pasted right in the lock card:
+`LockedFeature`'s `action` also takes `{ content: <Form /> }` in place of a
+link, and saving unlocks the page in place:
 
 ```tsx
-<LockedFeature
-  locked={!hasApifyToken}
-  feature="job collection"
-  requirement="your Apify token"
-  description="Jobak collects listings with Apify actors that run on your own account."
-  action={{ label: "Add your Apify token", href: SETTINGS_HREF }}
->
-  <ApifyView />
-</LockedFeature>
+<ApifyGate accountId={accountId}>
+  {(token) => <Collector accountId={accountId} token={token} initialCountry={country} />}
+</ApifyGate>
 ```
 
 `feature` and `requirement` finish a sentence, so write them as they'd read

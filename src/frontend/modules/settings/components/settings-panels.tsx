@@ -9,7 +9,9 @@ import {
     CalendarDays,
     Check,
     Loader2,
+    Globe,
     Mail,
+    Server,
     ShieldCheck,
     Sparkles,
     Target,
@@ -17,19 +19,26 @@ import {
 } from "lucide-react";
 
 import { StepTabs, stepTabId, useSlideDirection, JobakMark, Button } from "@/frontend/shared/ui";
+import { ApifyTokenPanel, useApifyToken } from "@/frontend/modules/job-collection";
 import { ConnectionPanel, ChooseScreen, KeyScreen, PROVIDER_INFO } from "@/frontend/modules/onboarding";
 import { cn } from "@/frontend/shared/lib";
 import { useAuthEnabled } from "@/frontend/shared/providers";
 import type { AiSettingsResponse } from "@/shared/contracts/ai-settings";
 
 import { useAiConnection } from "../hooks/use-ai-connection";
+import { SETTINGS_TABS, type SettingsTabId } from "../lib/tabs";
 import { ModelPicker } from "./model-picker";
 import { SavedKeys } from "./saved-keys";
 
-type TabId = "ai" | "notifications" | "account";
-const TABS: TabId[] = ["ai", "notifications", "account"];
+type TabId = SettingsTabId;
+const TABS = SETTINGS_TABS;
 
-const TAB_LABEL: Record<TabId, string> = { ai: "AI provider", notifications: "Notifications", account: "Account" };
+const TAB_LABEL: Record<TabId, string> = {
+    ai: "AI provider",
+    "job-collection": "Job collection",
+    notifications: "Notifications",
+    account: "Account",
+};
 
 const NOTIFICATIONS = [
     {
@@ -70,17 +79,24 @@ type NotificationId = (typeof NOTIFICATIONS)[number]["id"];
  * (`useAiConnection`). Notifications are still a PREVIEW, kept in this page's state.
  */
 export function SettingsPanels({
+    accountId,
     email,
     fullName,
     aiSettings,
+    initialTab = "ai",
 }: {
+    /** Keys what's kept in this browser per account (the Apify token). */
+    accountId: string;
     email: string | null;
     fullName: string | null;
     /** `GET /api/v1/ai-settings` (`loadAiSettings`); null when it couldn't be read. */
     aiSettings: AiSettingsResponse | null;
+    /** From `?tab=`, so a link can open a tab (the Apify one, from Find jobs elsewhere). */
+    initialTab?: TabId;
 }) {
     const authEnabled = useAuthEnabled();
-    const [active, setActive] = useState<TabId>("ai");
+    const [active, setActive] = useState<TabId>(initialTab);
+    const apify = useApifyToken(accountId);
     const index = TABS.indexOf(active);
     const direction = useSlideDirection(active, index);
 
@@ -98,6 +114,10 @@ export function SettingsPanels({
         ai: {
             title: "Which AI scores your jobs?",
             description: "Jobak ranks every match with your own key. Switch provider or replace the key any time.",
+        },
+        "job-collection": {
+            title: "Find jobs on other sites",
+            description: "Optional. Add your Apify token to unlock Find jobs elsewhere: 39 job sites, searched from your browser.",
         },
         notifications: {
             title: "What should Jobak tell you about?",
@@ -131,6 +151,18 @@ export function SettingsPanels({
                             : aiSettings
                               ? "Not connected"
                               : "Couldn't load",
+                    },
+                    {
+                        id: "job-collection",
+                        label: TAB_LABEL["job-collection"],
+                        summary:
+                            apify.status === "saved"
+                                ? "Apify · Connected"
+                                : apify.status === "blocked"
+                                  ? "Browser blocks storage"
+                                  : apify.status === "loading"
+                                    ? "…"
+                                    : "Optional",
                     },
                     { id: "notifications", label: TAB_LABEL.notifications, summary: `${onCount} of ${NOTIFICATIONS.length} on` },
                     { id: "account", label: TAB_LABEL.account, summary: authEnabled ? (email ?? name) : "Local owner" },
@@ -275,6 +307,8 @@ export function SettingsPanels({
                                 </div>
                             )}
 
+                            {active === "job-collection" && <ApifyTokenPanel accountId={accountId} />}
+
                             {active === "notifications" && (
                                 <ul className="space-y-3">
                                     {NOTIFICATIONS.map((item, i) => {
@@ -373,6 +407,7 @@ export function SettingsPanels({
                 <aside className="hidden xl:block">
                     <div className="sticky top-6 h-[min(720px,calc(100dvh-3rem))]">
                         {active === "ai" && <ConnectionPanel provider={provider} status={ai.status} />}
+                        {active === "job-collection" && <JobCollectionPanel connected={apify.status === "saved"} />}
                         {active === "notifications" && <NotificationsPreview notify={notify} />}
                         {active === "account" && <AccountPanel name={name} fullName={fullName} email={email} authEnabled={authEnabled} />}
                     </div>
@@ -467,6 +502,40 @@ function Frame({ pill, icon, title, body, children }: { pill: string; icon: Reac
             </header>
             <div className="relative flex flex-1 items-center justify-center px-10 pb-10">{children}</div>
         </div>
+    );
+}
+
+/** Where the Apify token and the jobs go: between the browser and Apify, never through Jobak. */
+function JobCollectionPanel({ connected }: { connected: boolean }) {
+    const rows = [
+        { icon: <Globe className="size-4" />, title: "Your browser and Apify", body: "Your token, your search and the jobs found." },
+        { icon: <Server className="size-4" />, title: "Jobak's server", body: "Nothing. It never sees the token or the results." },
+    ];
+    return (
+        <Frame
+            pill="Job collection"
+            icon={<Globe className="size-3" strokeWidth={2.5} />}
+            title={connected ? "Ready to search." : "Runs in your browser."}
+            body="Searches run on your own Apify account, straight from this browser."
+        >
+            <ul className="w-full max-w-sm space-y-3">
+                {rows.map((row, i) => (
+                    <li
+                        key={row.title}
+                        className="ob-rise flex items-start gap-3 rounded-[16px] border border-white/10 bg-[#121415]/95 p-4"
+                        style={{ "--i": i } as CSSProperties}
+                    >
+                        <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-white/8 bg-[#16191a] text-fg-tertiary">
+                            {row.icon}
+                        </span>
+                        <span className="min-w-0">
+                            <span className="block text-[13px] font-medium text-fg-primary">{row.title}</span>
+                            <span className="mt-0.5 block text-[12px] text-fg-tertiary">{row.body}</span>
+                        </span>
+                    </li>
+                ))}
+            </ul>
+        </Frame>
     );
 }
 

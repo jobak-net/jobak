@@ -15,6 +15,8 @@ export const ACCOUNT_API_PATH = "/api/v1/me";
 /** The signed-in viewer, as much as pages need to decide where they belong. */
 export interface AccountStatus {
   user: {
+    /** The internal account id (not the auth provider's). Keys what browser-only features keep per account. */
+    id: string;
     fullName: string | null;
     email: string | null;
   };

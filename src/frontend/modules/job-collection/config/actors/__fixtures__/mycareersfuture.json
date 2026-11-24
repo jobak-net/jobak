@@ -1,0 +1,52 @@
+{
+  "uuid": "c3cde77b71b350e59d587529bf90b5b0",
+  "jobPostId": "MCF-2026-2100111",
+  "title": "System Engineer",
+  "description": "We are looking for a System Engineer to design,implement, maintain, and support our growing infrastructure. You will be partof an IT team that is responsible for designing and developing scalable, maintainable, highly available systems and network architectures that meet business objectives and SLAs…",
+  "companyName": "NXERA SG PTE. LTD.",
+  "companyUen": "202127447H",
+  "companyResponsive": true,
+  "salaryMinimum": 7000,
+  "salaryMaximum": 9000,
+  "salaryType": "Monthly",
+  "salaryCurrency": "SGD",
+  "minimumYearsExperience": 5,
+  "vacancies": 1,
+  "status": "Open",
+  "skills": [
+    "Virtual Machine Manager",
+    "IT Operations Management",
+    "liaising with third party providers"
+  ],
+  "keySkills": [],
+  "categories": [
+    "Information Technology"
+  ],
+  "employmentTypes": [
+    "Full Time"
+  ],
+  "positionLevels": [
+    "Senior Executive"
+  ],
+  "flexibleWorkArrangements": [],
+  "schemes": [],
+  "ssocCode": "21522",
+  "occupationId": "OCC002762",
+  "districts": [
+    "Islandwide"
+  ],
+  "regions": [
+    "Islandwide"
+  ],
+  "postedAt": "2026-11-24",
+  "originalPostedAt": "2026-11-24",
+  "createdAt": "2026-11-23T23:30:25.000Z",
+  "updatedAt": "2026-11-23T23:30:25.000Z",
+  "expiresAt": "2026-12-24",
+  "viewCount": 1,
+  "applicationCount": 0,
+  "sourceUrl": "https://www.mycareersfuture.gov.sg/job/information-technology/system-engineer-nxera-sg-c3cde77b71b350e59d587529bf90b5b0",
+  "apiUrl": "https://api.mycareersfuture.gov.sg/v2/jobs/c3cde77b71b350e59d587529bf90b5b0",
+  "searchQuery": "Software Engineer",
+  "scrapedAt": "2026-11-24T00:54:30.636Z"
+}

@@ -26,6 +26,10 @@ import { Button } from "@/frontend/shared/ui";
  * the feature (e.g. `AiToolGate` in the ai-tools module). This only lays out
  * the card and the lock.
  *
+ * When what's missing can be added right there (a token kept in the browser),
+ * pass `action={{ content: <TheForm /> }}` instead of a link: the form sits in
+ * the card, and the feature unlocks without leaving the page.
+ *
  * The locked content is `inert` — no clicks, no keyboard focus, hidden from
  * screen readers — so the card is the only thing to act on, and nothing
  * behind it can be started by accident. Decide `locked` on the server where
@@ -49,8 +53,8 @@ export function LockedFeature({
     requirement: string;
     /** Why it's needed, in one sentence. */
     description: ReactNode;
-    /** Where it's added. */
-    action: { label: string; href: string };
+    /** Where it's added (a link), or the form that adds it right in the card. */
+    action: { label: string; href: string } | { content: ReactNode };
     /** Shown above the title: a picture of what's missing (e.g. the AI connection that isn't there). */
     visual?: ReactNode;
     /** How to add it, when that's a real sequence. Numbered, so only for steps done in order. */
@@ -104,9 +108,13 @@ export function LockedFeature({
                         </ol>
                     )}
 
-                    <Button variant="primary" asChild className="mt-8 w-full">
-                        <Link href={action.href}>{action.label}</Link>
-                    </Button>
+                    {"content" in action ? (
+                        <div className="mt-8">{action.content}</div>
+                    ) : (
+                        <Button variant="primary" asChild className="mt-8 w-full">
+                            <Link href={action.href}>{action.label}</Link>
+                        </Button>
+                    )}
                     {note && <p className="mt-4 text-center text-[12px] leading-relaxed text-fg-quaternary">{note}</p>}
                 </section>
             </div>
